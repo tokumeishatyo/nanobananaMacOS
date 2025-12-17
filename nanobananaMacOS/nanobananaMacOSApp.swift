@@ -13,5 +13,10 @@ struct nanobananaMacOSApp: App {
         WindowGroup {
             ContentView()
         }
+        .windowStyle(.automatic)
+        .defaultSize(width: 1400, height: 800)
+        .commands {
+            // メニューバーのカスタマイズ（必要に応じて追加）
+        }
     }
 }

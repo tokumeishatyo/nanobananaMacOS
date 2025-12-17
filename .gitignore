@@ -16,3 +16,9 @@ xcuserdata/
 # Claude
 .claude/
 .mcp.json
+
+# Memo
+memo.txt
+
+# Template
+/template/
