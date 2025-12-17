@@ -1,6 +1,7 @@
 # Excluded folders
 /docs/
 /app/
+/ref/
 
 # macOS
 .DS_Store

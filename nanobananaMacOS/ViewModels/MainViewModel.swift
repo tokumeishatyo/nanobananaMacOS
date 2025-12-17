@@ -86,6 +86,9 @@ final class MainViewModel: ObservableObject {
     /// エラーメッセージ
     @Published var errorMessage: String? = nil
 
+    /// 設定シート表示フラグ
+    @Published var showSettingsSheet: Bool = false
+
     /// 設定ステータステキスト
     var settingsStatusText: String {
         if selectedOutputMode == .api {
@@ -255,8 +258,7 @@ final class MainViewModel: ObservableObject {
 
     /// 詳細設定を開く
     func openSettingsWindow() {
-        // TODO: 機能実装時に追加
-        print("詳細設定: \(selectedOutputType.rawValue)")
+        showSettingsSheet = true
     }
 
     /// 漫画コンポーザーを開く

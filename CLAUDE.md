@@ -98,23 +98,35 @@ nanobananaMacOS/
   - MiddleColumnView
   - RightColumnView
   - 共通コンポーネント
+- [x] 各出力タイプの詳細設定ウィンドウUI（10種類）
+  - FaceSheetSettingsView（顔三面図）
+  - BodySheetSettingsView（素体三面図）※Python版に合わせて調整済み
+  - OutfitSettingsView（衣装着用）※Python版に合わせて調整済み
+  - PoseSettingsView（ポーズ）
+  - SceneBuilderSettingsView（シーンビルダー）
+  - BackgroundSettingsView（背景生成）
+  - DecorativeTextSettingsView（装飾テキスト）
+  - FourPanelSettingsView（4コマ漫画）
+  - StyleTransformSettingsView（スタイル変換）
+  - InfographicSettingsView（インフォグラフィック）
+- [x] 各設定ウィンドウ用ViewModel（SettingsViewModels.swift）
+- [x] 詳細設定ボタンと設定ウィンドウの接続（.sheet()による表示）
 
-### 未実装（UIのみ、機能は後回し）
-- [ ] 各出力タイプの詳細設定ウィンドウ
+### 未実装（機能は後回し）
 - [ ] YAML生成ロジック
 - [ ] Gemini API呼び出し
 - [ ] 画像保存/読込
+- [ ] ファイル選択ダイアログの実装（各設定ウィンドウの「参照」ボタン）
 - [ ] 漫画コンポーザー
 - [ ] 背景透過ツール
 
 ## 次のステップ
 
-1. Xcodeでビルド確認
-2. 各出力タイプの詳細設定ウィンドウUIを作成
-3. 機能実装（YAML生成、API呼び出しなど）
+1. 残りの設定ウィンドウUIの調整（必要に応じてPython版を参照）
+2. 機能実装（YAML生成、API呼び出しなど）
 
 ## 注意事項
 
-- `/docs/`と`/app/`フォルダは.gitignoreに入っており、リモートにプッシュしない
+- `/docs/`、`/app/`、`/ref/`フォルダは.gitignoreに入っており、リモートにプッシュしない
 - `/template/`フォルダも.gitignoreに入っている
 - `memo.txt`も.gitignoreに入っている
