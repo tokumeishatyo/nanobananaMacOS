@@ -1,0 +1,18 @@
+# Excluded folders
+/docs/
+/app/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode
+*.xcuserstate
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+xcuserdata/
+
+# Claude
+.claude/
+.mcp.json
