@@ -4,10 +4,10 @@ import Combine
 
 // MARK: - Face Sheet Settings ViewModel
 /// 顔三面図設定ViewModel
+/// ※スタイルはメイン画面で一元管理（各ステップでは設定しない）
 @MainActor
 final class FaceSheetSettingsViewModel: ObservableObject {
     @Published var characterName: String = ""
-    @Published var characterStyle: CharacterStyle = .standardAnime
     @Published var referenceImagePath: String = ""
     @Published var appearanceDescription: String = ""
 
@@ -24,13 +24,13 @@ final class FaceSheetSettingsViewModel: ObservableObject {
 
 // MARK: - Body Sheet Settings ViewModel
 /// 素体三面図設定ViewModel
+/// ※スタイルはメイン画面で一元管理（各ステップでは設定しない）
 @MainActor
 final class BodySheetSettingsViewModel: ObservableObject {
     @Published var faceSheetImagePath: String = ""
     @Published var bodyTypePreset: BodyTypePreset = .femalStandard
     @Published var bustFeature: BustFeature = .auto
     @Published var bodyRenderType: BodyRenderType = .whiteLeotard
-    @Published var characterStyle: CharacterStyle = .standardAnime
     @Published var additionalDescription: String = ""
 }
 

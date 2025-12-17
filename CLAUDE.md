@@ -39,6 +39,20 @@ nanobananaMacOS/
 - **アスタリスク表示** - SecureFieldを使用
 - **通常リセットでは消えない** - APIキー専用のクリアボタンを用意
 
+## スタイル設定の方針（重要）
+
+Python版では「スタイル」設定が複数箇所（メイン画面、顔三面図、素体三面図、衣装着用）に散在しており、混乱とコンフリクトの原因になっていた。
+
+**macOS版での整理方針:**
+- **メイン画面のみ**でスタイル（アニメ調/ドット絵/ちびキャラ等）を設定
+- **各ステップ（顔/素体/衣装等）からはスタイル設定を削除**
+- **スタイル変換**は「既存画像を別スタイルに変換する」専用ツールとして維持
+
+これにより：
+- 設定が1箇所で完結し、混乱を防止
+- 各ステップは「何を生成するか」に集中
+- スタイル変換は後処理ツールとして明確な役割を持つ
+
 ## 画面構成（3カラム）
 
 ### 左カラム（基本設定）
@@ -99,9 +113,9 @@ nanobananaMacOS/
   - RightColumnView
   - 共通コンポーネント
 - [x] 各出力タイプの詳細設定ウィンドウUI（10種類）
-  - FaceSheetSettingsView（顔三面図）
-  - BodySheetSettingsView（素体三面図）※Python版に合わせて調整済み
-  - OutfitSettingsView（衣装着用）※Python版に合わせて調整済み
+  - FaceSheetSettingsView（顔三面図）※スタイル設定削除済み
+  - BodySheetSettingsView（素体三面図）※スタイル設定削除済み
+  - OutfitSettingsView（衣装着用）※Python版に合わせて調整済み、次回スタイル削除予定
   - PoseSettingsView（ポーズ）
   - SceneBuilderSettingsView（シーンビルダー）
   - BackgroundSettingsView（背景生成）

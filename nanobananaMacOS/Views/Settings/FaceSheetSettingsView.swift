@@ -26,20 +26,6 @@ struct FaceSheetSettingsView: View {
                                     .textFieldStyle(.roundedBorder)
                             }
 
-                            // スタイル
-                            HStack {
-                                Text("スタイル:")
-                                    .frame(width: 80, alignment: .leading)
-                                Picker("", selection: $viewModel.characterStyle) {
-                                    ForEach(CharacterStyle.allCases) { style in
-                                        Text(style.rawValue).tag(style)
-                                    }
-                                }
-                                .labelsHidden()
-                                .frame(width: 150)
-                                Spacer()
-                            }
-
                             // 参照画像
                             HStack {
                                 Text("参照画像:")

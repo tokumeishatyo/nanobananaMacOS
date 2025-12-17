@@ -78,20 +78,6 @@ struct BodySheetSettingsView: View {
                                 .frame(width: 180)
                                 Spacer()
                             }
-
-                            // スタイル
-                            HStack {
-                                Text("スタイル:")
-                                    .frame(width: 80, alignment: .leading)
-                                Picker("", selection: $viewModel.characterStyle) {
-                                    ForEach(CharacterStyle.allCases) { style in
-                                        Text(style.rawValue).tag(style)
-                                    }
-                                }
-                                .labelsHidden()
-                                .frame(width: 150)
-                                Spacer()
-                            }
                         }
                         .padding(10)
                     }
