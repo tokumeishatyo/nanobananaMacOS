@@ -311,14 +311,17 @@ final class StyleTransformSettingsViewModel: ObservableObject {
     @Published var transformType: StyleTransformType = .chibi
 
     // ちびキャラ化用
-    @Published var chibiStyle: String = "スタンダード(2頭身)"
+    @Published var chibiStyle: ChibiStyle = .standard
     @Published var keepOutfit: Bool = true
     @Published var keepPose: Bool = true
 
     // ドットキャラ化用
-    @Published var pixelStyle: String = "16bit風"
-    @Published var spriteSize: String = "64x64"
+    @Published var pixelStyle: PixelStyle = .bit16
+    @Published var spriteSize: SpriteSize = .size64
     @Published var keepColors: Bool = true
+
+    // 共通
+    @Published var transparentBackground: Bool = true
 }
 
 // MARK: - Infographic Settings ViewModel

@@ -881,6 +881,41 @@ enum StyleTransformType: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+// MARK: - Chibi Style
+/// ちびキャラスタイル（Python版準拠）
+enum ChibiStyle: String, CaseIterable, Identifiable {
+    case standard = "スタンダード（2頭身）"
+    case deformed = "デフォルメ（1.5頭身）"
+    case miniChara = "ミニキャラ（3頭身）"
+    case puchi = "ぷちキャラ（まるっこい）"
+
+    var id: String { rawValue }
+}
+
+// MARK: - Pixel Style
+/// ドットスタイル（Python版準拠）
+enum PixelStyle: String, CaseIterable, Identifiable {
+    case bit8 = "8bit風（ファミコン）"
+    case bit16 = "16bit風（スーファミ）"
+    case bit32 = "32bit風（PS1/SS）"
+    case gba = "GBA風"
+    case modern = "モダンピクセル"
+
+    var id: String { rawValue }
+}
+
+// MARK: - Sprite Size
+/// スプライトサイズ（Python版準拠）
+enum SpriteSize: String, CaseIterable, Identifiable {
+    case size16 = "16x16"
+    case size32 = "32x32"
+    case size64 = "64x64"
+    case size128 = "128x128"
+    case size256 = "256x256"
+
+    var id: String { rawValue }
+}
+
 // MARK: - ===========================================
 // MARK: - インフォグラフィック関連
 // MARK: - ===========================================
@@ -893,6 +928,26 @@ enum InfographicStyle: String, CaseIterable, Identifiable {
     case sketch = "ポンチ絵"
     case mindMap = "マインドマップ風"
     case whiteboard = "ホワイトボード風"
+
+    var id: String { rawValue }
+}
+
+// MARK: - Infographic Aspect Ratio
+/// インフォグラフィックアスペクト比
+enum InfographicAspectRatio: String, CaseIterable, Identifiable {
+    case landscape = "16:9（横長）"
+    case portrait = "9:16（縦長）"
+
+    var id: String { rawValue }
+}
+
+// MARK: - Infographic Language
+/// インフォグラフィック出力言語
+enum InfographicLanguage: String, CaseIterable, Identifiable {
+    case japanese = "日本語"
+    case english = "英語"
+    case chinese = "中国語"
+    case korean = "韓国語"
 
     var id: String { rawValue }
 }
