@@ -670,28 +670,6 @@ enum TextOverlayLayer: String, CaseIterable, Identifiable {
 }
 
 // MARK: - ===========================================
-// MARK: - 背景生成関連
-// MARK: - ===========================================
-
-// MARK: - Background Preset
-/// 背景プリセット
-enum BackgroundPreset: String, CaseIterable, Identifiable {
-    case custom = "カスタム"
-    case classroomDay = "教室（昼）"
-    case classroomNight = "教室（夜）"
-    case corridor = "廊下"
-    case rooftop = "屋上"
-    case park = "公園"
-    case street = "街中"
-    case beach = "海辺"
-    case forest = "森"
-    case castle = "城"
-    case dungeon = "ダンジョン"
-
-    var id: String { rawValue }
-}
-
-// MARK: - ===========================================
 // MARK: - 装飾テキスト関連
 // MARK: - ===========================================
 
@@ -702,6 +680,167 @@ enum DecorativeTextType: String, CaseIterable, Identifiable {
     case catchphrase = "決め台詞"
     case namePlate = "キャラ名プレート"
     case messageWindow = "メッセージウィンドウ"
+
+    var id: String { rawValue }
+
+    var description: String {
+        switch self {
+        case .skillName: return "画面にドンと出る技名・必殺技名"
+        case .catchphrase: return "キャラの横に出る派手なセリフ・掛け声"
+        case .namePlate: return "キャラクターの名前表示プレート"
+        case .messageWindow: return "画面下部のセリフウィンドウ（RPG/ADV風）"
+        }
+    }
+
+    var placeholder: String {
+        switch self {
+        case .skillName: return "真空ビーム"
+        case .catchphrase: return "もらったー！"
+        case .namePlate: return "篠宮りん"
+        case .messageWindow: return "「もらったー」"
+        }
+    }
+}
+
+// MARK: - 技名テロップ用
+/// 技名フォント
+enum TitleFont: String, CaseIterable, Identifiable {
+    case heavyMincho = "極太明朝"
+    case brush = "筆文字"
+    case gothic = "ゴシック"
+
+    var id: String { rawValue }
+}
+
+/// 技名サイズ
+enum TitleSize: String, CaseIterable, Identifiable {
+    case veryLarge = "特大"
+    case large = "大"
+    case medium = "中"
+
+    var id: String { rawValue }
+}
+
+/// グラデーション色
+enum GradientColor: String, CaseIterable, Identifiable {
+    case whiteToBlue = "白→青"
+    case whiteToRed = "白→赤"
+    case goldToOrange = "金→オレンジ"
+    case whiteToPurple = "白→紫"
+    case solidWhite = "単色白"
+    case solidGold = "単色金"
+
+    var id: String { rawValue }
+}
+
+/// 縁取り色
+enum OutlineColor: String, CaseIterable, Identifiable {
+    case gold = "金"
+    case black = "黒"
+    case red = "赤"
+    case blue = "青"
+    case none = "なし"
+
+    var id: String { rawValue }
+}
+
+/// 発光エフェクト
+enum GlowEffect: String, CaseIterable, Identifiable {
+    case none = "なし"
+    case blueLightning = "青い稲妻"
+    case fire = "炎"
+    case electric = "電撃"
+    case aura = "オーラ"
+
+    var id: String { rawValue }
+}
+
+// MARK: - 決め台詞用
+/// 決め台詞タイプ
+enum CalloutType: String, CaseIterable, Identifiable {
+    case comic = "書き文字風"
+    case verticalShout = "縦書き叫び"
+    case pop = "ポップ体"
+
+    var id: String { rawValue }
+}
+
+/// 決め台詞配色
+enum CalloutColor: String, CaseIterable, Identifiable {
+    case redYellow = "赤＋黄縁"
+    case whiteBlack = "白＋黒縁"
+    case blueWhite = "青＋白縁"
+    case yellowRed = "黄＋赤縁"
+
+    var id: String { rawValue }
+}
+
+/// 回転角度（決め台詞・キャラ名共通）
+enum TextRotation: String, CaseIterable, Identifiable {
+    case none = "なし"
+    case slightLeft = "少し左傾き"
+    case left = "左傾き"
+    case slightRight = "少し右傾き"
+    case right = "右傾き"
+
+    var id: String { rawValue }
+}
+
+/// 変形効果
+enum TextDistortion: String, CaseIterable, Identifiable {
+    case none = "なし"
+    case zoomIn = "飛び出し"
+    case zoomOut = "縮小"
+    case wave = "波打ち"
+
+    var id: String { rawValue }
+}
+
+// MARK: - キャラ名プレート用
+/// キャラ名プレートデザイン
+enum NameTagDesign: String, CaseIterable, Identifiable {
+    case jagged = "ギザギザステッカー"
+    case simple = "シンプル枠"
+    case ribbon = "リボン"
+
+    var id: String { rawValue }
+}
+
+// MARK: - メッセージウィンドウ用
+/// メッセージウィンドウモード
+enum MessageWindowMode: String, CaseIterable, Identifiable {
+    case full = "フルスペック"
+    case faceOnly = "顔アイコンのみ"
+    case textOnly = "セリフのみ"
+
+    var id: String { rawValue }
+}
+
+/// メッセージウィンドウスタイル
+enum MessageWindowStyle: String, CaseIterable, Identifiable {
+    case sciFi = "SF・ロボット風"
+    case retroRPG = "レトロRPG風"
+    case visualNovel = "ビジュアルノベル風"
+
+    var id: String { rawValue }
+}
+
+/// メッセージウィンドウ枠デザイン
+enum MessageFrameType: String, CaseIterable, Identifiable {
+    case cyberneticBlue = "サイバネティック青"
+    case classicBlack = "クラシック黒"
+    case translucentWhite = "半透明白"
+    case goldOrnate = "ゴールド装飾"
+
+    var id: String { rawValue }
+}
+
+/// 顔アイコン位置
+enum FaceIconPosition: String, CaseIterable, Identifiable {
+    case leftInside = "左内側"
+    case rightInside = "右内側"
+    case leftOutside = "左外側"
+    case none = "なし"
 
     var id: String { rawValue }
 }

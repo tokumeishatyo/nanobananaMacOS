@@ -219,36 +219,52 @@ struct TextOverlayItem: Identifiable {
 }
 
 // MARK: - Background Settings ViewModel
-/// 背景生成設定ViewModel
+/// 背景生成設定ViewModel（シンプル版）
+/// - 参考画像なし: descriptionに生成したい背景を記述
+/// - 参考画像あり: descriptionに変形指示（空欄→アニメ調変換）
 @MainActor
 final class BackgroundSettingsViewModel: ObservableObject {
-    @Published var backgroundPreset: BackgroundPreset = .custom
-    @Published var customDescription: String = ""
     @Published var useReferenceImage: Bool = false
     @Published var referenceImagePath: String = ""
-    @Published var transformInstruction: String = ""
     @Published var removeCharacters: Bool = true
+    @Published var description: String = ""
 }
 
 // MARK: - Decorative Text Settings ViewModel
-/// 装飾テキスト設定ViewModel
+/// 装飾テキスト設定ViewModel（Python版準拠）
 @MainActor
 final class DecorativeTextSettingsViewModel: ObservableObject {
+    // 共通
     @Published var textType: DecorativeTextType = .skillName
-    @Published var mainText: String = ""
-    @Published var subText: String = ""
+    @Published var text: String = ""
+    @Published var transparentBackground: Bool = true
 
     // 技名テロップ用
-    @Published var fontStyle: String = "極太明朝"
-    @Published var fontSize: String = "特大"
-    @Published var gradientStyle: String = "白→青"
-    @Published var borderStyle: String = "金"
-    @Published var glowEffect: String = "青い稲妻"
+    @Published var titleFont: TitleFont = .heavyMincho
+    @Published var titleSize: TitleSize = .veryLarge
+    @Published var titleColor: GradientColor = .whiteToBlue
+    @Published var titleOutline: OutlineColor = .gold
+    @Published var titleGlow: GlowEffect = .blueLightning
+    @Published var titleShadow: Bool = true
+
+    // 決め台詞用
+    @Published var calloutType: CalloutType = .comic
+    @Published var calloutColor: CalloutColor = .redYellow
+    @Published var calloutRotation: TextRotation = .left
+    @Published var calloutDistortion: TextDistortion = .zoomIn
+
+    // キャラ名プレート用
+    @Published var nameTagDesign: NameTagDesign = .jagged
+    @Published var nameTagRotation: TextRotation = .slightLeft
 
     // メッセージウィンドウ用
-    @Published var characterName: String = ""
+    @Published var messageMode: MessageWindowMode = .full
+    @Published var speakerName: String = ""
+    @Published var messageStyle: MessageWindowStyle = .sciFi
+    @Published var messageFrameType: MessageFrameType = .cyberneticBlue
+    @Published var messageOpacity: Double = 0.8
+    @Published var faceIconPosition: FaceIconPosition = .leftInside
     @Published var faceIconImagePath: String = ""
-    @Published var windowStyle: String = "フルスペック"
 }
 
 // MARK: - Four Panel Manga Settings ViewModel
