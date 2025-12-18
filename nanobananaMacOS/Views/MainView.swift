@@ -22,6 +22,17 @@ struct MainView: View {
             minWidth: AppConstants.windowMinWidth,
             minHeight: AppConstants.windowMinHeight
         )
+        .alert(viewModel.alertTitle, isPresented: $viewModel.showAlert) {
+            Button("OK") {
+                viewModel.showAlert = false
+            }
+        } message: {
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+            } else if let successMessage = viewModel.successMessage {
+                Text(successMessage)
+            }
+        }
     }
 }
 

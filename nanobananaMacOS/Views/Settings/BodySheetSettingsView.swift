@@ -2,10 +2,25 @@ import SwiftUI
 
 /// 素体三面図設定ウィンドウ
 struct BodySheetSettingsView: View {
-    @StateObject private var viewModel = BodySheetSettingsViewModel()
+    @StateObject private var viewModel: BodySheetSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((BodySheetSettingsViewModel) -> Void)?
+
+    init(initialSettings: BodySheetSettingsViewModel? = nil, onApply: ((BodySheetSettingsViewModel) -> Void)? = nil) {
+        self.onApply = onApply
+        if let settings = initialSettings {
+            let vm = BodySheetSettingsViewModel()
+            vm.faceSheetImagePath = settings.faceSheetImagePath
+            vm.bodyTypePreset = settings.bodyTypePreset
+            vm.bustFeature = settings.bustFeature
+            vm.bodyRenderType = settings.bodyRenderType
+            vm.additionalDescription = settings.additionalDescription
+            _viewModel = StateObject(wrappedValue: vm)
+        } else {
+            _viewModel = StateObject(wrappedValue: BodySheetSettingsViewModel())
+        }
+    }
 
     private func dismissWindow() {
         if let windowDismiss = windowDismiss {

@@ -35,6 +35,44 @@ final class MainViewModel: ObservableObject {
     /// 設定済みかどうか
     @Published var isSettingsConfigured: Bool = false
 
+    /// 出力タイプ変更確認ダイアログ表示フラグ
+    @Published var showOutputTypeChangeConfirmation: Bool = false
+
+    /// 変更前の出力タイプ（キャンセル時に戻す用）
+    private var previousOutputType: OutputType = .faceSheet
+
+    // MARK: - Settings Storage (各出力タイプの設定保持)
+
+    /// 顔三面図設定
+    @Published var faceSheetSettings: FaceSheetSettingsViewModel?
+
+    /// 素体三面図設定
+    @Published var bodySheetSettings: BodySheetSettingsViewModel?
+
+    /// 衣装着用設定
+    @Published var outfitSettings: OutfitSettingsViewModel?
+
+    /// ポーズ設定
+    @Published var poseSettings: PoseSettingsViewModel?
+
+    /// シーンビルダー設定
+    @Published var sceneBuilderSettings: SceneBuilderSettingsViewModel?
+
+    /// 背景生成設定
+    @Published var backgroundSettings: BackgroundSettingsViewModel?
+
+    /// 装飾テキスト設定
+    @Published var decorativeTextSettings: DecorativeTextSettingsViewModel?
+
+    /// 4コマ漫画設定
+    @Published var fourPanelSettings: FourPanelSettingsViewModel?
+
+    /// スタイル変換設定
+    @Published var styleTransformSettings: StyleTransformSettingsViewModel?
+
+    /// インフォグラフィック設定
+    @Published var infographicSettings: InfographicSettingsViewModel?
+
     // MARK: - Middle Column (API設定)
 
     /// 出力モード
@@ -75,6 +113,20 @@ final class MainViewModel: ObservableObject {
     /// 参考画像プレビュー
     @Published var referenceImagePreview: NSImage? = nil
 
+    // MARK: - Services
+
+    /// バリデーションサービス
+    private let validationService = ValidationService()
+
+    /// YAML生成サービス
+    private let yamlGeneratorService = YAMLGeneratorService()
+
+    /// クリップボードサービス
+    private let clipboardService = ClipboardService()
+
+    /// ファイルサービス
+    private let fileService = FileService()
+
     // MARK: - State
 
     /// 生成中かどうか
@@ -85,6 +137,15 @@ final class MainViewModel: ObservableObject {
 
     /// エラーメッセージ
     @Published var errorMessage: String? = nil
+
+    /// 成功メッセージ
+    @Published var successMessage: String? = nil
+
+    /// アラート表示フラグ
+    @Published var showAlert: Bool = false
+
+    /// アラートタイトル
+    @Published var alertTitle: String = ""
 
     /// 設定シート表示フラグ
     @Published var showSettingsSheet: Bool = false
@@ -166,8 +227,83 @@ final class MainViewModel: ObservableObject {
 
     /// YAML生成
     func generateYAML() {
-        // TODO: 機能実装時に追加
-        print("YAML生成")
+        // バリデーション
+        let validationResult = validationService.validateForYAMLGeneration(mainViewModel: self)
+
+        switch validationResult {
+        case .success:
+            // 出力タイプに応じたYAML生成
+            generateYAMLForCurrentOutputType()
+        case .failure(let message):
+            showErrorAlert(message: message)
+        }
+    }
+
+    /// 現在の出力タイプに応じたYAML生成
+    private func generateYAMLForCurrentOutputType() {
+        switch selectedOutputType {
+        case .faceSheet:
+            guard let settings = faceSheetSettings else {
+                showErrorAlert(message: "顔三面図の詳細設定を行ってください")
+                return
+            }
+            yamlPreviewText = yamlGeneratorService.generateFaceSheetYAML(
+                mainViewModel: self,
+                faceSheetSettings: settings
+            )
+
+        case .bodySheet:
+            // TODO: 素体三面図YAML生成を実装
+            showErrorAlert(message: "素体三面図のYAML生成は未実装です")
+
+        case .outfit:
+            // TODO: 衣装着用YAML生成を実装
+            showErrorAlert(message: "衣装着用のYAML生成は未実装です")
+
+        case .pose:
+            // TODO: ポーズYAML生成を実装
+            showErrorAlert(message: "ポーズのYAML生成は未実装です")
+
+        case .sceneBuilder:
+            // TODO: シーンビルダーYAML生成を実装
+            showErrorAlert(message: "シーンビルダーのYAML生成は未実装です")
+
+        case .background:
+            // TODO: 背景生成YAML生成を実装
+            showErrorAlert(message: "背景生成のYAML生成は未実装です")
+
+        case .decorativeText:
+            // TODO: 装飾テキストYAML生成を実装
+            showErrorAlert(message: "装飾テキストのYAML生成は未実装です")
+
+        case .fourPanelManga:
+            // TODO: 4コマ漫画YAML生成を実装
+            showErrorAlert(message: "4コマ漫画のYAML生成は未実装です")
+
+        case .styleTransform:
+            // TODO: スタイル変換YAML生成を実装
+            showErrorAlert(message: "スタイル変換のYAML生成は未実装です")
+
+        case .infographic:
+            // TODO: インフォグラフィックYAML生成を実装
+            showErrorAlert(message: "インフォグラフィックのYAML生成は未実装です")
+        }
+    }
+
+    /// エラーアラートを表示
+    private func showErrorAlert(message: String) {
+        alertTitle = "エラー"
+        errorMessage = message
+        successMessage = nil
+        showAlert = true
+    }
+
+    /// 成功アラートを表示
+    private func showSuccessAlert(message: String) {
+        alertTitle = "完了"
+        errorMessage = nil
+        successMessage = message
+        showAlert = true
     }
 
     /// リセット（APIキー以外）
@@ -189,6 +325,18 @@ final class MainViewModel: ObservableObject {
         // 設定状態をリセット
         isSettingsConfigured = false
 
+        // 各出力タイプの設定をクリア
+        faceSheetSettings = nil
+        bodySheetSettings = nil
+        outfitSettings = nil
+        poseSettings = nil
+        sceneBuilderSettings = nil
+        backgroundSettings = nil
+        decorativeTextSettings = nil
+        fourPanelSettings = nil
+        styleTransformSettings = nil
+        infographicSettings = nil
+
         // API設定（APIキーは保持）
         selectedOutputMode = .yaml
         selectedAPISubMode = .normal
@@ -206,6 +354,63 @@ final class MainViewModel: ObservableObject {
         isGenerating = false
         generationStartTime = nil
         errorMessage = nil
+    }
+
+    /// 出力タイプ変更を試みる（設定済みの場合は確認ダイアログを表示）
+    func willChangeOutputType(to newType: OutputType) {
+        // 同じタイプなら何もしない
+        guard newType != previousOutputType else { return }
+
+        if isSettingsConfigured {
+            // 設定済みの場合は確認ダイアログを表示
+            showOutputTypeChangeConfirmation = true
+        } else {
+            // 未設定の場合はそのまま変更を確定
+            previousOutputType = newType
+        }
+    }
+
+    /// 出力タイプ変更を確定
+    func confirmOutputTypeChange() {
+        // 現在の出力タイプの設定をクリア
+        clearCurrentOutputTypeSettings()
+        isSettingsConfigured = false
+        // 新しいタイプを記録
+        previousOutputType = selectedOutputType
+        showOutputTypeChangeConfirmation = false
+    }
+
+    /// 出力タイプ変更をキャンセル
+    func cancelOutputTypeChange() {
+        // 元の出力タイプに戻す
+        selectedOutputType = previousOutputType
+        showOutputTypeChangeConfirmation = false
+    }
+
+    /// 現在の出力タイプの設定のみをクリア
+    private func clearCurrentOutputTypeSettings() {
+        switch previousOutputType {
+        case .faceSheet:
+            faceSheetSettings = nil
+        case .bodySheet:
+            bodySheetSettings = nil
+        case .outfit:
+            outfitSettings = nil
+        case .pose:
+            poseSettings = nil
+        case .sceneBuilder:
+            sceneBuilderSettings = nil
+        case .background:
+            backgroundSettings = nil
+        case .decorativeText:
+            decorativeTextSettings = nil
+        case .fourPanelManga:
+            fourPanelSettings = nil
+        case .styleTransform:
+            styleTransformSettings = nil
+        case .infographic:
+            infographicSettings = nil
+        }
     }
 
     /// APIキーをクリア
@@ -227,27 +432,81 @@ final class MainViewModel: ObservableObject {
 
     /// YAMLをコピー
     func copyYAML() {
-        // TODO: 機能実装時に追加
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(yamlPreviewText, forType: .string)
+        guard !yamlPreviewText.isEmpty else {
+            showErrorAlert(message: "コピーするYAMLがありません")
+            return
+        }
+        clipboardService.copyToClipboard(text: yamlPreviewText)
+        showSuccessAlert(message: "YAMLをクリップボードにコピーしました")
     }
 
     /// YAMLを保存
     func saveYAML() {
-        // TODO: 機能実装時に追加
-        print("YAML保存")
+        guard !yamlPreviewText.isEmpty else {
+            showErrorAlert(message: "保存するYAMLがありません")
+            return
+        }
+
+        Task {
+            let result = await fileService.saveYAML(
+                content: yamlPreviewText,
+                suggestedFileName: title.isEmpty ? "output" : title
+            )
+
+            switch result {
+            case .success:
+                showSuccessAlert(message: "YAMLを保存しました")
+            case .cancelled:
+                // キャンセルは何もしない
+                break
+            case .failure(let message):
+                showErrorAlert(message: message)
+            }
+        }
     }
 
     /// YAMLを読込
     func loadYAML() {
-        // TODO: 機能実装時に追加
-        print("YAML読込")
+        Task {
+            let (result, content) = await fileService.loadYAML()
+
+            switch result {
+            case .success:
+                if let content = content {
+                    yamlPreviewText = content
+                }
+            case .cancelled:
+                // キャンセルは何もしない
+                break
+            case .failure(let message):
+                showErrorAlert(message: message)
+            }
+        }
     }
 
     /// 画像を保存
     func saveImage() {
-        // TODO: 機能実装時に追加
-        print("画像保存")
+        guard let image = generatedImage else {
+            showErrorAlert(message: "保存する画像がありません")
+            return
+        }
+
+        Task {
+            let result = await fileService.saveImage(
+                image: image,
+                suggestedFileName: title.isEmpty ? "image" : title
+            )
+
+            switch result {
+            case .success:
+                showSuccessAlert(message: "画像を保存しました")
+            case .cancelled:
+                // キャンセルは何もしない
+                break
+            case .failure(let message):
+                showErrorAlert(message: message)
+            }
+        }
     }
 
     /// 画像を加工
@@ -268,7 +527,8 @@ final class MainViewModel: ObservableObject {
                 title: title,
                 size: NSSize(width: 600, height: 400)
             ) { [weak self] in
-                FaceSheetSettingsView { _ in
+                FaceSheetSettingsView(initialSettings: self?.faceSheetSettings) { settings in
+                    self?.faceSheetSettings = settings
                     self?.isSettingsConfigured = true
                 }
             }
@@ -278,7 +538,8 @@ final class MainViewModel: ObservableObject {
                 title: title,
                 size: NSSize(width: 700, height: 650)
             ) { [weak self] in
-                BodySheetSettingsView { _ in
+                BodySheetSettingsView(initialSettings: self?.bodySheetSettings) { settings in
+                    self?.bodySheetSettings = settings
                     self?.isSettingsConfigured = true
                 }
             }
@@ -288,7 +549,8 @@ final class MainViewModel: ObservableObject {
                 title: title,
                 size: NSSize(width: 780, height: 750)
             ) { [weak self] in
-                OutfitSettingsView { _ in
+                OutfitSettingsView(initialSettings: self?.outfitSettings) { settings in
+                    self?.outfitSettings = settings
                     self?.isSettingsConfigured = true
                 }
             }
@@ -298,7 +560,8 @@ final class MainViewModel: ObservableObject {
                 title: title,
                 size: NSSize(width: 700, height: 800)
             ) { [weak self] in
-                PoseSettingsView { _ in
+                PoseSettingsView(initialSettings: self?.poseSettings) { settings in
+                    self?.poseSettings = settings
                     self?.isSettingsConfigured = true
                 }
             }
@@ -308,7 +571,8 @@ final class MainViewModel: ObservableObject {
                 title: title,
                 size: NSSize(width: 850, height: 900)
             ) { [weak self] in
-                SceneBuilderSettingsView { _ in
+                SceneBuilderSettingsView(initialSettings: self?.sceneBuilderSettings) { settings in
+                    self?.sceneBuilderSettings = settings
                     self?.isSettingsConfigured = true
                 }
             }
@@ -318,7 +582,8 @@ final class MainViewModel: ObservableObject {
                 title: title,
                 size: NSSize(width: 500, height: 470)
             ) { [weak self] in
-                BackgroundSettingsView { _ in
+                BackgroundSettingsView(initialSettings: self?.backgroundSettings) { settings in
+                    self?.backgroundSettings = settings
                     self?.isSettingsConfigured = true
                 }
             }
@@ -328,7 +593,8 @@ final class MainViewModel: ObservableObject {
                 title: title,
                 size: NSSize(width: 650, height: 650)
             ) { [weak self] in
-                DecorativeTextSettingsView { _ in
+                DecorativeTextSettingsView(initialSettings: self?.decorativeTextSettings) { settings in
+                    self?.decorativeTextSettings = settings
                     self?.isSettingsConfigured = true
                 }
             }
@@ -338,7 +604,8 @@ final class MainViewModel: ObservableObject {
                 title: title,
                 size: NSSize(width: 800, height: 1000)
             ) { [weak self] in
-                FourPanelSettingsView { _ in
+                FourPanelSettingsView(initialSettings: self?.fourPanelSettings) { settings in
+                    self?.fourPanelSettings = settings
                     self?.isSettingsConfigured = true
                 }
             }
@@ -348,7 +615,8 @@ final class MainViewModel: ObservableObject {
                 title: title,
                 size: NSSize(width: 700, height: 600)
             ) { [weak self] in
-                StyleTransformSettingsView { _ in
+                StyleTransformSettingsView(initialSettings: self?.styleTransformSettings) { settings in
+                    self?.styleTransformSettings = settings
                     self?.isSettingsConfigured = true
                 }
             }
@@ -358,7 +626,8 @@ final class MainViewModel: ObservableObject {
                 title: title,
                 size: NSSize(width: 750, height: 1000)
             ) { [weak self] in
-                InfographicSettingsView { _ in
+                InfographicSettingsView(initialSettings: self?.infographicSettings) { settings in
+                    self?.infographicSettings = settings
                     self?.isSettingsConfigured = true
                 }
             }

@@ -2,10 +2,41 @@ import SwiftUI
 
 /// 装飾テキスト設定ウィンドウ（Python版準拠）
 struct DecorativeTextSettingsView: View {
-    @StateObject private var viewModel = DecorativeTextSettingsViewModel()
+    @StateObject private var viewModel: DecorativeTextSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((DecorativeTextSettingsViewModel) -> Void)?
+
+    init(initialSettings: DecorativeTextSettingsViewModel? = nil, onApply: ((DecorativeTextSettingsViewModel) -> Void)? = nil) {
+        self.onApply = onApply
+        if let settings = initialSettings {
+            let vm = DecorativeTextSettingsViewModel()
+            vm.textType = settings.textType
+            vm.text = settings.text
+            vm.transparentBackground = settings.transparentBackground
+            vm.titleFont = settings.titleFont
+            vm.titleSize = settings.titleSize
+            vm.titleColor = settings.titleColor
+            vm.titleOutline = settings.titleOutline
+            vm.titleGlow = settings.titleGlow
+            vm.titleShadow = settings.titleShadow
+            vm.calloutType = settings.calloutType
+            vm.calloutColor = settings.calloutColor
+            vm.calloutRotation = settings.calloutRotation
+            vm.calloutDistortion = settings.calloutDistortion
+            vm.nameTagDesign = settings.nameTagDesign
+            vm.nameTagRotation = settings.nameTagRotation
+            vm.messageMode = settings.messageMode
+            vm.speakerName = settings.speakerName
+            vm.messageStyle = settings.messageStyle
+            vm.messageFrameType = settings.messageFrameType
+            vm.messageOpacity = settings.messageOpacity
+            vm.faceIconPosition = settings.faceIconPosition
+            _viewModel = StateObject(wrappedValue: vm)
+        } else {
+            _viewModel = StateObject(wrappedValue: DecorativeTextSettingsViewModel())
+        }
+    }
 
     private func dismissWindow() {
         if let windowDismiss = windowDismiss {

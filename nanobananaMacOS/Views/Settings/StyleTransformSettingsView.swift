@@ -2,10 +2,29 @@ import SwiftUI
 
 /// スタイル変換設定ウィンドウ
 struct StyleTransformSettingsView: View {
-    @StateObject private var viewModel = StyleTransformSettingsViewModel()
+    @StateObject private var viewModel: StyleTransformSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((StyleTransformSettingsViewModel) -> Void)?
+
+    init(initialSettings: StyleTransformSettingsViewModel? = nil, onApply: ((StyleTransformSettingsViewModel) -> Void)? = nil) {
+        self.onApply = onApply
+        if let settings = initialSettings {
+            let vm = StyleTransformSettingsViewModel()
+            vm.sourceImagePath = settings.sourceImagePath
+            vm.transformType = settings.transformType
+            vm.chibiStyle = settings.chibiStyle
+            vm.keepOutfit = settings.keepOutfit
+            vm.keepPose = settings.keepPose
+            vm.pixelStyle = settings.pixelStyle
+            vm.spriteSize = settings.spriteSize
+            vm.keepColors = settings.keepColors
+            vm.transparentBackground = settings.transparentBackground
+            _viewModel = StateObject(wrappedValue: vm)
+        } else {
+            _viewModel = StateObject(wrappedValue: StyleTransformSettingsViewModel())
+        }
+    }
 
     private func dismissWindow() {
         if let windowDismiss = windowDismiss {

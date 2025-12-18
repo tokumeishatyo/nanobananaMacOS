@@ -2,10 +2,28 @@ import SwiftUI
 
 /// インフォグラフィック設定ウィンドウ
 struct InfographicSettingsView: View {
-    @StateObject private var viewModel = InfographicSettingsViewModel()
+    @StateObject private var viewModel: InfographicSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((InfographicSettingsViewModel) -> Void)?
+
+    init(initialSettings: InfographicSettingsViewModel? = nil, onApply: ((InfographicSettingsViewModel) -> Void)? = nil) {
+        self.onApply = onApply
+        if let settings = initialSettings {
+            let vm = InfographicSettingsViewModel()
+            vm.infographicStyle = settings.infographicStyle
+            vm.outputLanguage = settings.outputLanguage
+            vm.customLanguage = settings.customLanguage
+            vm.mainTitle = settings.mainTitle
+            vm.subtitle = settings.subtitle
+            vm.mainCharacterImagePath = settings.mainCharacterImagePath
+            vm.subCharacterImagePath = settings.subCharacterImagePath
+            vm.sections = settings.sections
+            _viewModel = StateObject(wrappedValue: vm)
+        } else {
+            _viewModel = StateObject(wrappedValue: InfographicSettingsViewModel())
+        }
+    }
 
     private func dismissWindow() {
         if let windowDismiss = windowDismiss {

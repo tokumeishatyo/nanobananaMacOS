@@ -23,6 +23,9 @@ struct LeftColumnView: View {
                             }
                             .labelsHidden()
                             .frame(width: 150)
+                            .onChange(of: viewModel.selectedOutputType) { _, newValue in
+                                viewModel.willChangeOutputType(to: newValue)
+                            }
 
                             Button("詳細設定...") {
                                 viewModel.openSettingsWindow()
@@ -30,6 +33,20 @@ struct LeftColumnView: View {
                             .disabled(!viewModel.isSettingsButtonEnabled)
                         }
                         .padding(.horizontal, 10)
+                        .confirmationDialog(
+                            "確認",
+                            isPresented: $viewModel.showOutputTypeChangeConfirmation,
+                            titleVisibility: .visible
+                        ) {
+                            Button("OK") {
+                                viewModel.confirmOutputTypeChange()
+                            }
+                            Button("キャンセル", role: .cancel) {
+                                viewModel.cancelOutputTypeChange()
+                            }
+                        } message: {
+                            Text("保持した入力内容が消えますが、変更してもよろしいですか？")
+                        }
 
                         // 設定状態表示
                         Text(viewModel.settingsStatusText)

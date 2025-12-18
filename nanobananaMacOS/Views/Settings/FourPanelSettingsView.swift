@@ -2,12 +2,29 @@ import SwiftUI
 
 /// 4コマ漫画設定ウィンドウ（Python版準拠）
 struct FourPanelSettingsView: View {
-    @StateObject private var viewModel = FourPanelSettingsViewModel()
+    @StateObject private var viewModel: FourPanelSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((FourPanelSettingsViewModel) -> Void)?
 
     private let panelLabels = ["1コマ目（起）", "2コマ目（承）", "3コマ目（転）", "4コマ目（結）"]
+
+    init(initialSettings: FourPanelSettingsViewModel? = nil, onApply: ((FourPanelSettingsViewModel) -> Void)? = nil) {
+        self.onApply = onApply
+        if let settings = initialSettings {
+            let vm = FourPanelSettingsViewModel()
+            vm.character1Name = settings.character1Name
+            vm.character1Description = settings.character1Description
+            vm.character1ImagePath = settings.character1ImagePath
+            vm.character2Name = settings.character2Name
+            vm.character2Description = settings.character2Description
+            vm.character2ImagePath = settings.character2ImagePath
+            vm.panels = settings.panels
+            _viewModel = StateObject(wrappedValue: vm)
+        } else {
+            _viewModel = StateObject(wrappedValue: FourPanelSettingsViewModel())
+        }
+    }
 
     private func dismissWindow() {
         if let windowDismiss = windowDismiss {

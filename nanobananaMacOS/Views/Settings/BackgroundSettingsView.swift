@@ -2,10 +2,24 @@ import SwiftUI
 
 /// 背景生成設定ウィンドウ（シンプル版）
 struct BackgroundSettingsView: View {
-    @StateObject private var viewModel = BackgroundSettingsViewModel()
+    @StateObject private var viewModel: BackgroundSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((BackgroundSettingsViewModel) -> Void)?
+
+    init(initialSettings: BackgroundSettingsViewModel? = nil, onApply: ((BackgroundSettingsViewModel) -> Void)? = nil) {
+        self.onApply = onApply
+        if let settings = initialSettings {
+            let vm = BackgroundSettingsViewModel()
+            vm.useReferenceImage = settings.useReferenceImage
+            vm.referenceImagePath = settings.referenceImagePath
+            vm.removeCharacters = settings.removeCharacters
+            vm.description = settings.description
+            _viewModel = StateObject(wrappedValue: vm)
+        } else {
+            _viewModel = StateObject(wrappedValue: BackgroundSettingsViewModel())
+        }
+    }
 
     private func dismissWindow() {
         if let windowDismiss = windowDismiss {

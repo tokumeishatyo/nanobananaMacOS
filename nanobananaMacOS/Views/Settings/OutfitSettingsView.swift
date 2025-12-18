@@ -2,10 +2,29 @@ import SwiftUI
 
 /// 衣装着用設定ウィンドウ
 struct OutfitSettingsView: View {
-    @StateObject private var viewModel = OutfitSettingsViewModel()
+    @StateObject private var viewModel: OutfitSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((OutfitSettingsViewModel) -> Void)?
+
+    init(initialSettings: OutfitSettingsViewModel? = nil, onApply: ((OutfitSettingsViewModel) -> Void)? = nil) {
+        self.onApply = onApply
+        if let settings = initialSettings {
+            let vm = OutfitSettingsViewModel()
+            vm.bodySheetImagePath = settings.bodySheetImagePath
+            vm.useOutfitBuilder = settings.useOutfitBuilder
+            vm.outfitCategory = settings.outfitCategory
+            vm.outfitShape = settings.outfitShape
+            vm.outfitColor = settings.outfitColor
+            vm.outfitPattern = settings.outfitPattern
+            vm.outfitStyle = settings.outfitStyle
+            vm.referenceOutfitImagePath = settings.referenceOutfitImagePath
+            vm.referenceDescription = settings.referenceDescription
+            _viewModel = StateObject(wrappedValue: vm)
+        } else {
+            _viewModel = StateObject(wrappedValue: OutfitSettingsViewModel())
+        }
+    }
 
     private func dismissWindow() {
         if let windowDismiss = windowDismiss {

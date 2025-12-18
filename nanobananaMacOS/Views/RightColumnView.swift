@@ -38,13 +38,20 @@ struct RightColumnView: View {
                     .padding(.horizontal, 10)
                     .padding(.top, 5)
 
-                    // YAMLテキスト
-                    TextEditor(text: $viewModel.yamlPreviewText)
-                        .font(.system(.body, design: .monospaced))
-                        .frame(minHeight: 150)
-                        .border(Color.gray.opacity(0.3), width: 1)
-                        .padding(.horizontal, 10)
-                        .padding(.bottom, 5)
+                    // YAMLテキスト（読み取り専用）
+                    ScrollView {
+                        Text(viewModel.yamlPreviewText.isEmpty ? "YAML生成後に表示されます" : viewModel.yamlPreviewText)
+                            .font(.system(.body, design: .monospaced))
+                            .foregroundColor(viewModel.yamlPreviewText.isEmpty ? .gray : .primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(8)
+                            .textSelection(.enabled)
+                    }
+                    .frame(minHeight: 150)
+                    .background(Color(nsColor: .textBackgroundColor))
+                    .border(Color.gray.opacity(0.3), width: 1)
+                    .padding(.horizontal, 10)
+                    .padding(.bottom, 5)
                 }
             }
             .frame(minHeight: 200)

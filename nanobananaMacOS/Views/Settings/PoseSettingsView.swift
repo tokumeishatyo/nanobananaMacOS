@@ -2,10 +2,31 @@ import SwiftUI
 
 /// ポーズ設定ウィンドウ（Python版準拠）
 struct PoseSettingsView: View {
-    @StateObject private var viewModel = PoseSettingsViewModel()
+    @StateObject private var viewModel: PoseSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((PoseSettingsViewModel) -> Void)?
+
+    init(initialSettings: PoseSettingsViewModel? = nil, onApply: ((PoseSettingsViewModel) -> Void)? = nil) {
+        self.onApply = onApply
+        if let settings = initialSettings {
+            let vm = PoseSettingsViewModel()
+            vm.selectedPreset = settings.selectedPreset
+            vm.usePoseCapture = settings.usePoseCapture
+            vm.poseReferenceImagePath = settings.poseReferenceImagePath
+            vm.outfitSheetImagePath = settings.outfitSheetImagePath
+            vm.eyeLine = settings.eyeLine
+            vm.expression = settings.expression
+            vm.expressionDetail = settings.expressionDetail
+            vm.actionDescription = settings.actionDescription
+            vm.includeEffects = settings.includeEffects
+            vm.transparentBackground = settings.transparentBackground
+            vm.windEffect = settings.windEffect
+            _viewModel = StateObject(wrappedValue: vm)
+        } else {
+            _viewModel = StateObject(wrappedValue: PoseSettingsViewModel())
+        }
+    }
 
     private func dismissWindow() {
         if let windowDismiss = windowDismiss {

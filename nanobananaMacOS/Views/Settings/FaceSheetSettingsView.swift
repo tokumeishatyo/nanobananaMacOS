@@ -2,10 +2,24 @@ import SwiftUI
 
 /// 顔三面図設定ウィンドウ
 struct FaceSheetSettingsView: View {
-    @StateObject private var viewModel = FaceSheetSettingsViewModel()
+    @StateObject private var viewModel: FaceSheetSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((FaceSheetSettingsViewModel) -> Void)?
+
+    init(initialSettings: FaceSheetSettingsViewModel? = nil, onApply: ((FaceSheetSettingsViewModel) -> Void)? = nil) {
+        self.onApply = onApply
+        if let settings = initialSettings {
+            // 既存設定がある場合はコピーして復元
+            let vm = FaceSheetSettingsViewModel()
+            vm.characterName = settings.characterName
+            vm.referenceImagePath = settings.referenceImagePath
+            vm.appearanceDescription = settings.appearanceDescription
+            _viewModel = StateObject(wrappedValue: vm)
+        } else {
+            _viewModel = StateObject(wrappedValue: FaceSheetSettingsViewModel())
+        }
+    }
 
     private func dismissWindow() {
         if let windowDismiss = windowDismiss {
@@ -96,5 +110,5 @@ struct FaceSheetSettingsView: View {
 }
 
 #Preview {
-    FaceSheetSettingsView()
+    FaceSheetSettingsView(initialSettings: nil, onApply: nil)
 }

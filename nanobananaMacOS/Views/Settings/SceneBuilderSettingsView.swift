@@ -2,10 +2,68 @@ import SwiftUI
 
 /// シーンビルダー設定ウィンドウ（Python版準拠）
 struct SceneBuilderSettingsView: View {
-    @StateObject private var viewModel = SceneBuilderSettingsViewModel()
+    @StateObject private var viewModel: SceneBuilderSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((SceneBuilderSettingsViewModel) -> Void)?
+
+    init(initialSettings: SceneBuilderSettingsViewModel? = nil, onApply: ((SceneBuilderSettingsViewModel) -> Void)? = nil) {
+        self.onApply = onApply
+        if let settings = initialSettings {
+            let vm = SceneBuilderSettingsViewModel()
+            // シーンタイプ
+            vm.sceneType = settings.sceneType
+            // 共通: 背景設定
+            vm.backgroundSourceType = settings.backgroundSourceType
+            vm.backgroundImagePath = settings.backgroundImagePath
+            vm.backgroundDescription = settings.backgroundDescription
+            // バトルシーン用
+            vm.battleDimming = settings.battleDimming
+            vm.leftCutinEnabled = settings.leftCutinEnabled
+            vm.leftCutinImagePath = settings.leftCutinImagePath
+            vm.leftCutinBlendMode = settings.leftCutinBlendMode
+            vm.rightCutinEnabled = settings.rightCutinEnabled
+            vm.rightCutinImagePath = settings.rightCutinImagePath
+            vm.rightCutinBlendMode = settings.rightCutinBlendMode
+            vm.collisionType = settings.collisionType
+            vm.dominantSide = settings.dominantSide
+            vm.borderVFX = settings.borderVFX
+            vm.battleLeftCharImagePath = settings.battleLeftCharImagePath
+            vm.battleLeftCharScale = settings.battleLeftCharScale
+            vm.battleLeftCharName = settings.battleLeftCharName
+            vm.battleLeftCharTraits = settings.battleLeftCharTraits
+            vm.battleRightCharImagePath = settings.battleRightCharImagePath
+            vm.battleRightCharScale = settings.battleRightCharScale
+            vm.battleRightCharName = settings.battleRightCharName
+            vm.battleRightCharTraits = settings.battleRightCharTraits
+            vm.screenShake = settings.screenShake
+            vm.showUI = settings.showUI
+            // ストーリーシーン用
+            vm.storyBlurAmount = settings.storyBlurAmount
+            vm.storyLightingMood = settings.storyLightingMood
+            vm.storyCustomMood = settings.storyCustomMood
+            vm.storyLayout = settings.storyLayout
+            vm.storyCustomLayout = settings.storyCustomLayout
+            vm.storyDistance = settings.storyDistance
+            vm.storyCharacterCount = settings.storyCharacterCount
+            vm.storyCharacters = settings.storyCharacters
+            vm.storyNarration = settings.storyNarration
+            vm.storyDialogues = settings.storyDialogues
+            // ボスレイド用
+            vm.bossImagePath = settings.bossImagePath
+            vm.bossScale = settings.bossScale
+            vm.bossAllowCrop = settings.bossAllowCrop
+            vm.partyMembers = settings.partyMembers
+            vm.partyBaseScale = settings.partyBaseScale
+            vm.convergenceEnabled = settings.convergenceEnabled
+            vm.beamColor = settings.beamColor
+            // 共通: 装飾テキストオーバーレイ
+            vm.textOverlayItems = settings.textOverlayItems
+            _viewModel = StateObject(wrappedValue: vm)
+        } else {
+            _viewModel = StateObject(wrappedValue: SceneBuilderSettingsViewModel())
+        }
+    }
 
     private func dismissWindow() {
         if let windowDismiss = windowDismiss {
