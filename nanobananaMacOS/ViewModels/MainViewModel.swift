@@ -356,7 +356,7 @@ final class MainViewModel: ObservableObject {
             WindowManager.shared.openWindow(
                 id: windowId,
                 title: title,
-                size: NSSize(width: 750, height: 700)
+                size: NSSize(width: 750, height: 1000)
             ) { [weak self] in
                 InfographicSettingsView { _ in
                     self?.isSettingsConfigured = true

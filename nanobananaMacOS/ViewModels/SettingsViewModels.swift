@@ -337,10 +337,7 @@ final class InfographicSettingsViewModel: ObservableObject {
     @Published var subCharacterImagePath: String = ""
 
     // セクション（最大8つ）
-    @Published var sections: [InfographicSection] = [
-        InfographicSection(),
-        InfographicSection()
-    ]
+    @Published var sections: [InfographicSection] = (1...8).map { InfographicSection(position: $0) }
 }
 
 /// インフォグラフィックセクション
@@ -348,5 +345,5 @@ struct InfographicSection: Identifiable {
     let id = UUID()
     var title: String = ""
     var content: String = ""
-    var position: Int = 0 // 0 = おまかせ
+    let position: Int // 固定位置（1-8）
 }

@@ -105,31 +105,17 @@ struct InfographicSettingsView: View {
                     // セクション設定
                     GroupBox {
                         VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Text("情報セクション")
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                                Spacer()
-                                Button("セクション追加") {
-                                    if viewModel.sections.count < 8 {
-                                        viewModel.sections.append(InfographicSection())
-                                    }
-                                }
-                                .disabled(viewModel.sections.count >= 8)
-                            }
-
-                            Text("配置: 1-8の位置を指定（0=おまかせ）")
-                                .font(.caption)
-                                .foregroundColor(.gray)
+                            Text("情報セクション")
+                                .font(.headline)
+                                .fontWeight(.bold)
 
                             Text("""
-                            位置レイアウト:
+                            位置レイアウト（空欄のセクションは無視されます）:
                             [1] [2] [3]
                             [4] 画像 [5]
                             [6] [7] [8]
                             """)
                             .font(.caption)
-                            .foregroundColor(.gray)
                             .padding(.bottom, 8)
 
                             ForEach(viewModel.sections.indices, id: \.self) { index in
@@ -159,16 +145,16 @@ struct InfographicSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 750, height: 700)
+        .frame(width: 750, height: 1000)
     }
 
     private func sectionRow(index: Int) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text("セクション\(index + 1)")
+                Text("[\(index + 1)]")
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .frame(width: 100, alignment: .leading)
+                    .frame(width: 30, alignment: .leading)
 
                 TextField("タイトル", text: Binding(
                     get: { viewModel.sections[index].title },
@@ -177,33 +163,6 @@ struct InfographicSettingsView: View {
                 .textFieldStyle(.roundedBorder)
                 .frame(width: 150)
 
-                Text("位置:")
-                Picker("", selection: Binding(
-                    get: { viewModel.sections[index].position },
-                    set: { viewModel.sections[index].position = $0 }
-                )) {
-                    Text("おまかせ").tag(0)
-                    ForEach(1...8, id: \.self) { pos in
-                        Text("\(pos)").tag(pos)
-                    }
-                }
-                .labelsHidden()
-                .frame(width: 100)
-
-                if viewModel.sections.count > 1 {
-                    Button(action: {
-                        viewModel.sections.remove(at: index)
-                    }) {
-                        Image(systemName: "trash")
-                            .foregroundColor(.red)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-
-            HStack {
-                Text("")
-                    .frame(width: 100)
                 TextField("説明", text: Binding(
                     get: { viewModel.sections[index].content },
                     set: { viewModel.sections[index].content = $0 }
@@ -211,7 +170,7 @@ struct InfographicSettingsView: View {
                 .textFieldStyle(.roundedBorder)
             }
         }
-        .padding(.bottom, 8)
+        .padding(.bottom, 4)
     }
 }
 
