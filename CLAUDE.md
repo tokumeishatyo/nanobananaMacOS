@@ -156,6 +156,9 @@ style:
 2. **セクション構成を維持** - layout, headshot_specification, character_style等
 3. **コメント（#）を含める** - AIへの視覚的な区切りとして機能
 4. **制約セクションを必ず含める** - constraints, anti_hallucination, output_cleanliness
+5. **説明文の改行はカンマ区切りに変換** - AIが特徴を正確に認識しやすくするため
+   - 入力: `ポニーテールの赤い髪（改行）左顎にほくろ`
+   - 出力: `description: "ポニーテールの赤い髪, 左顎にほくろ"`
 
 ## シーンビルダーのUI分割ルール
 

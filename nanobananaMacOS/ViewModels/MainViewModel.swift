@@ -253,8 +253,14 @@ final class MainViewModel: ObservableObject {
             )
 
         case .bodySheet:
-            // TODO: 素体三面図YAML生成を実装
-            showErrorAlert(message: "素体三面図のYAML生成は未実装です")
+            guard let settings = bodySheetSettings else {
+                showErrorAlert(message: "素体三面図の詳細設定を行ってください")
+                return
+            }
+            yamlPreviewText = yamlGeneratorService.generateBodySheetYAML(
+                mainViewModel: self,
+                bodySheetSettings: settings
+            )
 
         case .outfit:
             // TODO: 衣装着用YAML生成を実装
