@@ -50,145 +50,149 @@ struct OutfitSettingsView: View {
                                 Text("プリセットから選ぶ").tag(true)
                                 Text("参考画像から着せる").tag(false)
                             }
-                            .pickerStyle(.radioGroup)
-                            .horizontalRadioGroupLayout()
+                            .pickerStyle(.segmented)
+                            .labelsHidden()
                         }
                         .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
-                    // MARK: - プリセット衣装
-                    GroupBox {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("プリセット衣装")
-                                .font(.headline)
-                                .fontWeight(.bold)
+                    // MARK: - プリセット衣装 / 参考画像（排他表示）
+                    if viewModel.useOutfitBuilder {
+                        // プリセット衣装
+                        GroupBox {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("プリセット衣装")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
 
-                            HStack {
-                                Text("カテゴリ:")
-                                    .frame(width: 60, alignment: .leading)
-                                Picker("", selection: $viewModel.outfitCategory) {
-                                    ForEach(OutfitCategory.allCases) { cat in
-                                        Text(cat.rawValue).tag(cat)
+                                HStack {
+                                    Text("カテゴリ:")
+                                        .frame(width: 60, alignment: .leading)
+                                    Picker("", selection: $viewModel.outfitCategory) {
+                                        ForEach(OutfitCategory.allCases) { cat in
+                                            Text(cat.rawValue).tag(cat)
+                                        }
                                     }
+                                    .pickerStyle(.menu)
+                                    .labelsHidden()
+                                    .frame(width: 180, alignment: .leading)
+                                    Spacer()
                                 }
-                                .labelsHidden()
-                                .frame(width: 180)
-                                Spacer()
-                            }
 
-                            HStack {
-                                Text("形状:")
-                                    .frame(width: 60, alignment: .leading)
-                                Picker("", selection: $viewModel.outfitShape) {
-                                    ForEach(viewModel.outfitCategory.shapes, id: \.self) { shape in
-                                        Text(shape).tag(shape)
+                                HStack {
+                                    Text("形状:")
+                                        .frame(width: 60, alignment: .leading)
+                                    Picker("", selection: $viewModel.outfitShape) {
+                                        ForEach(viewModel.outfitCategory.shapes, id: \.self) { shape in
+                                            Text(shape).tag(shape)
+                                        }
                                     }
+                                    .pickerStyle(.menu)
+                                    .labelsHidden()
+                                    .frame(width: 180, alignment: .leading)
+                                    Spacer()
                                 }
-                                .labelsHidden()
-                                .frame(width: 180)
-                                Spacer()
-                            }
 
-                            HStack {
-                                Text("色:")
-                                    .frame(width: 60, alignment: .leading)
-                                Picker("", selection: $viewModel.outfitColor) {
-                                    ForEach(OutfitColor.allCases) { color in
-                                        Text(color.rawValue).tag(color)
+                                HStack {
+                                    Text("色:")
+                                        .frame(width: 60, alignment: .leading)
+                                    Picker("", selection: $viewModel.outfitColor) {
+                                        ForEach(OutfitColor.allCases) { color in
+                                            Text(color.rawValue).tag(color)
+                                        }
                                     }
+                                    .pickerStyle(.menu)
+                                    .labelsHidden()
+                                    .frame(width: 180, alignment: .leading)
+                                    Spacer()
                                 }
-                                .labelsHidden()
-                                .frame(width: 180)
-                                Spacer()
-                            }
 
-                            HStack {
-                                Text("柄:")
-                                    .frame(width: 60, alignment: .leading)
-                                Picker("", selection: $viewModel.outfitPattern) {
-                                    ForEach(OutfitPattern.allCases) { pattern in
-                                        Text(pattern.rawValue).tag(pattern)
+                                HStack {
+                                    Text("柄:")
+                                        .frame(width: 60, alignment: .leading)
+                                    Picker("", selection: $viewModel.outfitPattern) {
+                                        ForEach(OutfitPattern.allCases) { pattern in
+                                            Text(pattern.rawValue).tag(pattern)
+                                        }
                                     }
+                                    .pickerStyle(.menu)
+                                    .labelsHidden()
+                                    .frame(width: 180, alignment: .leading)
+                                    Spacer()
                                 }
-                                .labelsHidden()
-                                .frame(width: 180)
-                                Spacer()
-                            }
 
-                            HStack {
-                                Text("印象:")
-                                    .frame(width: 60, alignment: .leading)
-                                Picker("", selection: $viewModel.outfitStyle) {
-                                    ForEach(OutfitFashionStyle.allCases) { style in
-                                        Text(style.rawValue).tag(style)
+                                HStack {
+                                    Text("印象:")
+                                        .frame(width: 60, alignment: .leading)
+                                    Picker("", selection: $viewModel.outfitStyle) {
+                                        ForEach(OutfitFashionStyle.allCases) { style in
+                                            Text(style.rawValue).tag(style)
+                                        }
                                     }
+                                    .pickerStyle(.menu)
+                                    .labelsHidden()
+                                    .frame(width: 180, alignment: .leading)
+                                    Spacer()
                                 }
-                                .labelsHidden()
-                                .frame(width: 180)
-                                Spacer()
                             }
+                            .padding(10)
                         }
-                        .padding(10)
-                        .opacity(viewModel.useOutfitBuilder ? 1.0 : 0.5)
-                        .disabled(!viewModel.useOutfitBuilder)
-                    }
+                    } else {
+                        // 参考画像から衣装を着せる
+                        GroupBox {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("参考画像から衣装を着せる")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
 
-                    // MARK: - 参考画像から衣装を着せる
-                    GroupBox {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("参考画像から衣装を着せる")
-                                .font(.headline)
-                                .fontWeight(.bold)
-
-                            HStack {
-                                Text("衣装参考画像:")
-                                    .frame(width: 90, alignment: .leading)
-                                TextField("着せたい衣装の参考画像を選択", text: $viewModel.referenceOutfitImagePath)
-                                    .textFieldStyle(.roundedBorder)
-                                Button("参照") {
-                                    // TODO: ファイル選択
+                                HStack {
+                                    Text("衣装参考画像:")
+                                        .frame(width: 90, alignment: .leading)
+                                    TextField("着せたい衣装の参考画像を選択", text: $viewModel.referenceOutfitImagePath)
+                                        .textFieldStyle(.roundedBorder)
+                                    Button("参照") {
+                                        // TODO: ファイル選択
+                                    }
                                 }
-                            }
 
-                            HStack(alignment: .top) {
-                                Text("衣装説明:")
-                                    .frame(width: 90, alignment: .leading)
-                                TextField("（任意）参考画像の衣装について補足説明", text: $viewModel.referenceDescription)
-                                    .textFieldStyle(.roundedBorder)
-                            }
-
-                            HStack {
-                                Text("フィットモード:")
-                                    .frame(width: 90, alignment: .leading)
-                                Picker("", selection: $viewModel.fitMode) {
-                                    Text("素体優先").tag("素体優先")
-                                    Text("衣装優先").tag("衣装優先")
-                                    Text("ハイブリッド").tag("ハイブリッド")
+                                HStack(alignment: .top) {
+                                    Text("衣装説明:")
+                                        .frame(width: 90, alignment: .leading)
+                                    TextField("（任意）参考画像の衣装について補足説明", text: $viewModel.referenceDescription)
+                                        .textFieldStyle(.roundedBorder)
                                 }
-                                .pickerStyle(.radioGroup)
-                                .horizontalRadioGroupLayout()
-                                .labelsHidden()
+
+                                HStack {
+                                    Text("フィットモード:")
+                                        .frame(width: 90, alignment: .leading)
+                                    Picker("", selection: $viewModel.fitMode) {
+                                        Text("素体優先").tag("素体優先")
+                                        Text("衣装優先").tag("衣装優先")
+                                        Text("ハイブリッド").tag("ハイブリッド")
+                                    }
+                                    .pickerStyle(.segmented)
+                                    .labelsHidden()
+                                }
+
+                                Text("素体優先: 衣装を素体にフィット / 衣装優先: 体型を衣装に合わせる / ハイブリッド: 顔は素体、体型は衣装")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                                    .padding(.leading, 90)
+
+                                Toggle("頭部装飾（帽子・ヘルメット等）を含める", isOn: $viewModel.includeHeadwear)
+                                    .disabled(viewModel.fitMode == "ハイブリッド")
+
+                                Text("※ ハイブリッドモードでは頭部全体（髪型含む）が素体から取られるため、このオプションは無効です")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+
+                                Text("※ 参考画像の著作権はユーザー責任です")
+                                    .font(.caption)
+                                    .foregroundColor(.orange)
                             }
-
-                            Text("素体優先: 衣装を素体にフィット / 衣装優先: 体型を衣装に合わせる / ハイブリッド: 顔は素体、体型は衣装")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .padding(.leading, 90)
-
-                            Toggle("頭部装飾（帽子・ヘルメット等）を含める", isOn: $viewModel.includeHeadwear)
-                                .disabled(viewModel.fitMode == "ハイブリッド")
-
-                            Text("※ ハイブリッドモードでは頭部全体（髪型含む）が素体から取られるため、このオプションは無効です")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-
-                            Text("※ 参考画像の著作権はユーザー責任です")
-                                .font(.caption)
-                                .foregroundColor(.orange)
+                            .padding(10)
                         }
-                        .padding(10)
-                        .opacity(viewModel.useOutfitBuilder ? 0.5 : 1.0)
-                        .disabled(viewModel.useOutfitBuilder)
                     }
 
                     // MARK: - 追加説明
@@ -224,6 +228,7 @@ struct OutfitSettingsView: View {
                             .font(.caption)
                         }
                         .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
                 .padding(16)
