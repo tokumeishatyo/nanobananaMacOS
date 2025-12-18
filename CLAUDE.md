@@ -25,7 +25,8 @@
 ```
 nanobananaMacOS/
 ├── Models/           # データモデル、定数
-│   └── Constants.swift
+│   ├── Constants.swift        # アプリ基本定数（出力タイプ、モード、解像度等）
+│   └── DropdownOptions.swift  # プルダウン選択肢を集約
 ├── ViewModels/       # ビューモデル（状態管理、ビジネスロジック）
 │   └── MainViewModel.swift
 ├── Views/            # ビュー（UI）
