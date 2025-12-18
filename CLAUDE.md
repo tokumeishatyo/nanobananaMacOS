@@ -149,13 +149,21 @@ Python版にあった「同一性保持」スライダーはUIから削除。
 
 ## 参照ファイル
 
+### 設計ドキュメント（/docs/）
 - `/docs/機能仕様書.md` - 全機能の詳細仕様
 - `/docs/操作マニュアル.md` - ユーザー向け操作説明
 - `/docs/ネイティブアプリ移植ガイド.md` - 移植手順の確認
+- `/docs/MacOSネイティブアプリ実装設計.md` - macOS版の全体設計
+- `/docs/実装設計_UI構造.md` - UI構造の詳細設計
+- `/docs/実装設計_状態管理.md` - 状態管理の詳細設計
+
+### Python版ソースコード（/app/）
 - `/app/constants.py` - Python版定数定義
 - `/app/main.py` - Python版メインUI
 - `/app/logic/` - Python版ロジック層
 - `/app/ui/` - Python版設定ウィンドウ
+
+### その他
 - `/template/` - YAMLテンプレート
 
 ## 現在の進捗
