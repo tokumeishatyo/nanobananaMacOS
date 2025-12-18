@@ -258,7 +258,111 @@ final class MainViewModel: ObservableObject {
 
     /// 詳細設定を開く
     func openSettingsWindow() {
-        showSettingsSheet = true
+        let windowId = "settings-\(selectedOutputType.internalKey)"
+        let title = "\(selectedOutputType.rawValue)設定"
+
+        switch selectedOutputType {
+        case .faceSheet:
+            WindowManager.shared.openWindow(
+                id: windowId,
+                title: title,
+                size: NSSize(width: 600, height: 400)
+            ) { [weak self] in
+                FaceSheetSettingsView { _ in
+                    self?.isSettingsConfigured = true
+                }
+            }
+        case .bodySheet:
+            WindowManager.shared.openWindow(
+                id: windowId,
+                title: title,
+                size: NSSize(width: 700, height: 550)
+            ) { [weak self] in
+                BodySheetSettingsView { _ in
+                    self?.isSettingsConfigured = true
+                }
+            }
+        case .outfit:
+            WindowManager.shared.openWindow(
+                id: windowId,
+                title: title,
+                size: NSSize(width: 780, height: 750)
+            ) { [weak self] in
+                OutfitSettingsView { _ in
+                    self?.isSettingsConfigured = true
+                }
+            }
+        case .pose:
+            WindowManager.shared.openWindow(
+                id: windowId,
+                title: title,
+                size: NSSize(width: 700, height: 600)
+            ) { [weak self] in
+                PoseSettingsView { _ in
+                    self?.isSettingsConfigured = true
+                }
+            }
+        case .sceneBuilder:
+            WindowManager.shared.openWindow(
+                id: windowId,
+                title: title,
+                size: NSSize(width: 850, height: 850)
+            ) { [weak self] in
+                SceneBuilderSettingsView { _ in
+                    self?.isSettingsConfigured = true
+                }
+            }
+        case .background:
+            WindowManager.shared.openWindow(
+                id: windowId,
+                title: title,
+                size: NSSize(width: 500, height: 450)
+            ) { [weak self] in
+                BackgroundSettingsView { _ in
+                    self?.isSettingsConfigured = true
+                }
+            }
+        case .decorativeText:
+            WindowManager.shared.openWindow(
+                id: windowId,
+                title: title,
+                size: NSSize(width: 650, height: 550)
+            ) { [weak self] in
+                DecorativeTextSettingsView { _ in
+                    self?.isSettingsConfigured = true
+                }
+            }
+        case .fourPanelManga:
+            WindowManager.shared.openWindow(
+                id: windowId,
+                title: title,
+                size: NSSize(width: 800, height: 850)
+            ) { [weak self] in
+                FourPanelSettingsView { _ in
+                    self?.isSettingsConfigured = true
+                }
+            }
+        case .styleTransform:
+            WindowManager.shared.openWindow(
+                id: windowId,
+                title: title,
+                size: NSSize(width: 700, height: 600)
+            ) { [weak self] in
+                StyleTransformSettingsView { _ in
+                    self?.isSettingsConfigured = true
+                }
+            }
+        case .infographic:
+            WindowManager.shared.openWindow(
+                id: windowId,
+                title: title,
+                size: NSSize(width: 750, height: 700)
+            ) { [weak self] in
+                InfographicSettingsView { _ in
+                    self?.isSettingsConfigured = true
+                }
+            }
+        }
     }
 
     /// 漫画コンポーザーを開く

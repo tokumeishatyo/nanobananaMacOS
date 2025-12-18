@@ -22,56 +22,6 @@ struct MainView: View {
             minWidth: AppConstants.windowMinWidth,
             minHeight: AppConstants.windowMinHeight
         )
-        .sheet(isPresented: $viewModel.showSettingsSheet) {
-            settingsSheetContent
-        }
-    }
-
-    /// 出力タイプに応じた設定シートを返す
-    @ViewBuilder
-    private var settingsSheetContent: some View {
-        switch viewModel.selectedOutputType {
-        case .faceSheet:
-            FaceSheetSettingsView { settings in
-                viewModel.isSettingsConfigured = true
-            }
-        case .bodySheet:
-            BodySheetSettingsView { settings in
-                viewModel.isSettingsConfigured = true
-            }
-        case .outfit:
-            OutfitSettingsView { settings in
-                viewModel.isSettingsConfigured = true
-            }
-        case .pose:
-            PoseSettingsView { settings in
-                viewModel.isSettingsConfigured = true
-            }
-        case .sceneBuilder:
-            SceneBuilderSettingsView { settings in
-                viewModel.isSettingsConfigured = true
-            }
-        case .background:
-            BackgroundSettingsView { settings in
-                viewModel.isSettingsConfigured = true
-            }
-        case .decorativeText:
-            DecorativeTextSettingsView { settings in
-                viewModel.isSettingsConfigured = true
-            }
-        case .fourPanelManga:
-            FourPanelSettingsView { settings in
-                viewModel.isSettingsConfigured = true
-            }
-        case .styleTransform:
-            StyleTransformSettingsView { settings in
-                viewModel.isSettingsConfigured = true
-            }
-        case .infographic:
-            InfographicSettingsView { settings in
-                viewModel.isSettingsConfigured = true
-            }
-        }
     }
 }
 

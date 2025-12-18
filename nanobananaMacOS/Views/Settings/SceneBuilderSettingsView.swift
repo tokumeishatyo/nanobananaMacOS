@@ -3,8 +3,17 @@ import SwiftUI
 /// シーンビルダー設定ウィンドウ（Python版準拠）
 struct SceneBuilderSettingsView: View {
     @StateObject private var viewModel = SceneBuilderSettingsViewModel()
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var standardDismiss
+    @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((SceneBuilderSettingsViewModel) -> Void)?
+
+    private func dismissWindow() {
+        if let windowDismiss = windowDismiss {
+            windowDismiss()
+        } else {
+            standardDismiss()
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -51,12 +60,12 @@ struct SceneBuilderSettingsView: View {
                 Spacer()
                 Button("YAML生成→メイン画面") {
                     onApply?(viewModel)
-                    dismiss()
+                    dismissWindow()
                 }
                 .buttonStyle(.borderedProminent)
 
                 Button("キャンセル") {
-                    dismiss()
+                    dismissWindow()
                 }
                 .buttonStyle(.bordered)
             }

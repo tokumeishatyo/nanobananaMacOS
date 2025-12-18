@@ -3,10 +3,19 @@ import SwiftUI
 /// 4コマ漫画設定ウィンドウ（Python版準拠）
 struct FourPanelSettingsView: View {
     @StateObject private var viewModel = FourPanelSettingsViewModel()
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var standardDismiss
+    @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((FourPanelSettingsViewModel) -> Void)?
 
     private let panelLabels = ["1コマ目（起）", "2コマ目（承）", "3コマ目（転）", "4コマ目（結）"]
+
+    private func dismissWindow() {
+        if let windowDismiss = windowDismiss {
+            windowDismiss()
+        } else {
+            standardDismiss()
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -32,12 +41,12 @@ struct FourPanelSettingsView: View {
                 Spacer()
                 Button("適用") {
                     onApply?(viewModel)
-                    dismiss()
+                    dismissWindow()
                 }
                 .buttonStyle(.borderedProminent)
 
                 Button("キャンセル") {
-                    dismiss()
+                    dismissWindow()
                 }
                 .buttonStyle(.bordered)
             }

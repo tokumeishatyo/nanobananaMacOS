@@ -3,8 +3,17 @@ import SwiftUI
 /// 背景生成設定ウィンドウ（シンプル版）
 struct BackgroundSettingsView: View {
     @StateObject private var viewModel = BackgroundSettingsViewModel()
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var standardDismiss
+    @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((BackgroundSettingsViewModel) -> Void)?
+
+    private func dismissWindow() {
+        if let windowDismiss = windowDismiss {
+            windowDismiss()
+        } else {
+            standardDismiss()
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -76,12 +85,12 @@ struct BackgroundSettingsView: View {
                 Spacer()
                 Button("適用") {
                     onApply?(viewModel)
-                    dismiss()
+                    dismissWindow()
                 }
                 .buttonStyle(.borderedProminent)
 
                 Button("キャンセル") {
-                    dismiss()
+                    dismissWindow()
                 }
                 .buttonStyle(.bordered)
             }

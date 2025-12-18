@@ -3,8 +3,17 @@ import SwiftUI
 /// 装飾テキスト設定ウィンドウ（Python版準拠）
 struct DecorativeTextSettingsView: View {
     @StateObject private var viewModel = DecorativeTextSettingsViewModel()
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var standardDismiss
+    @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((DecorativeTextSettingsViewModel) -> Void)?
+
+    private func dismissWindow() {
+        if let windowDismiss = windowDismiss {
+            windowDismiss()
+        } else {
+            standardDismiss()
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -37,12 +46,12 @@ struct DecorativeTextSettingsView: View {
                 Spacer()
                 Button("適用") {
                     onApply?(viewModel)
-                    dismiss()
+                    dismissWindow()
                 }
                 .buttonStyle(.borderedProminent)
 
                 Button("キャンセル") {
-                    dismiss()
+                    dismissWindow()
                 }
                 .buttonStyle(.bordered)
             }

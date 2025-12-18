@@ -3,8 +3,17 @@ import SwiftUI
 /// 素体三面図設定ウィンドウ
 struct BodySheetSettingsView: View {
     @StateObject private var viewModel = BodySheetSettingsViewModel()
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var standardDismiss
+    @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((BodySheetSettingsViewModel) -> Void)?
+
+    private func dismissWindow() {
+        if let windowDismiss = windowDismiss {
+            windowDismiss()
+        } else {
+            standardDismiss()
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -127,12 +136,12 @@ struct BodySheetSettingsView: View {
                 Spacer()
                 Button("適用") {
                     onApply?(viewModel)
-                    dismiss()
+                    dismissWindow()
                 }
                 .buttonStyle(.borderedProminent)
 
                 Button("キャンセル") {
-                    dismiss()
+                    dismissWindow()
                 }
                 .buttonStyle(.bordered)
             }

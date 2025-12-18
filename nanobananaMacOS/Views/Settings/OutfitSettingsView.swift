@@ -3,8 +3,17 @@ import SwiftUI
 /// 衣装着用設定ウィンドウ
 struct OutfitSettingsView: View {
     @StateObject private var viewModel = OutfitSettingsViewModel()
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var standardDismiss
+    @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((OutfitSettingsViewModel) -> Void)?
+
+    private func dismissWindow() {
+        if let windowDismiss = windowDismiss {
+            windowDismiss()
+        } else {
+            standardDismiss()
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -226,12 +235,12 @@ struct OutfitSettingsView: View {
                 Spacer()
                 Button("適用") {
                     onApply?(viewModel)
-                    dismiss()
+                    dismissWindow()
                 }
                 .buttonStyle(.borderedProminent)
 
                 Button("キャンセル") {
-                    dismiss()
+                    dismissWindow()
                 }
                 .buttonStyle(.bordered)
             }
