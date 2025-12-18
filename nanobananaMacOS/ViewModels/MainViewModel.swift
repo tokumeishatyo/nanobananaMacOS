@@ -336,7 +336,7 @@ final class MainViewModel: ObservableObject {
             WindowManager.shared.openWindow(
                 id: windowId,
                 title: title,
-                size: NSSize(width: 800, height: 850)
+                size: NSSize(width: 800, height: 1000)
             ) { [weak self] in
                 FourPanelSettingsView { _ in
                     self?.isSettingsConfigured = true

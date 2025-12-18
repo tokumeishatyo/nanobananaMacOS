@@ -52,7 +52,7 @@ struct FourPanelSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 800, height: 850)
+        .frame(width: 800, height: 1000)
     }
 
     // MARK: - 登場人物設定
