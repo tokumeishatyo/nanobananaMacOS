@@ -268,28 +268,39 @@ final class DecorativeTextSettingsViewModel: ObservableObject {
 }
 
 // MARK: - Four Panel Manga Settings ViewModel
-/// 4コマ漫画設定ViewModel
+/// 4コマ漫画設定ViewModel（Python版準拠）
 @MainActor
 final class FourPanelSettingsViewModel: ObservableObject {
+    // キャラクター1
     @Published var character1Name: String = ""
     @Published var character1Description: String = ""
     @Published var character1ImagePath: String = ""
 
+    // キャラクター2（任意）
     @Published var character2Name: String = ""
     @Published var character2Description: String = ""
     @Published var character2ImagePath: String = ""
 
-    // 各コマの内容
-    @Published var panel1Content: String = ""
-    @Published var panel2Content: String = ""
-    @Published var panel3Content: String = ""
-    @Published var panel4Content: String = ""
+    // 4コマ分のパネルデータ
+    @Published var panels: [MangaPanelData] = [
+        MangaPanelData(),
+        MangaPanelData(),
+        MangaPanelData(),
+        MangaPanelData()
+    ]
+}
 
-    // 各コマのセリフ
-    @Published var panel1Dialogue: String = ""
-    @Published var panel2Dialogue: String = ""
-    @Published var panel3Dialogue: String = ""
-    @Published var panel4Dialogue: String = ""
+/// 4コマ漫画の1コマ分のデータ
+struct MangaPanelData: Identifiable {
+    let id = UUID()
+    var scene: String = ""           // シーン説明
+    var speech1Char: SpeechCharacter = .character1
+    var speech1Text: String = ""
+    var speech1Position: SpeechPosition = .left
+    var speech2Char: SpeechCharacter = .none
+    var speech2Text: String = ""
+    var speech2Position: SpeechPosition = .right
+    var narration: String = ""       // ナレーション
 }
 
 // MARK: - Style Transform Settings ViewModel

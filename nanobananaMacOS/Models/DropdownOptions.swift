@@ -846,6 +846,29 @@ enum FaceIconPosition: String, CaseIterable, Identifiable {
 }
 
 // MARK: - ===========================================
+// MARK: - 4コマ漫画関連
+// MARK: - ===========================================
+
+// MARK: - Speech Character
+/// セリフを言うキャラクター
+enum SpeechCharacter: String, CaseIterable, Identifiable {
+    case character1 = "キャラ1"
+    case character2 = "キャラ2"
+    case none = "（なし）"
+
+    var id: String { rawValue }
+}
+
+// MARK: - Speech Position
+/// セリフの位置
+enum SpeechPosition: String, CaseIterable, Identifiable {
+    case left = "左"
+    case right = "右"
+
+    var id: String { rawValue }
+}
+
+// MARK: - ===========================================
 // MARK: - スタイル変換関連
 // MARK: - ===========================================
 
