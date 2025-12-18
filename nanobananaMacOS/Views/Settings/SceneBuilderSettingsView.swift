@@ -58,7 +58,7 @@ struct SceneBuilderSettingsView: View {
 
             HStack {
                 Spacer()
-                Button("YAML生成→メイン画面") {
+                Button("適用") {
                     onApply?(viewModel)
                     dismissWindow()
                 }
