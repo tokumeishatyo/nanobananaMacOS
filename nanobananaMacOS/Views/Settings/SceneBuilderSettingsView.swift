@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// シーンビルダー設定ウィンドウ
+/// シーンビルダー設定ウィンドウ（Python版準拠）
 struct SceneBuilderSettingsView: View {
     @StateObject private var viewModel = SceneBuilderSettingsViewModel()
     @Environment(\.dismiss) private var dismiss
@@ -8,63 +8,48 @@ struct SceneBuilderSettingsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // タブ切り替え
-            Picker("", selection: $viewModel.sceneType) {
-                ForEach(SceneType.allCases) { type in
-                    Text(type.rawValue).tag(type)
+            // 合成タイプ選択
+            HStack {
+                Text("合成タイプ:")
+                    .fontWeight(.semibold)
+                Picker("", selection: $viewModel.sceneType) {
+                    ForEach(SceneType.allCases) { type in
+                        Text(type.rawValue).tag(type)
+                    }
                 }
+                .labelsHidden()
+                .frame(width: 180)
+                Spacer()
             }
-            .pickerStyle(.segmented)
             .padding(.horizontal, 16)
             .padding(.top, 16)
 
             ScrollView {
-                VStack(spacing: 16) {
-                    // 背景設定（共通）
-                    GroupBox {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("背景")
-                                .font(.headline)
-                                .fontWeight(.bold)
-
-                            HStack {
-                                Text("背景画像:")
-                                    .frame(width: 80, alignment: .leading)
-                                TextField("背景画像パス（または下記説明で生成）", text: $viewModel.backgroundImagePath)
-                                    .textFieldStyle(.roundedBorder)
-                                Button("参照") {
-                                    // TODO: ファイル選択
-                                }
-                            }
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("情景説明:")
-                                TextEditor(text: $viewModel.backgroundDescription)
-                                    .frame(height: 60)
-                                    .border(Color.gray.opacity(0.3), width: 1)
-                            }
-                        }
-                        .padding(10)
-                    }
-
+                VStack(spacing: 12) {
                     // シーンタイプ別コンテンツ
                     switch viewModel.sceneType {
-                    case .battle:
-                        battleSceneContent
                     case .story:
                         storySceneContent
+                    case .battle:
+                        battleSceneContent
                     case .bossRaid:
-                        bossRaidSceneContent
+                        bossRaidContent
                     }
+
+                    // 装飾テキストオーバーレイ（全シーン共通）
+                    textOverlaySection
                 }
                 .padding(16)
+            }
+            .sheet(isPresented: $viewModel.showTextOverlaySheet) {
+                TextOverlayPlacementView(items: $viewModel.textOverlayItems)
             }
 
             Divider()
 
             HStack {
                 Spacer()
-                Button("適用") {
+                Button("YAML生成→メイン画面") {
                     onApply?(viewModel)
                     dismiss()
                 }
@@ -77,113 +62,377 @@ struct SceneBuilderSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 800, height: 650)
+        .frame(width: 850, height: 850)
     }
 
-    // MARK: - バトルシーン
-    private var battleSceneContent: some View {
+    // MARK: - ストーリーシーン
+    private var storySceneContent: some View {
+        VStack(spacing: 12) {
+            // 背景設定
+            storyBackgroundSection
+
+            // 配置設定
+            storyLayoutSection
+
+            // キャラクター配置
+            storyCharacterSection
+
+            // ダイアログ設定
+            storyDialogSection
+        }
+    }
+
+    private var storyBackgroundSection: some View {
         GroupBox {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("バトルシーン設定")
+            VStack(alignment: .leading, spacing: 10) {
+                Text("背景設定")
                     .font(.headline)
                     .fontWeight(.bold)
 
+                // 背景タイプ選択
                 HStack(spacing: 20) {
-                    // 左キャラ
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("左キャラクター")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-
+                    ForEach(BackgroundSourceType.allCases) { type in
                         HStack {
-                            TextField("画像パス", text: $viewModel.leftCharacterImagePath)
-                                .textFieldStyle(.roundedBorder)
-                                .frame(width: 200)
-                            Button("参照") {}
+                            Image(systemName: viewModel.backgroundSourceType == type ? "largecircle.fill.circle" : "circle")
+                                .foregroundColor(viewModel.backgroundSourceType == type ? .accentColor : .gray)
+                            Text(type.rawValue)
                         }
-                        TextField("名前", text: $viewModel.leftCharacterName)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 150)
-                    }
-
-                    // 右キャラ
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("右キャラクター")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-
-                        HStack {
-                            TextField("画像パス", text: $viewModel.rightCharacterImagePath)
-                                .textFieldStyle(.roundedBorder)
-                                .frame(width: 200)
-                            Button("参照") {}
+                        .onTapGesture {
+                            viewModel.backgroundSourceType = type
                         }
-                        TextField("名前", text: $viewModel.rightCharacterName)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 150)
                     }
                 }
 
-                Divider()
+                if viewModel.backgroundSourceType == .file {
+                    HStack {
+                        Text("背景画像:")
+                            .frame(width: 80, alignment: .leading)
+                        TextField("背景画像パス", text: $viewModel.backgroundImagePath)
+                            .textFieldStyle(.roundedBorder)
+                        Button("参照") {
+                            // TODO: ファイル選択
+                        }
+                    }
+                } else {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("情景説明:")
+                        TextEditor(text: $viewModel.backgroundDescription)
+                            .frame(height: 60)
+                            .border(Color.gray.opacity(0.3), width: 1)
+                    }
+                }
+
+                // ぼかし・雰囲気
+                HStack {
+                    Text("ぼかし:")
+                        .frame(width: 60, alignment: .leading)
+                    Slider(value: $viewModel.storyBlurAmount, in: 0...100, step: 5)
+                    Text("\(Int(viewModel.storyBlurAmount))")
+                        .frame(width: 30)
+                }
 
                 HStack {
-                    Text("優勢設定:")
-                        .frame(width: 80, alignment: .leading)
-                    Picker("", selection: $viewModel.battleAdvantage) {
-                        Text("互角").tag("互角")
-                        Text("左優勢").tag("左優勢")
-                        Text("右優勢").tag("右優勢")
+                    Text("雰囲気:")
+                        .frame(width: 60, alignment: .leading)
+                    Picker("", selection: $viewModel.storyLightingMood) {
+                        ForEach(LightingMood.allCases) { mood in
+                            Text(mood.rawValue).tag(mood)
+                        }
                     }
                     .labelsHidden()
-                    .pickerStyle(.radioGroup)
-                    .horizontalRadioGroupLayout()
+                    .frame(width: 120)
+                    Spacer()
+                }
+
+                if viewModel.storyLightingMood == .custom {
+                    TextField("例: 雨上がりの午後、虹がかかる空", text: $viewModel.storyCustomMood)
+                        .textFieldStyle(.roundedBorder)
                 }
             }
             .padding(10)
         }
     }
 
-    // MARK: - ストーリーシーン
-    private var storySceneContent: some View {
+    private var storyLayoutSection: some View {
         GroupBox {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("ストーリーシーン設定")
+            VStack(alignment: .leading, spacing: 10) {
+                Text("配置設定")
                     .font(.headline)
                     .fontWeight(.bold)
 
-                // キャラクター1
-                characterInputRow(
-                    title: "キャラ1",
-                    imagePath: $viewModel.character1ImagePath,
-                    expression: $viewModel.character1Expression
-                )
+                HStack(spacing: 20) {
+                    HStack {
+                        Text("配置パターン:")
+                        Picker("", selection: $viewModel.storyLayout) {
+                            ForEach(StoryLayout.allCases) { layout in
+                                Text(layout.rawValue).tag(layout)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 180)
+                    }
 
-                // キャラクター2
-                characterInputRow(
-                    title: "キャラ2",
-                    imagePath: $viewModel.character2ImagePath,
-                    expression: $viewModel.character2Expression
-                )
+                    HStack {
+                        Text("距離感:")
+                        Picker("", selection: $viewModel.storyDistance) {
+                            ForEach(StoryDistance.allCases) { distance in
+                                Text(distance.rawValue).tag(distance)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 100)
+                    }
+                    Spacer()
+                }
 
-                // キャラクター3（任意）
-                characterInputRow(
-                    title: "キャラ3",
-                    imagePath: $viewModel.character3ImagePath,
-                    expression: $viewModel.character3Expression
-                )
+                if viewModel.storyLayout == .custom {
+                    TextField("例: 背中合わせで立つ二人、夕日を見つめる", text: $viewModel.storyCustomLayout)
+                        .textFieldStyle(.roundedBorder)
+                }
+            }
+            .padding(10)
+        }
+    }
 
-                Divider()
-
+    private var storyCharacterSection: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    Text("レイアウト:")
-                        .frame(width: 80, alignment: .leading)
-                    Picker("", selection: $viewModel.layoutStyle) {
-                        Text("並んで歩く").tag("並んで歩く")
-                        Text("向かい合う").tag("向かい合う")
-                        Text("背中合わせ").tag("背中合わせ")
+                    Text("キャラクター配置")
+                        .font(.headline)
+                        .fontWeight(.bold)
+
+                    Spacer()
+
+                    Text("人数:")
+                    Picker("", selection: $viewModel.storyCharacterCount) {
+                        ForEach(CharacterCount.allCases) { count in
+                            Text(count.rawValue).tag(count)
+                        }
                     }
                     .labelsHidden()
-                    .frame(width: 150)
+                    .frame(width: 70)
+                }
+
+                // キャラクター入力欄（横並び）
+                HStack(alignment: .top, spacing: 8) {
+                    ForEach(0..<viewModel.storyCharacterCount.intValue, id: \.self) { index in
+                        storyCharacterInput(index: index)
+                    }
+                }
+            }
+            .padding(10)
+        }
+    }
+
+    private func storyCharacterInput(index: Int) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            // ラベル
+            Text(characterLabel(index: index, total: viewModel.storyCharacterCount.intValue))
+                .font(.caption)
+                .fontWeight(.semibold)
+
+            // 画像
+            HStack(spacing: 2) {
+                TextField("画像", text: storyCharacterImageBinding(index: index))
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 80)
+                Button("参照") {}
+                    .font(.caption)
+            }
+
+            // 表情
+            HStack {
+                Text("表情:")
+                    .font(.caption)
+                TextField("笑顔", text: storyCharacterExpressionBinding(index: index))
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 60)
+            }
+
+            // 特徴
+            HStack {
+                Text("特徴:")
+                    .font(.caption)
+                TextField("黒髪", text: storyCharacterTraitsBinding(index: index))
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 80)
+            }
+        }
+        .padding(6)
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(6)
+    }
+
+    private func characterLabel(index: Int, total: Int) -> String {
+        if total == 1 { return "キャラ1" }
+        if index == 0 { return "キャラ1（左端）" }
+        return "キャラ\(index + 1)（\(index)の右隣）"
+    }
+
+    private var storyDialogSection: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("ダイアログ設定")
+                    .font(.headline)
+                    .fontWeight(.bold)
+
+                HStack {
+                    Text("ナレーション:")
+                        .frame(width: 90, alignment: .leading)
+                    TextField("今日から新学期が始まる", text: $viewModel.storyNarration)
+                        .textFieldStyle(.roundedBorder)
+                }
+
+                // セリフ入力欄
+                HStack(spacing: 8) {
+                    ForEach(0..<viewModel.storyCharacterCount.intValue, id: \.self) { index in
+                        HStack {
+                            Text("キャラ\(index + 1):")
+                                .font(.caption)
+                            TextField("セリフ", text: storyDialogueBinding(index: index))
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 100)
+                        }
+                    }
+                }
+            }
+            .padding(10)
+        }
+    }
+
+    // MARK: - バトルシーン
+    private var battleSceneContent: some View {
+        VStack(spacing: 12) {
+            // 背景設定
+            battleBackgroundSection
+
+            // カットイン演出
+            battleCutinSection
+
+            // 衝突設定
+            battleCollisionSection
+
+            // キャラクター配置
+            battleCharacterSection
+
+            // 画面効果
+            battleEffectSection
+        }
+    }
+
+    private var battleBackgroundSection: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("背景設定")
+                    .font(.headline)
+                    .fontWeight(.bold)
+
+                // 背景タイプ選択
+                HStack(spacing: 20) {
+                    ForEach(BackgroundSourceType.allCases) { type in
+                        HStack {
+                            Image(systemName: viewModel.backgroundSourceType == type ? "largecircle.fill.circle" : "circle")
+                                .foregroundColor(viewModel.backgroundSourceType == type ? .accentColor : .gray)
+                            Text(type.rawValue)
+                        }
+                        .onTapGesture {
+                            viewModel.backgroundSourceType = type
+                        }
+                    }
+                }
+
+                if viewModel.backgroundSourceType == .file {
+                    HStack {
+                        Text("背景画像:")
+                            .frame(width: 80, alignment: .leading)
+                        TextField("背景画像パス", text: $viewModel.backgroundImagePath)
+                            .textFieldStyle(.roundedBorder)
+                        Button("参照") {}
+                    }
+                } else {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("情景説明:")
+                        TextEditor(text: $viewModel.backgroundDescription)
+                            .frame(height: 60)
+                            .border(Color.gray.opacity(0.3), width: 1)
+                    }
+                }
+
+                HStack {
+                    Text("暗さ:")
+                        .frame(width: 50, alignment: .leading)
+                    Slider(value: $viewModel.battleDimming, in: 0...1, step: 0.1)
+                    Text(String(format: "%.1f", viewModel.battleDimming))
+                        .frame(width: 30)
+                }
+            }
+            .padding(10)
+        }
+    }
+
+    private var battleCutinSection: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("カットイン演出")
+                    .font(.headline)
+                    .fontWeight(.bold)
+
+                HStack(spacing: 20) {
+                    // 左カットイン
+                    VStack(alignment: .leading, spacing: 6) {
+                        Toggle("左", isOn: $viewModel.leftCutinEnabled)
+                            .toggleStyle(.checkbox)
+
+                        HStack {
+                            TextField("画像", text: $viewModel.leftCutinImagePath)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 120)
+                                .disabled(!viewModel.leftCutinEnabled)
+                            Button("参照") {}
+                                .disabled(!viewModel.leftCutinEnabled)
+                        }
+
+                        Picker("", selection: $viewModel.leftCutinBlendMode) {
+                            ForEach(BlendMode.allCases) { mode in
+                                Text(mode.rawValue).tag(mode)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 120)
+                        .disabled(!viewModel.leftCutinEnabled)
+                    }
+                    .padding(8)
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(6)
+
+                    // 右カットイン
+                    VStack(alignment: .leading, spacing: 6) {
+                        Toggle("右", isOn: $viewModel.rightCutinEnabled)
+                            .toggleStyle(.checkbox)
+
+                        HStack {
+                            TextField("画像", text: $viewModel.rightCutinImagePath)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 120)
+                                .disabled(!viewModel.rightCutinEnabled)
+                            Button("参照") {}
+                                .disabled(!viewModel.rightCutinEnabled)
+                        }
+
+                        Picker("", selection: $viewModel.rightCutinBlendMode) {
+                            ForEach(BlendMode.allCases) { mode in
+                                Text(mode.rawValue).tag(mode)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 120)
+                        .disabled(!viewModel.rightCutinEnabled)
+                    }
+                    .padding(8)
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(6)
+
                     Spacer()
                 }
             }
@@ -191,68 +440,322 @@ struct SceneBuilderSettingsView: View {
         }
     }
 
-    private func characterInputRow(
-        title: String,
-        imagePath: Binding<String>,
-        expression: Binding<CharacterExpression>
-    ) -> some View {
-        HStack {
-            Text("\(title):")
-                .frame(width: 50, alignment: .leading)
-            TextField("画像パス", text: imagePath)
-                .textFieldStyle(.roundedBorder)
-                .frame(width: 200)
-            Button("参照") {}
-            Text("表情:")
-            Picker("", selection: expression) {
-                ForEach(CharacterExpression.allCases) { exp in
-                    Text(exp.rawValue).tag(exp)
-                }
-            }
-            .labelsHidden()
-            .frame(width: 100)
-            Spacer()
-        }
-    }
-
-    // MARK: - ボスレイドシーン
-    private var bossRaidSceneContent: some View {
+    private var battleCollisionSection: some View {
         GroupBox {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("ボスレイド設定")
+            VStack(alignment: .leading, spacing: 10) {
+                Text("衝突設定")
                     .font(.headline)
                     .fontWeight(.bold)
 
-                Text("（大型ボス vs パーティ構成）")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-
-                // ボス
-                HStack {
-                    Text("ボス:")
-                        .frame(width: 60, alignment: .leading)
-                    TextField("ボス画像パス", text: $viewModel.leftCharacterImagePath)
-                        .textFieldStyle(.roundedBorder)
-                    Button("参照") {}
-                }
-
-                Divider()
-
-                Text("パーティメンバー（最大4人）")
-                    .font(.subheadline)
-
-                ForEach(0..<4) { i in
+                HStack(spacing: 20) {
                     HStack {
-                        Text("メンバー\(i+1):")
-                            .frame(width: 80, alignment: .leading)
-                        TextField("画像パス", text: .constant(""))
-                            .textFieldStyle(.roundedBorder)
-                        Button("参照") {}
+                        Text("衝突タイプ:")
+                        Picker("", selection: $viewModel.collisionType) {
+                            ForEach(CollisionType.allCases) { type in
+                                Text(type.rawValue).tag(type)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 140)
+                    }
+
+                    HStack {
+                        Text("優勢:")
+                        Picker("", selection: $viewModel.dominantSide) {
+                            ForEach(DominantSide.allCases) { side in
+                                Text(side.rawValue).tag(side)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 100)
+                    }
+
+                    HStack {
+                        Text("境界エフェクト:")
+                        Picker("", selection: $viewModel.borderVFX) {
+                            ForEach(BorderVFX.allCases) { vfx in
+                                Text(vfx.rawValue).tag(vfx)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 120)
                     }
                 }
             }
             .padding(10)
         }
+    }
+
+    private var battleCharacterSection: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("キャラクター配置")
+                    .font(.headline)
+                    .fontWeight(.bold)
+
+                HStack(spacing: 20) {
+                    // 左キャラ
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("左キャラクター")
+                            .fontWeight(.semibold)
+
+                        HStack {
+                            TextField("画像パス", text: $viewModel.battleLeftCharImagePath)
+                                .textFieldStyle(.roundedBorder)
+                            Button("参照") {}
+                            Text("スケール:")
+                            TextField("1.2", text: $viewModel.battleLeftCharScale)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 50)
+                        }
+
+                        HStack {
+                            Text("名前:")
+                            TextField("AYASE KOYOMI", text: $viewModel.battleLeftCharName)
+                                .textFieldStyle(.roundedBorder)
+                        }
+
+                        HStack {
+                            Text("特徴:")
+                            TextField("長い黒髪、身長高め", text: $viewModel.battleLeftCharTraits)
+                                .textFieldStyle(.roundedBorder)
+                        }
+                    }
+
+                    // 右キャラ
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("右キャラクター")
+                            .fontWeight(.semibold)
+
+                        HStack {
+                            TextField("画像パス", text: $viewModel.battleRightCharImagePath)
+                                .textFieldStyle(.roundedBorder)
+                            Button("参照") {}
+                            Text("スケール:")
+                            TextField("1.2", text: $viewModel.battleRightCharScale)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(width: 50)
+                        }
+
+                        HStack {
+                            Text("名前:")
+                            TextField("SHINOMIYA RIN", text: $viewModel.battleRightCharName)
+                                .textFieldStyle(.roundedBorder)
+                        }
+
+                        HStack {
+                            Text("特徴:")
+                            TextField("ツインテール金髪", text: $viewModel.battleRightCharTraits)
+                                .textFieldStyle(.roundedBorder)
+                        }
+                    }
+                }
+            }
+            .padding(10)
+        }
+    }
+
+    private var battleEffectSection: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("画面効果")
+                    .font(.headline)
+                    .fontWeight(.bold)
+
+                HStack(spacing: 30) {
+                    HStack {
+                        Text("画面揺れ:")
+                        Picker("", selection: $viewModel.screenShake) {
+                            ForEach(ScreenShake.allCases) { shake in
+                                Text(shake.rawValue).tag(shake)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 100)
+                    }
+
+                    Toggle("UI表示", isOn: $viewModel.showUI)
+                        .toggleStyle(.checkbox)
+
+                    Spacer()
+                }
+            }
+            .padding(10)
+        }
+    }
+
+    // MARK: - ボスレイド
+    private var bossRaidContent: some View {
+        VStack(spacing: 12) {
+            // ボス設定
+            bossSection
+
+            // パーティ設定
+            partySection
+
+            // 攻撃エフェクト
+            attackEffectSection
+        }
+    }
+
+    private var bossSection: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("巨大ボス設定")
+                    .font(.headline)
+                    .fontWeight(.bold)
+
+                HStack {
+                    Text("ボス画像:")
+                        .frame(width: 80, alignment: .leading)
+                    TextField("巨大ボス画像", text: $viewModel.bossImagePath)
+                        .textFieldStyle(.roundedBorder)
+                    Button("参照") {}
+                }
+
+                HStack {
+                    Text("スケール:")
+                        .frame(width: 80, alignment: .leading)
+                    TextField("2.5", text: $viewModel.bossScale)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 60)
+
+                    Toggle("画面からはみ出し許可", isOn: $viewModel.bossAllowCrop)
+                        .toggleStyle(.checkbox)
+                        .padding(.leading, 20)
+
+                    Spacer()
+                }
+            }
+            .padding(10)
+        }
+    }
+
+    private var partySection: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("攻撃部隊（パーティ）")
+                    .font(.headline)
+                    .fontWeight(.bold)
+
+                ForEach(0..<3, id: \.self) { index in
+                    HStack {
+                        Text("メンバー\(index + 1):")
+                            .frame(width: 80, alignment: .leading)
+                        TextField("ちびキャラ画像", text: partyMemberImageBinding(index: index))
+                            .textFieldStyle(.roundedBorder)
+                        Button("参照") {}
+                        TextField("Jumping Slash", text: partyMemberActionBinding(index: index))
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 120)
+                    }
+                }
+
+                HStack {
+                    Text("パーティ基本スケール:")
+                    TextField("0.6", text: $viewModel.partyBaseScale)
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 60)
+                    Spacer()
+                }
+            }
+            .padding(10)
+        }
+    }
+
+    private var attackEffectSection: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("集中砲火エフェクト")
+                    .font(.headline)
+                    .fontWeight(.bold)
+
+                HStack(spacing: 30) {
+                    Toggle("集中砲火有効", isOn: $viewModel.convergenceEnabled)
+                        .toggleStyle(.checkbox)
+
+                    HStack {
+                        Text("ビーム色:")
+                        TextField("Blue & Pink Lasers", text: $viewModel.beamColor)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 180)
+                            .disabled(!viewModel.convergenceEnabled)
+                    }
+
+                    Spacer()
+                }
+            }
+            .padding(10)
+        }
+    }
+
+    // MARK: - 装飾テキストオーバーレイ（全シーン共通）
+    private var textOverlaySection: some View {
+        GroupBox {
+            HStack {
+                Text("装飾テキスト:")
+                    .font(.headline)
+                    .fontWeight(.bold)
+
+                Button("配置設定...") {
+                    viewModel.showTextOverlaySheet = true
+                }
+
+                if viewModel.textOverlayItems.isEmpty {
+                    Text("なし")
+                        .foregroundColor(.gray)
+                } else {
+                    Text("\(viewModel.textOverlayItems.count)個配置")
+                        .foregroundColor(.blue)
+                }
+
+                Spacer()
+            }
+            .padding(10)
+        }
+    }
+
+    // MARK: - Bindings Helper
+    private func storyCharacterImageBinding(index: Int) -> Binding<String> {
+        Binding(
+            get: { viewModel.storyCharacters[index].imagePath },
+            set: { viewModel.storyCharacters[index].imagePath = $0 }
+        )
+    }
+
+    private func storyCharacterExpressionBinding(index: Int) -> Binding<String> {
+        Binding(
+            get: { viewModel.storyCharacters[index].expression },
+            set: { viewModel.storyCharacters[index].expression = $0 }
+        )
+    }
+
+    private func storyCharacterTraitsBinding(index: Int) -> Binding<String> {
+        Binding(
+            get: { viewModel.storyCharacters[index].traits },
+            set: { viewModel.storyCharacters[index].traits = $0 }
+        )
+    }
+
+    private func storyDialogueBinding(index: Int) -> Binding<String> {
+        Binding(
+            get: { viewModel.storyDialogues[index] },
+            set: { viewModel.storyDialogues[index] = $0 }
+        )
+    }
+
+    private func partyMemberImageBinding(index: Int) -> Binding<String> {
+        Binding(
+            get: { viewModel.partyMembers[index].imagePath },
+            set: { viewModel.partyMembers[index].imagePath = $0 }
+        )
+    }
+
+    private func partyMemberActionBinding(index: Int) -> Binding<String> {
+        Binding(
+            get: { viewModel.partyMembers[index].action },
+            set: { viewModel.partyMembers[index].action = $0 }
+        )
     }
 }
 

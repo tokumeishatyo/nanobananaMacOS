@@ -459,13 +459,214 @@ enum CameraAngle: String, CaseIterable, Identifiable {
 // MARK: - ===========================================
 
 // MARK: - Scene Type
-/// シーンタイプ
+/// シーンタイプ（Python版準拠）
 enum SceneType: String, CaseIterable, Identifiable {
-    case battle = "バトルシーン"
     case story = "ストーリーシーン"
+    case battle = "バトルシーン"
     case bossRaid = "ボスレイド"
 
     var id: String { rawValue }
+}
+
+// MARK: - Background Source Type
+/// 背景ソースタイプ
+enum BackgroundSourceType: String, CaseIterable, Identifiable {
+    case file = "ファイル指定"
+    case prompt = "情景説明で生成"
+
+    var id: String { rawValue }
+}
+
+// MARK: - Collision Type (Battle)
+/// 衝突タイプ（バトルシーン用）
+enum CollisionType: String, CaseIterable, Identifiable {
+    case centerClash = "中央衝突"
+    case splitScreen = "画面分割"
+    case mergeBlend = "グラデーション融合"
+
+    var id: String { rawValue }
+
+    var englishValue: String {
+        switch self {
+        case .centerClash: return "Center Clash"
+        case .splitScreen: return "Split Screen"
+        case .mergeBlend: return "Merge/Blend"
+        }
+    }
+}
+
+// MARK: - Dominant Side (Battle)
+/// 優勢側（バトルシーン用）
+enum DominantSide: String, CaseIterable, Identifiable {
+    case even = "互角"
+    case left = "左側有利"
+    case right = "右側有利"
+
+    var id: String { rawValue }
+
+    var englishValue: String {
+        switch self {
+        case .even: return "None (Even)"
+        case .left: return "Left"
+        case .right: return "Right"
+        }
+    }
+}
+
+// MARK: - Border VFX (Battle)
+/// 境界エフェクト（バトルシーン用）
+enum BorderVFX: String, CaseIterable, Identifiable {
+    case sparksLightning = "火花と稲妻"
+    case simpleGlow = "シンプル"
+    case none = "なし"
+
+    var id: String { rawValue }
+
+    var englishValue: String {
+        switch self {
+        case .sparksLightning: return "Intense Sparks & Lightning"
+        case .simpleGlow: return "Simple Glow"
+        case .none: return "None"
+        }
+    }
+}
+
+// MARK: - Screen Shake (Battle)
+/// 画面揺れ（バトルシーン用）
+enum ScreenShake: String, CaseIterable, Identifiable {
+    case none = "なし"
+    case mild = "軽め"
+    case moderate = "普通"
+    case heavy = "激しい"
+
+    var id: String { rawValue }
+
+    var englishValue: String {
+        switch self {
+        case .none: return "None"
+        case .mild: return "Mild"
+        case .moderate: return "Moderate"
+        case .heavy: return "Heavy"
+        }
+    }
+}
+
+// MARK: - Blend Mode
+/// 合成モード
+enum BlendMode: String, CaseIterable, Identifiable {
+    case add = "発光（加算）"
+    case screen = "スクリーン"
+    case normal = "通常"
+
+    var id: String { rawValue }
+
+    var englishValue: String {
+        switch self {
+        case .add: return "Add"
+        case .screen: return "Screen"
+        case .normal: return "Normal"
+        }
+    }
+}
+
+// MARK: - Story Layout
+/// 配置パターン（ストーリーシーン用）
+enum StoryLayout: String, CaseIterable, Identifiable {
+    case sideBySide = "並んで歩く"
+    case faceToFace = "向かい合う（テーブル）"
+    case centerListener = "中央で話す"
+    case custom = "カスタム"
+
+    var id: String { rawValue }
+
+    var englishValue: String {
+        switch self {
+        case .sideBySide: return "Side by Side (Walking)"
+        case .faceToFace: return "Face to Face (Table)"
+        case .centerListener: return "Center & Listener"
+        case .custom: return "custom"
+        }
+    }
+}
+
+// MARK: - Story Distance
+/// 距離感（ストーリーシーン用）
+enum StoryDistance: String, CaseIterable, Identifiable {
+    case close = "親しい"
+    case normal = "普通"
+    case distant = "遠い"
+
+    var id: String { rawValue }
+
+    var englishValue: String {
+        switch self {
+        case .close: return "Close Friends"
+        case .normal: return "Normal"
+        case .distant: return "Distant"
+        }
+    }
+}
+
+// MARK: - Lighting Mood
+/// 雰囲気（ストーリーシーン用）
+enum LightingMood: String, CaseIterable, Identifiable {
+    case morning = "朝の光"
+    case sunset = "夕焼け"
+    case summerNoon = "夏の正午"
+    case night = "夜"
+    case custom = "カスタム"
+
+    var id: String { rawValue }
+
+    var englishValue: String {
+        switch self {
+        case .morning: return "Morning Sunlight"
+        case .sunset: return "Sunset"
+        case .summerNoon: return "Summer Noon"
+        case .night: return "Night"
+        case .custom: return "custom"
+        }
+    }
+}
+
+// MARK: - Character Count (Story)
+/// キャラクター人数（ストーリーシーン用）
+enum CharacterCount: String, CaseIterable, Identifiable {
+    case one = "1人"
+    case two = "2人"
+    case three = "3人"
+    case four = "4人"
+    case five = "5人"
+
+    var id: String { rawValue }
+
+    var intValue: Int {
+        switch self {
+        case .one: return 1
+        case .two: return 2
+        case .three: return 3
+        case .four: return 4
+        case .five: return 5
+        }
+    }
+}
+
+// MARK: - Text Overlay Layer
+/// 装飾テキストレイヤー
+enum TextOverlayLayer: String, CaseIterable, Identifiable {
+    case frontmost = "最前面"
+    case behindCharacters = "キャラの後ろ"
+    case aboveBackground = "背景の前"
+
+    var id: String { rawValue }
+
+    var englishValue: String {
+        switch self {
+        case .frontmost: return "Frontmost (Above Characters)"
+        case .behindCharacters: return "Behind Characters"
+        case .aboveBackground: return "Above Background Only"
+        }
+    }
 }
 
 // MARK: - ===========================================

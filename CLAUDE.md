@@ -59,6 +59,22 @@ Python版では「スタイル」設定が複数箇所（メイン画面、顔�
 - 各ステップは「何を生成するか」に集中
 - スタイル変換は後処理ツールとして明確な役割を持つ
 
+## シーンビルダーのUI分割ルール
+
+SceneBuilderSettingsViewは3つのシーンタイプ（ストーリー、バトル、ボスレイド）を持つ。
+
+**分割方針:**
+- 現在は1ファイルで管理
+- **各シーンタイプが300行を超えたら**、個別ファイルに分割
+  - `StorySceneView.swift`
+  - `BattleSceneView.swift`
+  - `BossRaidSceneView.swift`
+- ViewModel（SceneBuilderSettingsViewModel）は分割せず、共通で使用
+
+**分割の目安:**
+- 各シーンタイプが約200〜250行の段階で分割を検討
+- 新機能追加時に300行を超える見込みがあれば先に分割
+
 ## ポーズ設定の同一性保持（重要・機能実装時の注意）
 
 Python版にあった「同一性保持」スライダーはUIから削除。
@@ -136,7 +152,7 @@ Python版にあった「同一性保持」スライダーはUIから削除。
   - BodySheetSettingsView（素体三面図）※スタイル設定削除済み
   - OutfitSettingsView（衣装着用）※スタイル設定削除済み、形状動的選択対応
   - PoseSettingsView（ポーズ）※Python版準拠に修正済み、同一性保持は固定
-  - SceneBuilderSettingsView（シーンビルダー）
+  - SceneBuilderSettingsView（シーンビルダー）※Python版準拠に修正済み、装飾テキスト配置対応
   - BackgroundSettingsView（背景生成）
   - DecorativeTextSettingsView（装飾テキスト）
   - FourPanelSettingsView（4コマ漫画）

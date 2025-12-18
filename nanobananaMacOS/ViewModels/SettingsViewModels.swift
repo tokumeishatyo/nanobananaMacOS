@@ -102,29 +102,120 @@ final class PoseSettingsViewModel: ObservableObject {
 }
 
 // MARK: - Scene Builder Settings ViewModel
-/// シーンビルダー設定ViewModel
+/// シーンビルダー設定ViewModel（Python版準拠）
 @MainActor
 final class SceneBuilderSettingsViewModel: ObservableObject {
-    @Published var sceneType: SceneType = .battle
+    // シーンタイプ（デフォルト: ストーリーシーン）
+    @Published var sceneType: SceneType = .story
+
+    // === 共通: 背景設定 ===
+    @Published var backgroundSourceType: BackgroundSourceType = .file
     @Published var backgroundImagePath: String = ""
     @Published var backgroundDescription: String = ""
 
-    // バトルシーン用
-    @Published var leftCharacterImagePath: String = ""
-    @Published var leftCharacterName: String = ""
-    @Published var rightCharacterImagePath: String = ""
-    @Published var rightCharacterName: String = ""
-    @Published var battleAdvantage: String = "互角"
+    // === バトルシーン用 ===
+    // 背景
+    @Published var battleDimming: Double = 0.5
 
-    // ストーリーシーン用
-    @Published var character1ImagePath: String = ""
-    @Published var character1Expression: CharacterExpression = .neutral
-    @Published var character2ImagePath: String = ""
-    @Published var character2Expression: CharacterExpression = .neutral
-    @Published var character3ImagePath: String = ""
-    @Published var character3Expression: CharacterExpression = .neutral
-    @Published var layoutStyle: String = "並んで歩く"
-    @Published var dialogues: [String] = ["", "", ""]
+    // カットイン演出
+    @Published var leftCutinEnabled: Bool = true
+    @Published var leftCutinImagePath: String = ""
+    @Published var leftCutinBlendMode: BlendMode = .add
+    @Published var rightCutinEnabled: Bool = true
+    @Published var rightCutinImagePath: String = ""
+    @Published var rightCutinBlendMode: BlendMode = .add
+
+    // 衝突設定
+    @Published var collisionType: CollisionType = .centerClash
+    @Published var dominantSide: DominantSide = .even
+    @Published var borderVFX: BorderVFX = .sparksLightning
+
+    // キャラクター配置（左）
+    @Published var battleLeftCharImagePath: String = ""
+    @Published var battleLeftCharScale: String = "1.2"
+    @Published var battleLeftCharName: String = ""
+    @Published var battleLeftCharTraits: String = ""
+
+    // キャラクター配置（右）
+    @Published var battleRightCharImagePath: String = ""
+    @Published var battleRightCharScale: String = "1.2"
+    @Published var battleRightCharName: String = ""
+    @Published var battleRightCharTraits: String = ""
+
+    // 画面効果
+    @Published var screenShake: ScreenShake = .heavy
+    @Published var showUI: Bool = true
+
+    // === ストーリーシーン用 ===
+    // 背景
+    @Published var storyBlurAmount: Double = 10
+    @Published var storyLightingMood: LightingMood = .morning
+    @Published var storyCustomMood: String = ""
+
+    // 配置設定
+    @Published var storyLayout: StoryLayout = .sideBySide
+    @Published var storyCustomLayout: String = ""
+    @Published var storyDistance: StoryDistance = .close
+
+    // キャラクター配置（動的、最大5人）
+    @Published var storyCharacterCount: CharacterCount = .two
+    @Published var storyCharacters: [StoryCharacter] = [
+        StoryCharacter(),
+        StoryCharacter(),
+        StoryCharacter(),
+        StoryCharacter(),
+        StoryCharacter()
+    ]
+
+    // ダイアログ設定
+    @Published var storyNarration: String = ""
+    @Published var storyDialogues: [String] = ["", "", "", "", ""]
+
+    // === ボスレイド用 ===
+    // ボス設定
+    @Published var bossImagePath: String = ""
+    @Published var bossScale: String = "2.5"
+    @Published var bossAllowCrop: Bool = true
+
+    // パーティメンバー（3人）
+    @Published var partyMembers: [PartyMember] = [
+        PartyMember(),
+        PartyMember(),
+        PartyMember()
+    ]
+    @Published var partyBaseScale: String = "0.6"
+
+    // 集中砲火エフェクト
+    @Published var convergenceEnabled: Bool = true
+    @Published var beamColor: String = "Blue & Pink Lasers"
+
+    // === 共通: 装飾テキストオーバーレイ ===
+    @Published var textOverlayItems: [TextOverlayItem] = []
+    @Published var showTextOverlaySheet: Bool = false
+}
+
+/// ストーリーシーン用キャラクターデータ
+struct StoryCharacter: Identifiable {
+    let id = UUID()
+    var imagePath: String = ""
+    var expression: String = ""
+    var traits: String = ""
+}
+
+/// ボスレイド用パーティメンバーデータ
+struct PartyMember: Identifiable {
+    let id = UUID()
+    var imagePath: String = ""
+    var action: String = ""
+}
+
+/// 装飾テキストオーバーレイアイテム（最大10個）
+struct TextOverlayItem: Identifiable {
+    let id = UUID()
+    var imagePath: String = ""
+    var position: String = "Center"
+    var size: String = "100%"
+    var layer: TextOverlayLayer = .frontmost
 }
 
 // MARK: - Background Settings ViewModel
