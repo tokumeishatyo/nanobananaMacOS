@@ -47,7 +47,8 @@ final class YAMLGeneratorService: YAMLGeneratorServiceProtocol {
     func generateFaceSheetYAML(mainViewModel: MainViewModel, faceSheetSettings: FaceSheetSettingsViewModel) -> String {
         // キャラクター情報
         let name = faceSheetSettings.characterName.isEmpty ? "Character" : faceSheetSettings.characterName
-        let description = escapeYAMLMultiline(faceSheetSettings.appearanceDescription)
+        // 改行をカンマ区切りに変換（AIが特徴を正確に認識しやすくするため）
+        let description = convertNewlinesToComma(faceSheetSettings.appearanceDescription)
         let title = mainViewModel.title.isEmpty ? "\(name) Reference Sheet" : mainViewModel.title
         let author = mainViewModel.authorName.isEmpty ? "Unknown" : mainViewModel.authorName
 
@@ -233,11 +234,21 @@ title_overlay:
             .replacingOccurrences(of: "\"", with: "\\\"")
     }
 
-    /// YAML文字列のエスケープ（改行を含む場合）
-    private func escapeYAMLMultiline(_ string: String) -> String {
-        return string
+    /// 改行をカンマ区切りに変換（AIが特徴を正確に認識しやすくするため）
+    /// - 複数行の説明文をカンマ区切りの1行に変換
+    /// - 空行は除去
+    /// - 前後の空白もトリム
+    private func convertNewlinesToComma(_ string: String) -> String {
+        let lines = string
+            .split(separator: "\n", omittingEmptySubsequences: true)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+
+        let joined = lines.joined(separator: ", ")
+
+        // YAMLエスケープも適用
+        return joined
             .replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "\"", with: "\\\"")
-            .replacingOccurrences(of: "\n", with: "\\n")
     }
 }
