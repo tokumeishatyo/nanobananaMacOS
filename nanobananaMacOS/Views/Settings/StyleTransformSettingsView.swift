@@ -98,8 +98,10 @@ struct StyleTransformSettingsView: View {
                     }
                 }
                 .pickerStyle(.segmented)
+                .frame(width: 300, alignment: .leading)
             }
             .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -145,7 +147,7 @@ struct StyleTransformSettingsView: View {
                         }
                     }
                     .labelsHidden()
-                    .frame(width: 200)
+                    .frame(width: 200, alignment: .leading)
                     Spacer()
                 }
 
@@ -158,7 +160,7 @@ struct StyleTransformSettingsView: View {
                         }
                     }
                     .labelsHidden()
-                    .frame(width: 200)
+                    .frame(width: 200, alignment: .leading)
                     Spacer()
                 }
 
@@ -179,6 +181,7 @@ struct StyleTransformSettingsView: View {
                 Toggle("背景透過（合成用素材として出力）", isOn: $viewModel.transparentBackground)
             }
             .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
