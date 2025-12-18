@@ -276,7 +276,7 @@ final class MainViewModel: ObservableObject {
             WindowManager.shared.openWindow(
                 id: windowId,
                 title: title,
-                size: NSSize(width: 700, height: 550)
+                size: NSSize(width: 700, height: 650)
             ) { [weak self] in
                 BodySheetSettingsView { _ in
                     self?.isSettingsConfigured = true

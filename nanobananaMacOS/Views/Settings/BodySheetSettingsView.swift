@@ -55,8 +55,9 @@ struct BodySheetSettingsView: View {
                                         Text(preset.rawValue).tag(preset)
                                     }
                                 }
+                                .pickerStyle(.menu)
                                 .labelsHidden()
-                                .frame(width: 180)
+                                .frame(width: 180, alignment: .leading)
                                 Spacer()
                             }
 
@@ -69,8 +70,9 @@ struct BodySheetSettingsView: View {
                                         Text(feature.rawValue).tag(feature)
                                     }
                                 }
+                                .pickerStyle(.menu)
                                 .labelsHidden()
-                                .frame(width: 180)
+                                .frame(width: 180, alignment: .leading)
                                 Spacer()
                             }
 
@@ -83,8 +85,9 @@ struct BodySheetSettingsView: View {
                                         Text(type.rawValue).tag(type)
                                     }
                                 }
+                                .pickerStyle(.menu)
                                 .labelsHidden()
-                                .frame(width: 180)
+                                .frame(width: 180, alignment: .leading)
                                 Spacer()
                             }
                         }
@@ -125,6 +128,7 @@ struct BodySheetSettingsView: View {
                             .font(.caption)
                         }
                         .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
                 .padding(16)
@@ -147,7 +151,7 @@ struct BodySheetSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 700, height: 550)
+        .frame(width: 700, height: 650)
     }
 }
 
