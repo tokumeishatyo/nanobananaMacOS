@@ -67,25 +67,38 @@ final class OutfitSettingsViewModel: ObservableObject {
 }
 
 // MARK: - Pose Settings ViewModel
-/// ポーズ設定ViewModel
+/// ポーズ設定ViewModel（Python版準拠）
 @MainActor
 final class PoseSettingsViewModel: ObservableObject {
-    @Published var outfitSheetImagePath: String = ""
-    @Published var selectedPose: CharacterPose = .standing
-    @Published var customPose: String = ""
-    @Published var expression: CharacterExpression = .neutral
-    @Published var facing: CharacterFacing = .front
-    @Published var effectType: EffectType = .none
-    @Published var effectColor: EffectColor = .auto
-    @Published var transparentBackground: Bool = false
-
-    // ポーズキャプチャ
+    // ポーズプリセット
+    @Published var selectedPreset: PosePreset = .none {
+        didSet {
+            // プリセット選択時に動作説明と風効果を自動入力
+            if selectedPreset != .none {
+                actionDescription = selectedPreset.description
+                windEffect = selectedPreset.defaultWindEffect
+            }
+        }
+    }
     @Published var usePoseCapture: Bool = false
     @Published var poseReferenceImagePath: String = ""
 
-    // 角度・ズーム変更
-    @Published var cameraAngle: CameraAngle = .front
-    @Published var zoomLevel: ZoomLevel = .fullBody
+    // 入力画像（衣装着用三面図）
+    @Published var outfitSheetImagePath: String = ""
+    // 注: 顔・衣装の同一性は常に保持（固定）
+
+    // 向き・表情
+    @Published var eyeLine: EyeLine = .front
+    @Published var expression: PoseExpression = .neutral
+    @Published var expressionDetail: String = ""
+
+    // 動作説明
+    @Published var actionDescription: String = ""
+
+    // ビジュアル効果
+    @Published var includeEffects: Bool = false
+    @Published var transparentBackground: Bool = true
+    @Published var windEffect: WindEffect = .none
 }
 
 // MARK: - Scene Builder Settings ViewModel

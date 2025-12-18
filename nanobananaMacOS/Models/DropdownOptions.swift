@@ -257,8 +257,93 @@ enum OutfitFashionStyle: String, CaseIterable, Identifiable {
 // MARK: - ポーズ（Step4）関連
 // MARK: - ===========================================
 
+// MARK: - Pose Preset
+/// ポーズプリセット
+enum PosePreset: String, CaseIterable, Identifiable {
+    case none = "（プリセットなし）"
+    case hadouken = "波動拳（かめはめ波）"
+    case speciumRay = "スペシウム光線"
+    case riderKick = "ライダーキック"
+    case fingerBeam = "指先ビーム"
+    case meditation = "坐禅（瞑想）"
+
+    var id: String { rawValue }
+
+    /// プリセットに対応する動作説明
+    var description: String {
+        switch self {
+        case .none: return ""
+        case .hadouken: return "Thrusting both palms forward at waist level, knees slightly bent, focusing energy between hands"
+        case .speciumRay: return "Crossing arms in a plus sign shape (+) in front of chest, right hand vertical, left hand horizontal"
+        case .riderKick: return "Mid-air dynamic flying kick, one leg extended forward, body angled downward, floating in the air"
+        case .fingerBeam: return "Pointing index finger forward, arm fully extended, other fingers closed, cool and composed expression"
+        case .meditation: return "Sitting cross-legged in lotus position, hands resting on knees, eyes closed, meditative posture"
+        }
+    }
+
+    /// プリセットに対応するデフォルト風効果
+    var defaultWindEffect: WindEffect {
+        switch self {
+        case .none, .fingerBeam, .meditation: return .none
+        case .hadouken, .speciumRay, .riderKick: return .fromFront
+        }
+    }
+}
+
+// MARK: - Eye Line
+/// 目線方向
+enum EyeLine: String, CaseIterable, Identifiable {
+    case front = "前を見る"
+    case up = "上を見る"
+    case down = "下を見る"
+
+    var id: String { rawValue }
+}
+
+// MARK: - Pose Expression
+/// ポーズ用表情（Python版準拠）
+enum PoseExpression: String, CaseIterable, Identifiable {
+    case neutral = "無表情"
+    case smile = "笑顔"
+    case angry = "怒り"
+    case crying = "泣き"
+    case shy = "恥じらい"
+
+    var id: String { rawValue }
+
+    var prompt: String {
+        switch self {
+        case .neutral: return "neutral expression, calm face, no emotion"
+        case .smile: return "smiling, happy expression, cheerful face"
+        case .angry: return "angry expression, furious face, frowning"
+        case .crying: return "crying, tearful expression, sad face with tears"
+        case .shy: return "shy expression, blushing, embarrassed face"
+        }
+    }
+}
+
+// MARK: - Wind Effect
+/// 風の影響
+enum WindEffect: String, CaseIterable, Identifiable {
+    case none = "なし"
+    case fromFront = "前からの風"
+    case fromBehind = "後ろからの風"
+    case fromSide = "横からの風"
+
+    var id: String { rawValue }
+
+    var prompt: String {
+        switch self {
+        case .none: return ""
+        case .fromFront: return "Strong Wind from Front"
+        case .fromBehind: return "Wind from Behind"
+        case .fromSide: return "Side Wind"
+        }
+    }
+}
+
 // MARK: - Character Pose
-/// キャラクターポーズ
+/// キャラクターポーズ（シーンビルダー等で使用）
 enum CharacterPose: String, CaseIterable, Identifiable {
     // バトル系
     case attack = "攻撃"

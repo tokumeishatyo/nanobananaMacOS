@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// ポーズ設定ウィンドウ
+/// ポーズ設定ウィンドウ（Python版準拠）
 struct PoseSettingsView: View {
     @StateObject private var viewModel = PoseSettingsViewModel()
     @Environment(\.dismiss) private var dismiss
@@ -9,115 +9,106 @@ struct PoseSettingsView: View {
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 16) {
-                    // 入力画像セクション
+                VStack(spacing: 12) {
+                    // MARK: - ポーズプリセット
                     GroupBox {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("入力画像")
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("ポーズプリセット")
                                 .font(.headline)
                                 .fontWeight(.bold)
 
+                            Text("よく使うポーズを選択すると動作説明が自動入力されます")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+
+                            // プリセット選択とポーズキャプチャ（横並び）
+                            HStack(spacing: 20) {
+                                Picker("", selection: $viewModel.selectedPreset) {
+                                    ForEach(PosePreset.allCases) { preset in
+                                        Text(preset.rawValue).tag(preset)
+                                    }
+                                }
+                                .labelsHidden()
+                                .frame(width: 200)
+                                .disabled(viewModel.usePoseCapture)
+
+                                Toggle("参考画像のポーズをキャプチャ", isOn: $viewModel.usePoseCapture)
+                            }
+
+                            // ポーズ参考画像パス
                             HStack {
-                                Text("衣装三面図:")
+                                Text("ポーズ参考画像:")
                                     .frame(width: 100, alignment: .leading)
-                                TextField("衣装三面図の画像パス（必須）", text: $viewModel.outfitSheetImagePath)
+                                TextField("ポーズを取り込みたい画像のパス", text: $viewModel.poseReferenceImagePath)
+                                    .textFieldStyle(.roundedBorder)
+                                    .disabled(!viewModel.usePoseCapture)
+                                Button("参照") {
+                                    // TODO: ファイル選択
+                                }
+                                .disabled(!viewModel.usePoseCapture)
+                            }
+
+                            Text("※ 参考画像の著作権はユーザー責任です")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                        }
+                        .padding(10)
+                    }
+
+                    // MARK: - 入力画像（衣装着用三面図）
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("入力画像（衣装着用三面図）")
+                                .font(.headline)
+                                .fontWeight(.bold)
+
+                            Text("衣装着用三面図、または任意のキャラ画像を指定")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+
+                            HStack {
+                                Text("画像:")
+                                    .frame(width: 80, alignment: .leading)
+                                TextField("衣装着用三面図の画像パス", text: $viewModel.outfitSheetImagePath)
                                     .textFieldStyle(.roundedBorder)
                                 Button("参照") {
                                     // TODO: ファイル選択
                                 }
                             }
+
+                            Text("※ 顔・衣装の同一性は常に保持されます（ポーズのみ変更）")
+                                .font(.caption)
+                                .foregroundColor(.gray)
                         }
                         .padding(10)
                     }
 
-                    // ポーズ設定セクション
+                    // MARK: - 向き・表情
                     GroupBox {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("ポーズ設定")
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("向き・表情")
                                 .font(.headline)
                                 .fontWeight(.bold)
 
-                            // ポーズキャプチャ
-                            Toggle("ポーズキャプチャを使用", isOn: $viewModel.usePoseCapture)
-
-                            if viewModel.usePoseCapture {
+                            HStack(spacing: 20) {
                                 HStack {
-                                    Text("参考画像:")
-                                        .frame(width: 100, alignment: .leading)
-                                    TextField("ポーズ参考画像", text: $viewModel.poseReferenceImagePath)
-                                        .textFieldStyle(.roundedBorder)
-                                    Button("参照") {
-                                        // TODO: ファイル選択
-                                    }
-                                }
-                            } else {
-                                // ポーズプリセット
-                                HStack {
-                                    Text("ポーズ:")
-                                        .frame(width: 100, alignment: .leading)
-                                    Picker("", selection: $viewModel.selectedPose) {
-                                        ForEach(CharacterPose.allCases) { pose in
-                                            Text(pose.rawValue).tag(pose)
+                                    Text("目線:")
+                                        .frame(width: 40, alignment: .leading)
+                                    Picker("", selection: $viewModel.eyeLine) {
+                                        ForEach(EyeLine.allCases) { line in
+                                            Text(line.rawValue).tag(line)
                                         }
                                     }
                                     .labelsHidden()
-                                    .frame(width: 150)
-                                    Spacer()
+                                    .frame(width: 100)
                                 }
 
-                                // カスタムポーズ
                                 HStack {
-                                    Text("カスタム:")
-                                        .frame(width: 100, alignment: .leading)
-                                    TextField("自由記述（任意）", text: $viewModel.customPose)
-                                        .textFieldStyle(.roundedBorder)
-                                }
-                            }
-
-                            Divider()
-
-                            // 表情・視線
-                            HStack {
-                                Text("表情:")
-                                    .frame(width: 100, alignment: .leading)
-                                Picker("", selection: $viewModel.expression) {
-                                    ForEach(CharacterExpression.allCases) { exp in
-                                        Text(exp.rawValue).tag(exp)
-                                    }
-                                }
-                                .labelsHidden()
-                                .frame(width: 120)
-
-                                Text("向き:")
-                                    .frame(width: 40, alignment: .leading)
-                                Picker("", selection: $viewModel.facing) {
-                                    ForEach(CharacterFacing.allCases) { facing in
-                                        Text(facing.rawValue).tag(facing)
-                                    }
-                                }
-                                .labelsHidden()
-                                .frame(width: 120)
-                                Spacer()
-                            }
-
-                            // エフェクト
-                            HStack {
-                                Text("エフェクト:")
-                                    .frame(width: 100, alignment: .leading)
-                                Picker("", selection: $viewModel.effectType) {
-                                    ForEach(EffectType.allCases) { effect in
-                                        Text(effect.rawValue).tag(effect)
-                                    }
-                                }
-                                .labelsHidden()
-                                .frame(width: 100)
-
-                                if viewModel.effectType != .none {
-                                    Text("色:")
-                                        .frame(width: 30, alignment: .leading)
-                                    Picker("", selection: $viewModel.effectColor) {
-                                        ForEach(EffectColor.allCases) { color in
-                                            Text(color.rawValue).tag(color)
+                                    Text("表情:")
+                                        .frame(width: 40, alignment: .leading)
+                                    Picker("", selection: $viewModel.expression) {
+                                        ForEach(PoseExpression.allCases) { exp in
+                                            Text(exp.rawValue).tag(exp)
                                         }
                                     }
                                     .labelsHidden()
@@ -126,43 +117,56 @@ struct PoseSettingsView: View {
                                 Spacer()
                             }
 
-                            Toggle("背景透過（合成用）", isOn: $viewModel.transparentBackground)
+                            HStack {
+                                Text("表情補足:")
+                                    .frame(width: 70, alignment: .leading)
+                                TextField("例：苦笑い、泣き笑い、ニヤリ", text: $viewModel.expressionDetail)
+                                    .textFieldStyle(.roundedBorder)
+                            }
                         }
                         .padding(10)
                     }
 
-                    // 角度・ズーム設定
+                    // MARK: - 動作説明
                     GroupBox {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("角度・ズーム変更")
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("動作説明")
                                 .font(.headline)
                                 .fontWeight(.bold)
 
-                            HStack {
-                                Text("カメラ角度:")
-                                    .frame(width: 100, alignment: .leading)
-                                Picker("", selection: $viewModel.cameraAngle) {
-                                    ForEach(CameraAngle.allCases) { angle in
-                                        Text(angle.rawValue).tag(angle)
+                            Text("ポーズや動作を自由に記述してください（日本語/英語どちらでも可）")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+
+                            TextField("例：椅子に座ってコーヒーを飲む、手を振る、考え込むポーズ", text: $viewModel.actionDescription)
+                                .textFieldStyle(.roundedBorder)
+                        }
+                        .padding(10)
+                    }
+
+                    // MARK: - ビジュアル効果
+                    GroupBox {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("ビジュアル効果")
+                                .font(.headline)
+                                .fontWeight(.bold)
+
+                            HStack(spacing: 30) {
+                                Toggle("エフェクトを描画する（合成用はOFF推奨）", isOn: $viewModel.includeEffects)
+
+                                HStack {
+                                    Text("風の影響:")
+                                    Picker("", selection: $viewModel.windEffect) {
+                                        ForEach(WindEffect.allCases) { wind in
+                                            Text(wind.rawValue).tag(wind)
+                                        }
                                     }
+                                    .labelsHidden()
+                                    .frame(width: 120)
                                 }
-                                .labelsHidden()
-                                .frame(width: 150)
-                                Spacer()
                             }
 
-                            HStack {
-                                Text("ズーム:")
-                                    .frame(width: 100, alignment: .leading)
-                                Picker("", selection: $viewModel.zoomLevel) {
-                                    ForEach(ZoomLevel.allCases) { zoom in
-                                        Text(zoom.rawValue).tag(zoom)
-                                    }
-                                }
-                                .labelsHidden()
-                                .frame(width: 150)
-                                Spacer()
-                            }
+                            Toggle("背景を透過にする（合成用）", isOn: $viewModel.transparentBackground)
                         }
                         .padding(10)
                     }
