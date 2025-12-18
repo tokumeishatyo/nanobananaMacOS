@@ -39,7 +39,7 @@
 
 **このサイクルを崩さないこと。**
 
-### アーキテクチャ: MVVM
+### アーキテクチャ: MVVM + Services
 
 ```
 nanobananaMacOS/
@@ -47,7 +47,8 @@ nanobananaMacOS/
 │   ├── Constants.swift        # アプリ基本定数（出力タイプ、モード、解像度等）
 │   └── DropdownOptions.swift  # プルダウン選択肢を集約
 ├── ViewModels/       # ビューモデル（状態管理、ビジネスロジック）
-│   └── MainViewModel.swift
+│   ├── MainViewModel.swift
+│   └── SettingsViewModels.swift  # 各設定ウィンドウ用ViewModel
 ├── Views/            # ビュー（UI）
 │   ├── MainView.swift
 │   ├── LeftColumnView.swift
@@ -55,6 +56,11 @@ nanobananaMacOS/
 │   ├── RightColumnView.swift
 │   ├── Settings/     # 設定ウィンドウ
 │   └── Components/   # 再利用可能なUIコンポーネント
+├── Services/         # サービス層（機能実装）
+│   ├── ValidationService.swift    # バリデーション
+│   ├── YAMLGeneratorService.swift # YAML生成（Python版準拠）
+│   ├── ClipboardService.swift     # クリップボード操作
+│   └── FileService.swift          # ファイル保存/読込
 ├── Utilities/        # ユーティリティ
 │   └── WindowManager.swift    # 移動可能ウィンドウ管理
 └── ContentView.swift # エントリーポイント
@@ -80,6 +86,76 @@ Python版では「スタイル」設定が複数箇所（メイン画面、顔�
 - 設定が1箇所で完結し、混乱を防止
 - 各ステップは「何を生成するか」に集中
 - スタイル変換は後処理ツールとして明確な役割を持つ
+
+## YAML生成の方針（重要）
+
+### Python版との互換性
+
+YAML生成は**Python版と同一の出力形式**を維持する。これはAI（Gemini API）に渡すプロンプトの品質に直結するため、非常に重要。
+
+**参照すべきPythonコード:**
+- `/app/main.py` - `_generate_character_sheet_yaml()` 等のYAML生成メソッド
+- `/template/` - YAMLテンプレートファイル
+
+### 顔三面図YAMLの構造（Python版準拠）
+
+```yaml
+# Face Character Reference Sheet (character_basic.yaml準拠)
+type: character_design
+title: "キャラクター名"
+author: "作者名"
+
+output_type: "face character reference sheet"
+
+# レイアウト指示（三角形配置）
+layout:
+  arrangement: "triangular, inverted triangle formation"
+  direction: "all views facing LEFT"
+  top_row: [...]
+  bottom_row: [...]
+
+headshot_specification:
+  type: "Character design base body (sotai) headshot..."
+  coverage: "From top of head to base of neck..."
+  ...
+
+character:
+  name: "キャラクター名"
+  description: "外見説明"
+  outfit: "NONE - bare skin only, no clothing"
+  expression: "neutral expression"
+
+character_style:
+  style: "日本のアニメスタイル, 2Dセルシェーディング"
+  proportions: "Normal head-to-body ratio (6-7 heads)"
+  style_description: "High quality anime illustration"
+
+output:
+  format: "reference sheet with multiple views"
+  views: "front view, 3/4 view, side profile"
+  ...
+
+constraints:
+  layout: [...]
+  design: [...]
+  face_specific: [...]
+
+anti_hallucination: [...]
+
+output_cleanliness: [...]
+
+style:
+  color_mode: "fullcolor"
+  output_style: ""
+  aspect_ratio: "1:1"
+```
+
+### YAMLGeneratorServiceの実装方針
+
+1. **Python版のメソッド構造を踏襲** - 各出力タイプに対応するメソッドを用意
+2. **セクション構成を維持** - layout, headshot_specification, character_style等
+3. **コメント（#）を含める** - AIへの視覚的な区切りとして機能
+4. **制約セクションを必ず含める** - constraints, anti_hallucination, output_cleanliness
 
 ## シーンビルダーのUI分割ルール
 
@@ -194,18 +270,30 @@ Python版にあった「同一性保持」スライダーはUIから削除。
   - .sheet()から独立ウィンドウ方式に変更
   - ウィンドウのドラッグ移動が可能に
 
-### 未実装（機能は後回し）
-- [ ] YAML生成ロジック
+### 機能実装（進行中）
+- [x] サービス層の基盤実装
+  - ValidationService（バリデーション）
+  - YAMLGeneratorService（YAML生成）
+  - ClipboardService（クリップボード）
+  - FileService（ファイル保存/読込）
+- [x] 設定の保存・復元機能
+  - MainViewModelに各出力タイプの設定を保存
+  - 設定ウィンドウ再オープン時に復元
+  - 出力タイプ変更時の確認ダイアログ
+- [x] YAML生成機能（顔三面図）
+  - Python版と同一形式のYAML出力
+  - コピー/保存/読込機能
+- [ ] YAML生成機能（残り9種類の出力タイプ）
 - [ ] Gemini API呼び出し
-- [ ] 画像保存/読込
 - [ ] ファイル選択ダイアログの実装（各設定ウィンドウの「参照」ボタン）
 - [ ] 漫画コンポーザー
 - [ ] 背景透過ツール
 
 ## 次のステップ
 
-1. 残りの設定ウィンドウUIの調整（必要に応じてPython版を参照）
-2. 機能実装（YAML生成、API呼び出しなど）
+1. 残りの出力タイプのYAML生成実装（素体三面図、衣装着用、ポーズ等）
+2. Gemini API連携の実装
+3. ファイル選択ダイアログの実装
 
 ## 注意事項
 
