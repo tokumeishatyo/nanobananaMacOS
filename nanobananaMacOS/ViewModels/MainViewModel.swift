@@ -296,7 +296,7 @@ final class MainViewModel: ObservableObject {
             WindowManager.shared.openWindow(
                 id: windowId,
                 title: title,
-                size: NSSize(width: 700, height: 600)
+                size: NSSize(width: 700, height: 800)
             ) { [weak self] in
                 PoseSettingsView { _ in
                     self?.isSettingsConfigured = true
@@ -306,7 +306,7 @@ final class MainViewModel: ObservableObject {
             WindowManager.shared.openWindow(
                 id: windowId,
                 title: title,
-                size: NSSize(width: 850, height: 850)
+                size: NSSize(width: 850, height: 900)
             ) { [weak self] in
                 SceneBuilderSettingsView { _ in
                     self?.isSettingsConfigured = true

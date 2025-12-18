@@ -4,18 +4,9 @@ import SwiftUI
 /// シーンビルダーから呼び出される、最大10個の装飾テキストを配置
 struct TextOverlayPlacementView: View {
     @Binding var items: [TextOverlayItem]
-    @Environment(\.dismiss) private var standardDismiss
-    @Environment(\.windowDismiss) private var windowDismiss
+    @Environment(\.dismiss) private var dismiss
 
     private let maxItems = 10
-
-    private func dismissWindow() {
-        if let windowDismiss = windowDismiss {
-            windowDismiss()
-        } else {
-            standardDismiss()
-        }
-    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -74,12 +65,12 @@ struct TextOverlayPlacementView: View {
             HStack {
                 Spacer()
                 Button("OK") {
-                    dismissWindow()
+                    dismiss()
                 }
                 .buttonStyle(.borderedProminent)
 
                 Button("キャンセル") {
-                    dismissWindow()
+                    dismiss()
                 }
                 .buttonStyle(.bordered)
             }

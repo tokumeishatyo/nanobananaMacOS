@@ -71,7 +71,7 @@ struct SceneBuilderSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 850, height: 850)
+        .frame(width: 850, height: 900)
     }
 
     // MARK: - ストーリーシーン

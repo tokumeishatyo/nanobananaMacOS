@@ -170,14 +170,16 @@ struct PoseSettingsView: View {
                                             Text(wind.rawValue).tag(wind)
                                         }
                                     }
+                                    .pickerStyle(.menu)
                                     .labelsHidden()
-                                    .frame(width: 120)
+                                    .frame(width: 120, alignment: .leading)
                                 }
                             }
 
                             Toggle("背景を透過にする（合成用）", isOn: $viewModel.transparentBackground)
                         }
                         .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
                 .padding(16)
@@ -200,7 +202,7 @@ struct PoseSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 700, height: 600)
+        .frame(width: 700, height: 800)
     }
 }
 
