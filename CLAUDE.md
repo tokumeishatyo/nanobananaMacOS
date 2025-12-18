@@ -158,11 +158,11 @@ Python版にあった「同一性保持」スライダーはUIから削除。
   - OutfitSettingsView（衣装着用）※スタイル設定削除済み、形状動的選択対応
   - PoseSettingsView（ポーズ）※Python版準拠に修正済み、同一性保持は固定
   - SceneBuilderSettingsView（シーンビルダー）※Python版準拠に修正済み、装飾テキスト配置対応
-  - BackgroundSettingsView（背景生成）
-  - DecorativeTextSettingsView（装飾テキスト）
-  - FourPanelSettingsView（4コマ漫画）
-  - StyleTransformSettingsView（スタイル変換）
-  - InfographicSettingsView（インフォグラフィック）
+  - BackgroundSettingsView（背景生成）※シンプル化済み（参考画像トグル+説明のみ）
+  - DecorativeTextSettingsView（装飾テキスト）※Python版準拠に修正済み、全スタイル対応
+  - FourPanelSettingsView（4コマ漫画）※Python版準拠に修正済み、セリフ2個+ナレーション対応
+  - StyleTransformSettingsView（スタイル変換）※要確認
+  - InfographicSettingsView（インフォグラフィック）※要確認
 - [x] 各設定ウィンドウ用ViewModel（SettingsViewModels.swift）
 - [x] 詳細設定ボタンと設定ウィンドウの接続（.sheet()による表示）
 
