@@ -16,7 +16,7 @@ struct LabeledPickerView<T: Hashable & Identifiable>: View where T: RawRepresent
                 }
             }
             .labelsHidden()
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 3)

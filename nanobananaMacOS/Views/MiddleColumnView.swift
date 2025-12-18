@@ -22,9 +22,9 @@ struct MiddleColumnView: View {
                                     Text(mode.rawValue).tag(mode)
                                 }
                             }
-                            .pickerStyle(.radioGroup)
-                            .horizontalRadioGroupLayout()
-                            .labelsHidden()
+                            .pickerStyle(.segmented)
+                            .frame(width: 200, alignment: .leading)
+                            Spacer()
                         }
                         .padding(.horizontal, 10)
 
@@ -57,10 +57,10 @@ struct MiddleColumnView: View {
                                     Text(mode.rawValue).tag(mode)
                                 }
                             }
-                            .pickerStyle(.radioGroup)
-                            .horizontalRadioGroupLayout()
-                            .labelsHidden()
+                            .pickerStyle(.segmented)
+                            .frame(width: 200, alignment: .leading)
                             .disabled(!viewModel.isAPIModeEnabled)
+                            Spacer()
                         }
                         .padding(.horizontal, 10)
 
@@ -118,10 +118,10 @@ struct MiddleColumnView: View {
                                     Text(res.rawValue).tag(res)
                                 }
                             }
-                            .pickerStyle(.radioGroup)
-                            .horizontalRadioGroupLayout()
-                            .labelsHidden()
+                            .pickerStyle(.segmented)
+                            .frame(width: 200, alignment: .leading)
                             .disabled(!viewModel.isAPIModeEnabled)
+                            Spacer()
                         }
                         .padding(.horizontal, 10)
 

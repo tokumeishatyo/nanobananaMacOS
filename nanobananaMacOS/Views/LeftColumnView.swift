@@ -96,7 +96,7 @@ struct LeftColumnView: View {
                         // タイトル
                         HStack {
                             Text("タイトル:")
-                                .frame(width: 70, alignment: .leading)
+                                .frame(width: 100, alignment: .leading)
 
                             TextField("作品タイトル（必須）", text: $viewModel.title)
                                 .textFieldStyle(.roundedBorder)
