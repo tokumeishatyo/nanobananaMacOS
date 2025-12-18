@@ -1,10 +1,18 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// 衣装着用設定ウィンドウ
 struct OutfitSettingsView: View {
     @StateObject private var viewModel: OutfitSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
+    @State private var showingFilePicker = false
+    @State private var filePickerTarget: FilePickerTarget = .bodySheet
+
+    private enum FilePickerTarget {
+        case bodySheet
+        case referenceOutfit
+    }
     var onApply: ((OutfitSettingsViewModel) -> Void)?
 
     init(initialSettings: OutfitSettingsViewModel? = nil, onApply: ((OutfitSettingsViewModel) -> Void)? = nil) {
@@ -51,7 +59,8 @@ struct OutfitSettingsView: View {
                                 TextField("素体三面図の画像パス", text: $viewModel.bodySheetImagePath)
                                     .textFieldStyle(.roundedBorder)
                                 Button("参照") {
-                                    // TODO: ファイル選択
+                                    filePickerTarget = .bodySheet
+                                    showingFilePicker = true
                                 }
                             }
                         }
@@ -171,7 +180,8 @@ struct OutfitSettingsView: View {
                                     TextField("着せたい衣装の参考画像を選択", text: $viewModel.referenceOutfitImagePath)
                                         .textFieldStyle(.roundedBorder)
                                     Button("参照") {
-                                        // TODO: ファイル選択
+                                        filePickerTarget = .referenceOutfit
+                                        showingFilePicker = true
                                     }
                                 }
 
@@ -271,6 +281,25 @@ struct OutfitSettingsView: View {
             .padding(16)
         }
         .frame(width: 780, height: 750)
+        .fileImporter(
+            isPresented: $showingFilePicker,
+            allowedContentTypes: [.png, .jpeg, .gif, .webP],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                if let url = urls.first {
+                    switch filePickerTarget {
+                    case .bodySheet:
+                        viewModel.bodySheetImagePath = url.path
+                    case .referenceOutfit:
+                        viewModel.referenceOutfitImagePath = url.path
+                    }
+                }
+            case .failure(let error):
+                print("ファイル選択エラー: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

@@ -263,8 +263,14 @@ final class MainViewModel: ObservableObject {
             )
 
         case .outfit:
-            // TODO: 衣装着用YAML生成を実装
-            showErrorAlert(message: "衣装着用のYAML生成は未実装です")
+            guard let settings = outfitSettings else {
+                showErrorAlert(message: "衣装着用の詳細設定を行ってください")
+                return
+            }
+            yamlPreviewText = yamlGeneratorService.generateOutfitSheetYAML(
+                mainViewModel: self,
+                outfitSettings: settings
+            )
 
         case .pose:
             // TODO: ポーズYAML生成を実装
