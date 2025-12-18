@@ -134,7 +134,6 @@ final class BodySheetYAMLGenerator {
         // スタイル情報
         let styleInfo = YAMLUtilities.getCharacterStyleInfo(mainViewModel.selectedOutputStyle)
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
-        let outputStyleValue = YAMLUtilities.getOutputStyleValue(mainViewModel.selectedOutputStyle)
 
         // figure_style と additional_notes の条件付き出力
         let figureStyleLine = bustPrompt.isEmpty ? "" : "  figure_style: \"\(bustPrompt)\"\n"
@@ -196,7 +195,6 @@ style:
   character_style: "\(styleInfo.style)"
   proportions: "\(styleInfo.proportions)"
   color_mode: "\(colorModeValue)"
-  output_style: "\(outputStyleValue)"
   aspect_ratio: "16:9"  # 素体三面図は16:9固定
 
 # ====================================================

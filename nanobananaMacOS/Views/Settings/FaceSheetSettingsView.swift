@@ -1,10 +1,12 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// 顔三面図設定ウィンドウ
 struct FaceSheetSettingsView: View {
     @StateObject private var viewModel: FaceSheetSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
+    @State private var showingFilePicker = false
     var onApply: ((FaceSheetSettingsViewModel) -> Void)?
 
     init(initialSettings: FaceSheetSettingsViewModel? = nil, onApply: ((FaceSheetSettingsViewModel) -> Void)? = nil) {
@@ -56,7 +58,7 @@ struct FaceSheetSettingsView: View {
                                 TextField("参照画像パス（任意）", text: $viewModel.referenceImagePath)
                                     .textFieldStyle(.roundedBorder)
                                 Button("参照") {
-                                    // TODO: ファイル選択
+                                    showingFilePicker = true
                                 }
                             }
 
@@ -106,6 +108,20 @@ struct FaceSheetSettingsView: View {
             .padding(16)
         }
         .frame(width: 600, height: 400)
+        .fileImporter(
+            isPresented: $showingFilePicker,
+            allowedContentTypes: [.png, .jpeg, .gif, .webP],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                if let url = urls.first {
+                    viewModel.referenceImagePath = url.path
+                }
+            case .failure(let error):
+                print("ファイル選択エラー: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

@@ -1,10 +1,12 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// 素体三面図設定ウィンドウ
 struct BodySheetSettingsView: View {
     @StateObject private var viewModel: BodySheetSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
+    @State private var showingFilePicker = false
     var onApply: ((BodySheetSettingsViewModel) -> Void)?
 
     init(initialSettings: BodySheetSettingsViewModel? = nil, onApply: ((BodySheetSettingsViewModel) -> Void)? = nil) {
@@ -47,7 +49,7 @@ struct BodySheetSettingsView: View {
                                 TextField("顔三面図の画像パス", text: $viewModel.faceSheetImagePath)
                                     .textFieldStyle(.roundedBorder)
                                 Button("参照") {
-                                    // TODO: ファイル選択
+                                    showingFilePicker = true
                                 }
                             }
                         }
@@ -167,6 +169,20 @@ struct BodySheetSettingsView: View {
             .padding(16)
         }
         .frame(width: 700, height: 650)
+        .fileImporter(
+            isPresented: $showingFilePicker,
+            allowedContentTypes: [.png, .jpeg, .gif, .webP],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                if let url = urls.first {
+                    viewModel.faceSheetImagePath = url.path
+                }
+            case .failure(let error):
+                print("ファイル選択エラー: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

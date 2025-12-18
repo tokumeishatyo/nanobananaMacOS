@@ -58,9 +58,12 @@ nanobananaMacOS/
 │   └── Components/   # 再利用可能なUIコンポーネント
 ├── Services/         # サービス層（機能実装）
 │   ├── ValidationService.swift    # バリデーション
-│   ├── YAMLGeneratorService.swift # YAML生成（Python版準拠）
+│   ├── YAMLGeneratorService.swift # YAML生成メイン + ユーティリティ
 │   ├── ClipboardService.swift     # クリップボード操作
-│   └── FileService.swift          # ファイル保存/読込
+│   ├── FileService.swift          # ファイル保存/読込
+│   └── Generators/                # 出力タイプ別YAML生成
+│       ├── FaceSheetYAMLGenerator.swift   # 顔三面図
+│       └── BodySheetYAMLGenerator.swift   # 素体三面図
 ├── Utilities/        # ユーティリティ
 │   └── WindowManager.swift    # 移動可能ウィンドウ管理
 └── ContentView.swift # エントリーポイント
@@ -276,7 +279,7 @@ Python版にあった「同一性保持」スライダーはUIから削除。
 ### 機能実装（進行中）
 - [x] サービス層の基盤実装
   - ValidationService（バリデーション）
-  - YAMLGeneratorService（YAML生成）
+  - YAMLGeneratorService（YAML生成 - モジュール化済み）
   - ClipboardService（クリップボード）
   - FileService（ファイル保存/読込）
 - [x] 設定の保存・復元機能
@@ -286,15 +289,19 @@ Python版にあった「同一性保持」スライダーはUIから削除。
 - [x] YAML生成機能（顔三面図）
   - Python版と同一形式のYAML出力
   - コピー/保存/読込機能
-- [ ] YAML生成機能（残り9種類の出力タイプ）
+- [x] YAML生成機能（素体三面図）
+  - 顔三面図からの参照画像対応
+  - 体型/バスト特徴/表現タイプ対応
+- [ ] YAML生成機能（残り8種類の出力タイプ）
 - [ ] Gemini API呼び出し
-- [ ] ファイル選択ダイアログの実装（各設定ウィンドウの「参照」ボタン）
+- [x] ファイル選択ダイアログの実装（顔三面図・素体三面図）- SwiftUI fileImporter使用
+- [ ] ファイル選択ダイアログの実装（残りの設定ウィンドウ）
 - [ ] 漫画コンポーザー
 - [ ] 背景透過ツール
 
 ## 次のステップ
 
-1. 残りの出力タイプのYAML生成実装（素体三面図、衣装着用、ポーズ等）
+1. 残りの出力タイプのYAML生成実装（衣装着用、ポーズ等）
 2. Gemini API連携の実装
 3. ファイル選択ダイアログの実装
 

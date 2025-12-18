@@ -86,26 +86,6 @@ enum YAMLUtilities {
         }
     }
 
-    // MARK: - Output Style
-
-    /// 出力スタイル値を取得（Python版OUTPUT_STYLESに準拠）
-    static func getOutputStyleValue(_ style: OutputStyle) -> String {
-        switch style {
-        case .anime:
-            return ""  // デフォルト
-        case .pixelArt:
-            return "pixel_art"
-        case .chibi:
-            return "chibi"
-        case .realistic:
-            return "realistic"
-        case .watercolor:
-            return "watercolor"
-        case .oilPainting:
-            return "oil_painting"
-        }
-    }
-
     // MARK: - String Escaping
 
     /// YAML文字列のエスケープ（シングルライン）

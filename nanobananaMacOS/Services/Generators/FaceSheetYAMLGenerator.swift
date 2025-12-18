@@ -22,9 +22,6 @@ final class FaceSheetYAMLGenerator {
         // カラーモード
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
 
-        // 出力スタイル
-        let outputStyleValue = YAMLUtilities.getOutputStyleValue(mainViewModel.selectedOutputStyle)
-
         // YAML構築
         var yaml = """
 # Face Character Reference Sheet (character_basic.yaml準拠)
@@ -133,7 +130,6 @@ output_cleanliness:
 
 style:
   color_mode: "\(colorModeValue)"
-  output_style: "\(outputStyleValue)"
   aspect_ratio: "1:1"  # 顔三面図は1:1固定
 """
 
