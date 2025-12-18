@@ -14,6 +14,11 @@
 
 1. **UIと機能の分離** - MVVMパターンを採用
 2. **各機能のモジュール化** - 機能ごとにファイルを分割
+3. **早めのファイル分割** - 1ファイルが大きくなりすぎないよう、早めに分割を検討する
+   - 目安: 1ファイル200〜300行程度を上限とする
+   - Python版では`main.py`に書きすぎて管理が困難になった教訓を活かす
+4. **ビルド確認はユーザーが行う** - Xcodeでのビルド・動作確認はユーザー側で実施
+5. **UI実装を優先** - 全UIの実装が完了するまで機能実装には入らない
 
 ### アーキテクチャ: MVVM
 
@@ -115,7 +120,7 @@ Python版では「スタイル」設定が複数箇所（メイン画面、顔�
 - [x] 各出力タイプの詳細設定ウィンドウUI（10種類）
   - FaceSheetSettingsView（顔三面図）※スタイル設定削除済み
   - BodySheetSettingsView（素体三面図）※スタイル設定削除済み
-  - OutfitSettingsView（衣装着用）※Python版に合わせて調整済み、次回スタイル削除予定
+  - OutfitSettingsView（衣装着用）※スタイル設定削除済み、形状動的選択対応
   - PoseSettingsView（ポーズ）
   - SceneBuilderSettingsView（シーンビルダー）
   - BackgroundSettingsView（背景生成）

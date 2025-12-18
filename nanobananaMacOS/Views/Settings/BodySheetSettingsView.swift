@@ -20,7 +20,7 @@ struct BodySheetSettingsView: View {
                             HStack {
                                 Text("顔三面図:")
                                     .frame(width: 80, alignment: .leading)
-                                TextField("Step1で生成した顔三面図のパス", text: $viewModel.faceSheetImagePath)
+                                TextField("顔三面図の画像パス", text: $viewModel.faceSheetImagePath)
                                     .textFieldStyle(.roundedBorder)
                                 Button("参照") {
                                     // TODO: ファイル選択

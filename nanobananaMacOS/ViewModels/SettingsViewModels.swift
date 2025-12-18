@@ -36,13 +36,21 @@ final class BodySheetSettingsViewModel: ObservableObject {
 
 // MARK: - Outfit Settings ViewModel
 /// 衣装設定ViewModel
+/// ※スタイルはメイン画面で一元管理（各ステップでは設定しない）
 @MainActor
 final class OutfitSettingsViewModel: ObservableObject {
     @Published var bodySheetImagePath: String = ""
     @Published var useOutfitBuilder: Bool = true
 
     // プリセット衣装
-    @Published var outfitCategory: OutfitCategory = .casual
+    @Published var outfitCategory: OutfitCategory = .casual {
+        didSet {
+            // カテゴリ変更時に形状をリセット
+            if !outfitCategory.shapes.contains(outfitShape) {
+                outfitShape = "おまかせ"
+            }
+        }
+    }
     @Published var outfitShape: String = "おまかせ"
     @Published var outfitColor: OutfitColor = .auto
     @Published var outfitPattern: OutfitPattern = .auto
@@ -53,9 +61,6 @@ final class OutfitSettingsViewModel: ObservableObject {
     @Published var referenceDescription: String = ""
     @Published var fitMode: String = "素体優先"
     @Published var includeHeadwear: Bool = true
-
-    // 描画スタイル
-    @Published var characterStyle: CharacterStyle = .standardAnime
 
     // 追加説明
     @Published var additionalDescription: String = ""

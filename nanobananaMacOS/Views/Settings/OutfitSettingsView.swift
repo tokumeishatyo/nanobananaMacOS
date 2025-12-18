@@ -20,7 +20,7 @@ struct OutfitSettingsView: View {
                             HStack {
                                 Text("素体三面図:")
                                     .frame(width: 90, alignment: .leading)
-                                TextField("Step2で生成した素体三面図のパス", text: $viewModel.bodySheetImagePath)
+                                TextField("素体三面図の画像パス", text: $viewModel.bodySheetImagePath)
                                     .textFieldStyle(.roundedBorder)
                                 Button("参照") {
                                     // TODO: ファイル選択
@@ -71,7 +71,9 @@ struct OutfitSettingsView: View {
                                 Text("形状:")
                                     .frame(width: 60, alignment: .leading)
                                 Picker("", selection: $viewModel.outfitShape) {
-                                    Text("おまかせ").tag("おまかせ")
+                                    ForEach(viewModel.outfitCategory.shapes, id: \.self) { shape in
+                                        Text(shape).tag(shape)
+                                    }
                                 }
                                 .labelsHidden()
                                 .frame(width: 180)
@@ -178,29 +180,6 @@ struct OutfitSettingsView: View {
                         .padding(10)
                         .opacity(viewModel.useOutfitBuilder ? 0.5 : 1.0)
                         .disabled(viewModel.useOutfitBuilder)
-                    }
-
-                    // MARK: - 描画スタイル
-                    GroupBox {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("描画スタイル")
-                                .font(.headline)
-                                .fontWeight(.bold)
-
-                            HStack {
-                                Text("スタイル:")
-                                    .frame(width: 60, alignment: .leading)
-                                Picker("", selection: $viewModel.characterStyle) {
-                                    ForEach(CharacterStyle.allCases) { style in
-                                        Text(style.rawValue).tag(style)
-                                    }
-                                }
-                                .labelsHidden()
-                                .frame(width: 150)
-                                Spacer()
-                            }
-                        }
-                        .padding(10)
                     }
 
                     // MARK: - 追加説明

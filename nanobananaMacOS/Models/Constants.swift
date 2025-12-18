@@ -207,28 +207,69 @@ enum OutfitCategory: String, CaseIterable, Identifiable {
     case model = "モデル用"
     case suit = "スーツ"
     case swimsuit = "水着"
-    case uniform = "制服"
     case casual = "カジュアル"
-    case formal = "フォーマル"
-    case fantasy = "ファンタジー"
-    case japanese = "和服"
+    case uniform = "制服"
+    case formal = "ドレス/フォーマル"
     case sports = "スポーツ"
+    case japanese = "和服"
+    case workwear = "作業着/職業服"
 
     var id: String { rawValue }
+
+    /// カテゴリに対応する形状リスト
+    var shapes: [String] {
+        switch self {
+        case .auto:
+            return ["おまかせ"]
+        case .model:
+            return ["おまかせ", "白レオタード", "グレーレオタード", "黒レオタード",
+                    "白下着", "Tシャツ+短パン", "タンクトップ+短パン"]
+        case .suit:
+            return ["おまかせ", "パンツスタイル", "タイトスカート", "プリーツスカート",
+                    "ミニスカート", "スリーピース", "ダブルスーツ", "タキシード"]
+        case .swimsuit:
+            return ["おまかせ", "三角ビキニ", "ホルターネック", "バンドゥ",
+                    "ワンピース", "ハイレグ", "パレオ付き", "サーフパンツ", "競泳パンツ"]
+        case .casual:
+            return ["おまかせ", "Tシャツ+デニム", "ワンピース", "ブラウス+スカート",
+                    "パーカー", "カーディガン", "シャツ+チノパン", "ポロシャツ", "レザージャケット"]
+        case .uniform:
+            return ["おまかせ", "セーラー服", "ブレザー", "メイド服", "ナース服",
+                    "OL制服", "学ラン", "詰襟", "警察官", "軍服"]
+        case .formal:
+            return ["おまかせ", "イブニングドレス", "カクテルドレス", "ウェディングドレス",
+                    "チャイナドレス", "サマードレス", "タキシード", "モーニング", "燕尾服"]
+        case .sports:
+            return ["おまかせ", "テニスウェア", "体操服", "レオタード", "ヨガウェア",
+                    "競泳水着", "サッカーユニフォーム", "野球ユニフォーム", "バスケユニフォーム", "柔道着"]
+        case .japanese:
+            return ["おまかせ", "着物", "浴衣", "振袖", "巫女服",
+                    "袴", "紋付袴", "羽織", "甚平"]
+        case .workwear:
+            return ["おまかせ", "白衣", "作業着", "シェフコート", "消防服", "建設作業員"]
+        }
+    }
 }
 
 // MARK: - Outfit Color
 /// 服装カラー
 enum OutfitColor: String, CaseIterable, Identifiable {
     case auto = "おまかせ"
-    case white = "白"
     case black = "黒"
+    case white = "白"
+    case navy = "紺"
     case red = "赤"
+    case pink = "ピンク"
     case blue = "青"
+    case lightBlue = "水色"
     case green = "緑"
     case yellow = "黄"
-    case pink = "ピンク"
+    case orange = "オレンジ"
     case purple = "紫"
+    case beige = "ベージュ"
+    case gray = "グレー"
+    case gold = "ゴールド"
+    case silver = "シルバー"
 
     var id: String { rawValue }
 }
@@ -240,21 +281,32 @@ enum OutfitPattern: String, CaseIterable, Identifiable {
     case solid = "無地"
     case stripe = "ストライプ"
     case check = "チェック"
-    case dot = "ドット"
     case floral = "花柄"
+    case dot = "ドット"
+    case border = "ボーダー"
+    case tropical = "トロピカル"
+    case lace = "レース"
+    case camouflage = "迷彩"
+    case animal = "アニマル柄"
 
     var id: String { rawValue }
 }
 
 // MARK: - Outfit Style
-/// 服装スタイル
+/// 服装スタイル（印象）
 enum OutfitFashionStyle: String, CaseIterable, Identifiable {
     case auto = "おまかせ"
-    case cute = "キュート"
+    case mature = "大人っぽい"
+    case cute = "可愛い"
+    case sexy = "セクシー"
     case cool = "クール"
-    case elegant = "エレガント"
+    case modest = "清楚"
     case sporty = "スポーティ"
-    case gothic = "ゴシック"
+    case gorgeous = "ゴージャス"
+    case wild = "ワイルド"
+    case intellectual = "知的"
+    case dandy = "ダンディ"
+    case casual = "カジュアル"
 
     var id: String { rawValue }
 }
