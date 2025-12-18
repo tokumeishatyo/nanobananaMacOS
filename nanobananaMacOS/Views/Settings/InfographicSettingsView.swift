@@ -27,6 +27,22 @@ struct InfographicSettingsView: View {
                                 }
                                 .labelsHidden()
                                 .frame(width: 180)
+
+                                Text("出力言語:")
+                                    .padding(.leading, 20)
+                                Picker("", selection: $viewModel.outputLanguage) {
+                                    ForEach(InfographicLanguage.allCases) { lang in
+                                        Text(lang.rawValue).tag(lang)
+                                    }
+                                }
+                                .labelsHidden()
+                                .frame(width: 150)
+
+                                if viewModel.outputLanguage == .other {
+                                    TextField("言語を入力", text: $viewModel.customLanguage)
+                                        .textFieldStyle(.roundedBorder)
+                                        .frame(width: 150)
+                                }
                                 Spacer()
                             }
 
@@ -42,20 +58,6 @@ struct InfographicSettingsView: View {
                                     .frame(width: 80, alignment: .leading)
                                 TextField("サブタイトル（任意）", text: $viewModel.subtitle)
                                     .textFieldStyle(.roundedBorder)
-                            }
-
-                            HStack {
-                                Text("出力言語:")
-                                    .frame(width: 80, alignment: .leading)
-                                Picker("", selection: $viewModel.outputLanguage) {
-                                    Text("日本語").tag("日本語")
-                                    Text("英語").tag("英語")
-                                    Text("中国語").tag("中国語")
-                                    Text("韓国語").tag("韓国語")
-                                }
-                                .labelsHidden()
-                                .frame(width: 120)
-                                Spacer()
                             }
                         }
                         .padding(10)
@@ -177,7 +179,7 @@ struct InfographicSettingsView: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: 80)
+                .frame(width: 100)
 
                 if viewModel.sections.count > 1 {
                     Button(action: {

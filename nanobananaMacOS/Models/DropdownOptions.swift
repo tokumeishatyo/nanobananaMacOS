@@ -932,22 +932,18 @@ enum InfographicStyle: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-// MARK: - Infographic Aspect Ratio
-/// インフォグラフィックアスペクト比
-enum InfographicAspectRatio: String, CaseIterable, Identifiable {
-    case landscape = "16:9（横長）"
-    case portrait = "9:16（縦長）"
-
-    var id: String { rawValue }
-}
-
 // MARK: - Infographic Language
-/// インフォグラフィック出力言語
+/// インフォグラフィック出力言語（Python版準拠 + その他）
 enum InfographicLanguage: String, CaseIterable, Identifiable {
     case japanese = "日本語"
-    case english = "英語"
-    case chinese = "中国語"
-    case korean = "韓国語"
+    case english = "English"
+    case chineseSimplified = "中文（简体）"
+    case chineseTraditional = "中文（繁體）"
+    case korean = "한국어"
+    case spanish = "Español"
+    case french = "Français"
+    case german = "Deutsch"
+    case other = "その他"
 
     var id: String { rawValue }
 }

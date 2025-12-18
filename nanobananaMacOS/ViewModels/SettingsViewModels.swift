@@ -329,15 +329,15 @@ final class StyleTransformSettingsViewModel: ObservableObject {
 @MainActor
 final class InfographicSettingsViewModel: ObservableObject {
     @Published var infographicStyle: InfographicStyle = .graphicRecording
+    @Published var outputLanguage: InfographicLanguage = .japanese
+    @Published var customLanguage: String = ""  // 「その他」選択時の手入力
     @Published var mainTitle: String = ""
     @Published var subtitle: String = ""
     @Published var mainCharacterImagePath: String = ""
     @Published var subCharacterImagePath: String = ""
-    @Published var outputLanguage: String = "日本語"
 
     // セクション（最大8つ）
     @Published var sections: [InfographicSection] = [
-        InfographicSection(),
         InfographicSection(),
         InfographicSection()
     ]
