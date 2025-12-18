@@ -52,7 +52,7 @@ layout:
       view: "3/4 left view, head turned 45 degrees to the left, showing left side of face"
   bottom_row:
     - position: "bottom-center"
-      view: "left profile, pure side view facing left, showing only left side of face"
+      view: "left profile, exactly 90-degree side view, face perpendicular to camera, only one eye visible, nose pointing directly left, ear fully visible"
 
 headshot_specification:
   type: "Character design base body (sotai) headshot for reference sheet"
@@ -103,7 +103,10 @@ constraints:
     - "Keep the character in clean base body state"
     - "Neutral expression, emotionless"
     - "3/4 view: head turned 45 degrees to the LEFT"
-    - "Profile view: pure side view facing LEFT"
+    - "Profile view: MUST be exactly 90-degree side view facing LEFT"
+    - "Profile view: only ONE eye should be visible (the right eye hidden behind face)"
+    - "Profile view: nose must point directly to the left edge"
+    - "Profile view: ear must be fully visible"
 
 # ====================================================
 # Anti-Hallucination (MUST FOLLOW)
@@ -115,6 +118,7 @@ anti_hallucination:
   - "Do NOT add borders or frames around views"
   - "Do NOT add any decorative elements"
   - "Output ONLY the character views on white background"
+  - "Profile view MUST NOT show both eyes - if both eyes are visible, it is NOT a correct profile"
 
 # ====================================================
 # Output Cleanliness (CRITICAL)

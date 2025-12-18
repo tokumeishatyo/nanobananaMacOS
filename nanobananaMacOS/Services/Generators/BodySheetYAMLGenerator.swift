@@ -182,7 +182,7 @@ output:
   format: "three view reference sheet"
   views:
     - "front view, facing directly at camera"
-    - "left side view, profile facing left"
+    - "left side view, exactly 90-degree profile facing left, only one eye visible, nose pointing directly left"
     - "back view"
   pose: "attention pose (kiwotsuke), standing straight, arms at sides, heels together"
   background: "pure white, clean, seamless"
@@ -204,6 +204,8 @@ constraints:
   layout:
     - "STRICT horizontal arrangement: LEFT=front view, CENTER=left side view, RIGHT=back view"
     - "Side view MUST show LEFT side of body (character facing left)"
+    - "Side view MUST be exactly 90-degree profile - only ONE eye visible"
+    - "Side view: nose must point directly to the left edge, ear fully visible"
     - "POSITION ORDER IS CRITICAL: Front on LEFT, Side in CENTER, Back on RIGHT"
     - "Each view should be clearly separated with white space"
   face_preservation:
@@ -232,6 +234,7 @@ anti_hallucination:
   - "Do NOT add any text or labels to the image"
   - "Do NOT use T-pose or A-pose - use attention pose only"
   - "Do NOT change the view order - ALWAYS front/side/back from left to right"
+  - "Side view MUST NOT show both eyes - if both eyes are visible, it is NOT a correct 90-degree profile"
 
 # ====================================================
 # Output Cleanliness (CRITICAL)
