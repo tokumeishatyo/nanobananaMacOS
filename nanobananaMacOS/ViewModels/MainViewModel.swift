@@ -316,7 +316,7 @@ final class MainViewModel: ObservableObject {
             WindowManager.shared.openWindow(
                 id: windowId,
                 title: title,
-                size: NSSize(width: 500, height: 450)
+                size: NSSize(width: 500, height: 470)
             ) { [weak self] in
                 BackgroundSettingsView { _ in
                     self?.isSettingsConfigured = true
@@ -326,7 +326,7 @@ final class MainViewModel: ObservableObject {
             WindowManager.shared.openWindow(
                 id: windowId,
                 title: title,
-                size: NSSize(width: 650, height: 550)
+                size: NSSize(width: 650, height: 650)
             ) { [weak self] in
                 DecorativeTextSettingsView { _ in
                     self?.isSettingsConfigured = true

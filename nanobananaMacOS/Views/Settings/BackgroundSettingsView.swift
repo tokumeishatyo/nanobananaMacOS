@@ -96,7 +96,7 @@ struct BackgroundSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 500, height: 450)
+        .frame(width: 500, height: 470)
     }
 
     /// プレースホルダーテキスト

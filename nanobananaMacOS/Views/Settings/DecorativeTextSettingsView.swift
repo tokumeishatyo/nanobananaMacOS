@@ -57,7 +57,7 @@ struct DecorativeTextSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 650, height: 550)
+        .frame(width: 650, height: 650)
     }
 
     // MARK: - テキストタイプ選択
@@ -112,77 +112,75 @@ struct DecorativeTextSettingsView: View {
                     .font(.headline)
                     .fontWeight(.bold)
 
-                // フォント・サイズ（3択ずつ→ボタン）
-                HStack(spacing: 20) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("フォント:")
-                            .font(.caption)
-                        Picker("", selection: $viewModel.titleFont) {
-                            ForEach(TitleFont.allCases) { font in
-                                Text(font.rawValue).tag(font)
-                            }
+                // フォント・サイズ
+                HStack {
+                    Text("フォント:")
+                        .frame(width: 70, alignment: .leading)
+                    Picker("", selection: $viewModel.titleFont) {
+                        ForEach(TitleFont.allCases) { font in
+                            Text(font.rawValue).tag(font)
                         }
-                        .pickerStyle(.segmented)
-                        .frame(width: 220)
                     }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("サイズ:")
-                            .font(.caption)
-                        Picker("", selection: $viewModel.titleSize) {
-                            ForEach(TitleSize.allCases) { size in
-                                Text(size.rawValue).tag(size)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .frame(width: 150)
-                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 220)
+                    Spacer()
                 }
 
-                // 文字色・縁取り（5-6択→ドロップダウン）
-                HStack(spacing: 20) {
-                    HStack {
-                        Text("文字色:")
-                            .frame(width: 50, alignment: .leading)
-                        Picker("", selection: $viewModel.titleColor) {
-                            ForEach(GradientColor.allCases) { color in
-                                Text(color.rawValue).tag(color)
-                            }
+                HStack {
+                    Text("サイズ:")
+                        .frame(width: 70, alignment: .leading)
+                    Picker("", selection: $viewModel.titleSize) {
+                        ForEach(TitleSize.allCases) { size in
+                            Text(size.rawValue).tag(size)
                         }
-                        .labelsHidden()
-                        .frame(width: 130)
                     }
+                    .pickerStyle(.segmented)
+                    .frame(width: 150)
+                    Spacer()
+                }
 
-                    HStack {
-                        Text("縁取り:")
-                            .frame(width: 50, alignment: .leading)
-                        Picker("", selection: $viewModel.titleOutline) {
-                            ForEach(OutlineColor.allCases) { color in
-                                Text(color.rawValue).tag(color)
-                            }
+                // 文字色・縁取り
+                HStack {
+                    Text("文字色:")
+                        .frame(width: 70, alignment: .leading)
+                    Picker("", selection: $viewModel.titleColor) {
+                        ForEach(GradientColor.allCases) { color in
+                            Text(color.rawValue).tag(color)
                         }
-                        .labelsHidden()
-                        .frame(width: 80)
                     }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                    .frame(width: 130, alignment: .leading)
+                    Spacer()
+                }
+
+                HStack {
+                    Text("縁取り:")
+                        .frame(width: 70, alignment: .leading)
+                    Picker("", selection: $viewModel.titleOutline) {
+                        ForEach(OutlineColor.allCases) { color in
+                            Text(color.rawValue).tag(color)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                    .frame(width: 80, alignment: .leading)
                     Spacer()
                 }
 
                 // 発光効果・シャドウ
-                HStack(spacing: 20) {
-                    HStack {
-                        Text("発光効果:")
-                            .frame(width: 60, alignment: .leading)
-                        Picker("", selection: $viewModel.titleGlow) {
-                            ForEach(GlowEffect.allCases) { effect in
-                                Text(effect.rawValue).tag(effect)
-                            }
+                HStack {
+                    Text("発光効果:")
+                        .frame(width: 70, alignment: .leading)
+                    Picker("", selection: $viewModel.titleGlow) {
+                        ForEach(GlowEffect.allCases) { effect in
+                            Text(effect.rawValue).tag(effect)
                         }
-                        .labelsHidden()
-                        .frame(width: 110)
                     }
-
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                    .frame(width: 110, alignment: .leading)
                     Toggle("ドロップシャドウ", isOn: $viewModel.titleShadow)
-
                     Spacer()
                 }
             }
@@ -198,58 +196,57 @@ struct DecorativeTextSettingsView: View {
                     .font(.headline)
                     .fontWeight(.bold)
 
-                // 表現・配色（3-4択→ボタン）
-                HStack(spacing: 20) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("表現:")
-                            .font(.caption)
-                        Picker("", selection: $viewModel.calloutType) {
-                            ForEach(CalloutType.allCases) { type in
-                                Text(type.rawValue).tag(type)
-                            }
+                HStack {
+                    Text("表現:")
+                        .frame(width: 50, alignment: .leading)
+                    Picker("", selection: $viewModel.calloutType) {
+                        ForEach(CalloutType.allCases) { type in
+                            Text(type.rawValue).tag(type)
                         }
-                        .pickerStyle(.segmented)
-                        .frame(width: 220)
                     }
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("配色:")
-                            .font(.caption)
-                        Picker("", selection: $viewModel.calloutColor) {
-                            ForEach(CalloutColor.allCases) { color in
-                                Text(color.rawValue).tag(color)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .frame(width: 280)
-                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 220)
+                    Spacer()
                 }
 
-                // 回転・変形（5択/4択→ドロップダウン/ボタン）
-                HStack(spacing: 20) {
-                    HStack {
-                        Text("回転:")
-                            .frame(width: 40, alignment: .leading)
-                        Picker("", selection: $viewModel.calloutRotation) {
-                            ForEach(TextRotation.allCases) { rotation in
-                                Text(rotation.rawValue).tag(rotation)
-                            }
+                HStack {
+                    Text("配色:")
+                        .frame(width: 50, alignment: .leading)
+                    Picker("", selection: $viewModel.calloutColor) {
+                        ForEach(CalloutColor.allCases) { color in
+                            Text(color.rawValue).tag(color)
                         }
-                        .labelsHidden()
-                        .frame(width: 120)
                     }
+                    .pickerStyle(.segmented)
+                    .frame(width: 280)
+                    Spacer()
+                }
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("変形:")
-                            .font(.caption)
-                        Picker("", selection: $viewModel.calloutDistortion) {
-                            ForEach(TextDistortion.allCases) { distortion in
-                                Text(distortion.rawValue).tag(distortion)
-                            }
+                HStack {
+                    Text("回転:")
+                        .frame(width: 50, alignment: .leading)
+                    Picker("", selection: $viewModel.calloutRotation) {
+                        ForEach(TextRotation.allCases) { rotation in
+                            Text(rotation.rawValue).tag(rotation)
                         }
-                        .pickerStyle(.segmented)
-                        .frame(width: 240)
                     }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                    .frame(width: 120, alignment: .leading)
+                    Spacer()
+                }
+
+                HStack {
+                    Text("変形:")
+                        .frame(width: 50, alignment: .leading)
+                    Picker("", selection: $viewModel.calloutDistortion) {
+                        ForEach(TextDistortion.allCases) { distortion in
+                            Text(distortion.rawValue).tag(distortion)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 240)
+                    Spacer()
                 }
             }
             .padding(10)
@@ -264,34 +261,35 @@ struct DecorativeTextSettingsView: View {
                     .font(.headline)
                     .fontWeight(.bold)
 
-                // デザイン（3択→ボタン）
-                HStack(spacing: 20) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("デザイン:")
-                            .font(.caption)
-                        Picker("", selection: $viewModel.nameTagDesign) {
-                            ForEach(NameTagDesign.allCases) { design in
-                                Text(design.rawValue).tag(design)
-                            }
+                HStack {
+                    Text("デザイン:")
+                        .frame(width: 70, alignment: .leading)
+                    Picker("", selection: $viewModel.nameTagDesign) {
+                        ForEach(NameTagDesign.allCases) { design in
+                            Text(design.rawValue).tag(design)
                         }
-                        .pickerStyle(.segmented)
-                        .frame(width: 300)
                     }
+                    .pickerStyle(.segmented)
+                    .frame(width: 300)
+                    Spacer()
+                }
 
-                    HStack {
-                        Text("回転:")
-                            .frame(width: 40, alignment: .leading)
-                        Picker("", selection: $viewModel.nameTagRotation) {
-                            ForEach(TextRotation.allCases) { rotation in
-                                Text(rotation.rawValue).tag(rotation)
-                            }
+                HStack {
+                    Text("回転:")
+                        .frame(width: 70, alignment: .leading)
+                    Picker("", selection: $viewModel.nameTagRotation) {
+                        ForEach(TextRotation.allCases) { rotation in
+                            Text(rotation.rawValue).tag(rotation)
                         }
-                        .labelsHidden()
-                        .frame(width: 120)
                     }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                    .frame(width: 120, alignment: .leading)
+                    Spacer()
                 }
             }
             .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -303,82 +301,84 @@ struct DecorativeTextSettingsView: View {
                     .font(.headline)
                     .fontWeight(.bold)
 
-                // モード選択（3択→ボタン）
-                VStack(alignment: .leading, spacing: 4) {
+                // モード選択
+                HStack {
                     Text("モード:")
-                        .font(.caption)
+                        .frame(width: 100, alignment: .leading)
                     Picker("", selection: $viewModel.messageMode) {
                         ForEach(MessageWindowMode.allCases) { mode in
                             Text(mode.rawValue).tag(mode)
                         }
                     }
                     .pickerStyle(.segmented)
-                    .frame(width: 300)
+                    .frame(width: 380, alignment: .leading)
+                    Spacer()
                 }
 
-                // フルスペック・顔アイコンのみ時: 話者名・スタイル
+                // フルスペック時: 話者名・スタイル
                 if viewModel.messageMode == .full {
-                    HStack(spacing: 20) {
-                        HStack {
-                            Text("話者名:")
-                                .frame(width: 50, alignment: .leading)
-                            TextField("彩瀬こよみ", text: $viewModel.speakerName)
-                                .textFieldStyle(.roundedBorder)
-                                .frame(width: 120)
-                        }
+                    HStack {
+                        Text("話者名:")
+                            .frame(width: 100, alignment: .leading)
+                        TextField("彩瀬こよみ", text: $viewModel.speakerName)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(width: 120)
+                        Spacer()
+                    }
 
-                        HStack {
-                            Text("スタイル:")
-                                .frame(width: 60, alignment: .leading)
-                            Picker("", selection: $viewModel.messageStyle) {
-                                ForEach(MessageWindowStyle.allCases) { style in
-                                    Text(style.rawValue).tag(style)
-                                }
+                    HStack {
+                        Text("スタイル:")
+                            .frame(width: 100, alignment: .leading)
+                        Picker("", selection: $viewModel.messageStyle) {
+                            ForEach(MessageWindowStyle.allCases) { style in
+                                Text(style.rawValue).tag(style)
                             }
-                            .labelsHidden()
-                            .frame(width: 150)
                         }
+                        .pickerStyle(.segmented)
+                        .frame(width: 380, alignment: .leading)
                         Spacer()
                     }
                 }
 
                 // フルスペック・セリフのみ時: 枠デザイン・透明度
                 if viewModel.messageMode == .full || viewModel.messageMode == .textOnly {
-                    HStack(spacing: 20) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("枠デザイン:")
-                                .font(.caption)
-                            Picker("", selection: $viewModel.messageFrameType) {
-                                ForEach(MessageFrameType.allCases) { frame in
-                                    Text(frame.rawValue).tag(frame)
-                                }
+                    HStack {
+                        Text("枠デザイン:")
+                            .frame(width: 100, alignment: .leading)
+                        Picker("", selection: $viewModel.messageFrameType) {
+                            ForEach(MessageFrameType.allCases) { frame in
+                                Text(frame.rawValue).tag(frame)
                             }
-                            .pickerStyle(.segmented)
-                            .frame(width: 380)
                         }
+                        .pickerStyle(.segmented)
+                        .frame(width: 380, alignment: .leading)
+                        Spacer()
+                    }
 
-                        HStack {
-                            Text("透明度:")
-                            Slider(value: $viewModel.messageOpacity, in: 0.3...1.0, step: 0.1)
-                                .frame(width: 80)
-                            Text(String(format: "%.1f", viewModel.messageOpacity))
-                                .frame(width: 30)
-                        }
+                    HStack {
+                        Text("枠透明度:")
+                            .frame(width: 100, alignment: .leading)
+                        Slider(value: $viewModel.messageOpacity, in: 0.3...1.0, step: 0.1)
+                            .frame(width: 150)
+                        Text(String(format: "%.1f", viewModel.messageOpacity))
+                            .frame(width: 30)
+                        Spacer()
                     }
                 }
 
                 // フルスペック・顔のみ時: 顔アイコン設定
                 if viewModel.messageMode == .full || viewModel.messageMode == .faceOnly {
-                    VStack(alignment: .leading, spacing: 4) {
+                    HStack {
                         Text("顔アイコン位置:")
-                            .font(.caption)
+                            .frame(width: 100, alignment: .leading)
                         Picker("", selection: $viewModel.faceIconPosition) {
                             ForEach(FaceIconPosition.allCases) { pos in
                                 Text(pos.rawValue).tag(pos)
                             }
                         }
                         .pickerStyle(.segmented)
-                        .frame(width: 300)
+                        .frame(width: 380, alignment: .leading)
+                        Spacer()
                     }
 
                     HStack {
