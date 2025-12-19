@@ -7,6 +7,7 @@ protocol YAMLGeneratorServiceProtocol {
     func generateFaceSheetYAML(mainViewModel: MainViewModel, faceSheetSettings: FaceSheetSettingsViewModel) -> String
     func generateBodySheetYAML(mainViewModel: MainViewModel, bodySheetSettings: BodySheetSettingsViewModel) -> String
     func generateOutfitSheetYAML(mainViewModel: MainViewModel, outfitSettings: OutfitSettingsViewModel) -> String
+    func generatePoseYAML(mainViewModel: MainViewModel, poseSettings: PoseSettingsViewModel) -> String
 }
 
 // MARK: - YAML Generator Service
@@ -20,6 +21,7 @@ final class YAMLGeneratorService: YAMLGeneratorServiceProtocol {
     private let faceSheetGenerator = FaceSheetYAMLGenerator()
     private let bodySheetGenerator = BodySheetYAMLGenerator()
     private let outfitSheetGenerator = OutfitSheetYAMLGenerator()
+    private let poseGenerator = PoseYAMLGenerator()
 
     // MARK: - Public Methods
 
@@ -36,6 +38,11 @@ final class YAMLGeneratorService: YAMLGeneratorServiceProtocol {
     @MainActor
     func generateOutfitSheetYAML(mainViewModel: MainViewModel, outfitSettings: OutfitSettingsViewModel) -> String {
         return outfitSheetGenerator.generate(mainViewModel: mainViewModel, settings: outfitSettings)
+    }
+
+    @MainActor
+    func generatePoseYAML(mainViewModel: MainViewModel, poseSettings: PoseSettingsViewModel) -> String {
+        return poseGenerator.generate(mainViewModel: mainViewModel, settings: poseSettings)
     }
 }
 

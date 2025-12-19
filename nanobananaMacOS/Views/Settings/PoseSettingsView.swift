@@ -1,10 +1,18 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// ポーズ設定ウィンドウ（Python版準拠）
 struct PoseSettingsView: View {
     @StateObject private var viewModel: PoseSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
+    @State private var showingFilePicker = false
+    @State private var filePickerTarget: FilePickerTarget = .outfitSheet
+
+    private enum FilePickerTarget {
+        case outfitSheet
+        case poseReference
+    }
     var onApply: ((PoseSettingsViewModel) -> Void)?
 
     init(initialSettings: PoseSettingsViewModel? = nil, onApply: ((PoseSettingsViewModel) -> Void)? = nil) {
@@ -73,7 +81,8 @@ struct PoseSettingsView: View {
                                     .textFieldStyle(.roundedBorder)
                                     .disabled(!viewModel.usePoseCapture)
                                 Button("参照") {
-                                    // TODO: ファイル選択
+                                    filePickerTarget = .poseReference
+                                    showingFilePicker = true
                                 }
                                 .disabled(!viewModel.usePoseCapture)
                             }
@@ -102,7 +111,8 @@ struct PoseSettingsView: View {
                                 TextField("衣装着用三面図の画像パス", text: $viewModel.outfitSheetImagePath)
                                     .textFieldStyle(.roundedBorder)
                                 Button("参照") {
-                                    // TODO: ファイル選択
+                                    filePickerTarget = .outfitSheet
+                                    showingFilePicker = true
                                 }
                             }
 
@@ -224,6 +234,25 @@ struct PoseSettingsView: View {
             .padding(16)
         }
         .frame(width: 700, height: 800)
+        .fileImporter(
+            isPresented: $showingFilePicker,
+            allowedContentTypes: [.png, .jpeg, .gif, .webP],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                if let url = urls.first {
+                    switch filePickerTarget {
+                    case .outfitSheet:
+                        viewModel.outfitSheetImagePath = url.path
+                    case .poseReference:
+                        viewModel.poseReferenceImagePath = url.path
+                    }
+                }
+            case .failure(let error):
+                print("File selection error: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

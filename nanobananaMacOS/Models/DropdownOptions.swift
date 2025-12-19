@@ -300,6 +300,18 @@ enum PosePreset: String, CaseIterable, Identifiable {
         case .hadouken, .speciumRay, .riderKick: return .fromFront
         }
     }
+
+    /// プリセットに対応する追加プロンプト（Python版POSE_PRESETS準拠）
+    var additionalPrompt: String {
+        switch self {
+        case .none: return ""
+        case .hadouken: return "energy blast stance, power stance"
+        case .speciumRay: return "cross beam pose, heroic stance"
+        case .riderKick: return "aerial attack, no shadow on ground to emphasize floating"
+        case .fingerBeam: return "precision attack, finger gun pose"
+        case .meditation: return "meditation, zazen, static still pose"
+        }
+    }
 }
 
 // MARK: - Eye Line

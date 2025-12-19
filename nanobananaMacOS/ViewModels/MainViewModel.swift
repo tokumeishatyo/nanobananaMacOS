@@ -273,8 +273,14 @@ final class MainViewModel: ObservableObject {
             )
 
         case .pose:
-            // TODO: ポーズYAML生成を実装
-            showErrorAlert(message: "ポーズのYAML生成は未実装です")
+            guard let settings = poseSettings else {
+                showErrorAlert(message: "ポーズの詳細設定を行ってください")
+                return
+            }
+            yamlPreviewText = yamlGeneratorService.generatePoseYAML(
+                mainViewModel: self,
+                poseSettings: settings
+            )
 
         case .sceneBuilder:
             // TODO: シーンビルダーYAML生成を実装

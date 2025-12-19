@@ -297,74 +297,56 @@ Python版にあった「同一性保持」スライダーはUIから削除。
   - プリセットモード（カテゴリ/形状/色/柄/印象）
   - 参考画像モード（フィットモード/頭部装飾オプション対応）
   - Python版と同一形式のYAML出力
-- [ ] YAML生成機能（残り7種類の出力タイプ）
+- [x] YAML生成機能（ポーズ）
+  - 通常モード（プリセット選択/手動入力）
+  - ポーズキャプチャモード（参考画像からポーズのみ抽出）
+  - 同一性保持は1.0固定（UIから削除済み）
+  - Python版と同一形式のYAML出力
+- [ ] YAML生成機能（残り6種類の出力タイプ）
 - [ ] Gemini API呼び出し
-- [x] ファイル選択ダイアログの実装（顔三面図・素体三面図・衣装着用）- SwiftUI fileImporter使用
+- [x] ファイル選択ダイアログの実装（顔三面図・素体三面図・衣装着用・ポーズ）- SwiftUI fileImporter使用
 - [ ] ファイル選択ダイアログの実装（残りの設定ウィンドウ）
 - [ ] 漫画コンポーザー
 - [ ] 背景透過ツール
 
-## 次のステップ：ポーズ機能のYAML生成実装
+## 次のステップ：シーンビルダー機能のYAML生成実装
 
 ### 実装対象
 
-**ポーズ（Step 4）** - 衣装着用三面図からポーズを付けた1枚絵を生成
+**シーンビルダー** - キャラクター画像と背景を組み合わせてシーンを構築
 
 ### 参照すべきファイル
 
 **Python版:**
-- `/app/main.py` - `_generate_pose_yaml()` メソッド（1700行目付近）
-- `/app/ui/pose_window.py` - ポーズ設定ウィンドウ
-- `/app/constants.py` - `POSE_PRESETS`, `CAMERA_ANGLES` 等の定数
+- `/app/main.py` - `_generate_scene_builder_yaml()` メソッド
+- `/app/ui/scene_builder_window.py` - シーンビルダー設定ウィンドウ
 
 **Swift版（既存）:**
-- `nanobananaMacOS/Views/Settings/PoseSettingsView.swift` - UI（実装済み）
-- `nanobananaMacOS/ViewModels/SettingsViewModels.swift` - `PoseSettingsViewModel`（実装済み）
+- `nanobananaMacOS/Views/Settings/SceneBuilderSettingsView.swift` - UI（実装済み）
+- `nanobananaMacOS/ViewModels/SettingsViewModels.swift` - `SceneBuilderSettingsViewModel`（実装済み）
 
-### 実装手順（顔/素体/衣装と同じパターン）
+### 実装手順（顔/素体/衣装/ポーズと同じパターン）
 
 1. **Python版のYAML生成コードを確認**
-   - `/app/main.py` の `_generate_pose_yaml()` を読む
    - 出力形式、セクション構成、制約を把握
 
 2. **ジェネレーター作成**
-   - `nanobananaMacOS/Services/Generators/PoseYAMLGenerator.swift` を新規作成
+   - `nanobananaMacOS/Services/Generators/SceneBuilderYAMLGenerator.swift` を新規作成
    - Python版と同一形式のYAML出力を実装
 
 3. **サービス層の更新**
-   - `YAMLGeneratorService.swift` に `generatePoseYAML()` を追加
-   - プロトコルにもメソッドを追加
+   - `YAMLGeneratorService.swift` に `generateSceneBuilderYAML()` を追加
 
 4. **MainViewModelの更新**
-   - `generateYAML()` の `.pose` ケースを実装
+   - `generateYAML()` の `.sceneBuilder` ケースを実装
 
 5. **ファイル選択ダイアログの追加**
-   - `PoseSettingsView.swift` に fileImporter を追加（衣装着用三面図の選択用）
+   - `SceneBuilderSettingsView.swift` に fileImporter を追加
 
-### ポーズ機能の特記事項
+### 残りのYAML生成タスク
 
-- **入力**: 衣装着用三面図（Step 3の出力）
-- **出力**: ポーズ付き1枚絵（三面図ではない）
-- **同一性保持**: UIから削除済み、API呼び出し時は最大値（1.0）で固定
-- **ポーズ指定方法**: プリセット選択 or 参考画像からキャプチャ
-- **カメラアングル**: 正面、斜め、横など選択可能
-
-### 既存実装の参考パターン
-
-```swift
-// ジェネレーターの基本構造（OutfitSheetYAMLGenerator.swift参照）
-final class PoseYAMLGenerator {
-    @MainActor
-    func generate(mainViewModel: MainViewModel, settings: PoseSettingsViewModel) -> String {
-        // Python版と同じYAML構造を生成
-    }
-}
-```
-
-### 実装後の残りタスク
-
-- [ ] ポーズ（Step 4）← **次はここ**
-- [ ] シーンビルダー
+- [x] ポーズ（Step 4）✅ 完了
+- [ ] シーンビルダー ← **次はここ**
 - [ ] 背景生成
 - [ ] 装飾テキスト
 - [ ] 4コマ漫画
