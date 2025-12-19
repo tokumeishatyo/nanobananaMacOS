@@ -25,6 +25,9 @@ final class StorySceneYAMLGenerator {
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
         let outputStyleValue = getOutputStyleValue(mainViewModel.selectedOutputStyle)
         let aspectRatioValue = mainViewModel.selectedAspectRatio.yamlValue
+        let duotoneLine = YAMLUtilities.isDuotone(mainViewModel.selectedColorMode)
+            ? "\n  duotone_style: \"\(YAMLUtilities.getDuotoneStyle())\""
+            : ""
 
         // YAML生成
         let yaml = """
@@ -51,7 +54,7 @@ post_processing:
   bloom_effect: "Low"
 \(textOverlaySection)
 style:
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   output_style: "\(outputStyleValue)"
   aspect_ratio: "\(aspectRatioValue)"
 """

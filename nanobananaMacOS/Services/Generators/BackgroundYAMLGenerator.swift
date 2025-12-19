@@ -15,6 +15,9 @@ final class BackgroundYAMLGenerator {
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
         let outputStyleValue = getOutputStyleValue(mainViewModel.selectedOutputStyle)
         let aspectRatioValue = mainViewModel.selectedAspectRatio.yamlValue
+        let duotoneLine = YAMLUtilities.isDuotone(mainViewModel.selectedColorMode)
+            ? "\n  duotone_style: \"\(YAMLUtilities.getDuotoneStyle())\""
+            : ""
 
         // モードに応じてYAML生成
         let yaml: String
@@ -25,7 +28,8 @@ final class BackgroundYAMLGenerator {
                 settings: settings,
                 colorModeValue: colorModeValue,
                 outputStyleValue: outputStyleValue,
-                aspectRatioValue: aspectRatioValue
+                aspectRatioValue: aspectRatioValue,
+                duotoneLine: duotoneLine
             )
         } else {
             yaml = generateDescriptionMode(
@@ -34,7 +38,8 @@ final class BackgroundYAMLGenerator {
                 settings: settings,
                 colorModeValue: colorModeValue,
                 outputStyleValue: outputStyleValue,
-                aspectRatioValue: aspectRatioValue
+                aspectRatioValue: aspectRatioValue,
+                duotoneLine: duotoneLine
             )
         }
 
@@ -58,7 +63,8 @@ final class BackgroundYAMLGenerator {
         settings: BackgroundSettingsViewModel,
         colorModeValue: String,
         outputStyleValue: String,
-        aspectRatioValue: String
+        aspectRatioValue: String,
+        duotoneLine: String
     ) -> String {
         let referenceFileName = YAMLUtilities.getFileName(from: settings.referenceImagePath)
 
@@ -119,7 +125,7 @@ constraints:
   - "\(aspectRatioInstruction)"
 
 style:
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   output_style: "\(outputStyleValue)"
   aspect_ratio: "\(aspectRatioValue)"
 
@@ -143,7 +149,8 @@ output_cleanliness:
         settings: BackgroundSettingsViewModel,
         colorModeValue: String,
         outputStyleValue: String,
-        aspectRatioValue: String
+        aspectRatioValue: String,
+        duotoneLine: String
     ) -> String {
         let description = YAMLUtilities.convertNewlinesToComma(settings.description)
 
@@ -157,7 +164,7 @@ background:
   description: "\(description)"
 
 style:
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   output_style: "\(outputStyleValue)"
   aspect_ratio: "\(aspectRatioValue)"
 

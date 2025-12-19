@@ -43,6 +43,9 @@ final class PoseYAMLGenerator {
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
         let outputStyleValue = getOutputStyleValue(mainViewModel.selectedOutputStyle)
         let aspectRatioValue = mainViewModel.selectedAspectRatio.yamlValue
+        let duotoneLine = YAMLUtilities.isDuotone(mainViewModel.selectedColorMode)
+            ? "\n  duotone_style: \"\(YAMLUtilities.getDuotoneStyle())\""
+            : ""
 
         // YAML生成
         var yaml = """
@@ -95,7 +98,7 @@ output_cleanliness:
   - "The output must contain ONLY the single character on the specified background"
 
 style:
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   output_style: "\(outputStyleValue)"
   aspect_ratio: "\(aspectRatioValue)"
 """

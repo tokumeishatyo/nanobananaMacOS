@@ -12,6 +12,9 @@ final class DecorativeTextYAMLGenerator {
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
         let outputStyleValue = getOutputStyleValue(mainViewModel.selectedOutputStyle)
         let aspectRatioValue = mainViewModel.selectedAspectRatio.yamlValue
+        let duotoneLine = YAMLUtilities.isDuotone(mainViewModel.selectedColorMode)
+            ? "\n  duotone_style: \"\(YAMLUtilities.getDuotoneStyle())\""
+            : ""
 
         // テキストタイプに応じてYAML生成
         let yaml: String
@@ -21,28 +24,32 @@ final class DecorativeTextYAMLGenerator {
                 settings: settings,
                 colorModeValue: colorModeValue,
                 outputStyleValue: outputStyleValue,
-                aspectRatioValue: aspectRatioValue
+                aspectRatioValue: aspectRatioValue,
+                duotoneLine: duotoneLine
             )
         case .catchphrase:
             yaml = generateCatchphraseYAML(
                 settings: settings,
                 colorModeValue: colorModeValue,
                 outputStyleValue: outputStyleValue,
-                aspectRatioValue: aspectRatioValue
+                aspectRatioValue: aspectRatioValue,
+                duotoneLine: duotoneLine
             )
         case .namePlate:
             yaml = generateNamePlateYAML(
                 settings: settings,
                 colorModeValue: colorModeValue,
                 outputStyleValue: outputStyleValue,
-                aspectRatioValue: aspectRatioValue
+                aspectRatioValue: aspectRatioValue,
+                duotoneLine: duotoneLine
             )
         case .messageWindow:
             yaml = generateMessageWindowYAML(
                 settings: settings,
                 colorModeValue: colorModeValue,
                 outputStyleValue: outputStyleValue,
-                aspectRatioValue: aspectRatioValue
+                aspectRatioValue: aspectRatioValue,
+                duotoneLine: duotoneLine
             )
         }
 
@@ -63,7 +70,8 @@ final class DecorativeTextYAMLGenerator {
         settings: DecorativeTextSettingsViewModel,
         colorModeValue: String,
         outputStyleValue: String,
-        aspectRatioValue: String
+        aspectRatioValue: String,
+        duotoneLine: String
     ) -> String {
         let bgValue = settings.transparentBackground ? "Transparent" : "None (Generate with scene)"
         let outlineEnabled = settings.titleOutline != .none
@@ -95,7 +103,7 @@ output:
   background: "\(bgValue)"
 
 style:
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   output_style: "\(outputStyleValue)"
   aspect_ratio: "\(aspectRatioValue)"
 """
@@ -107,7 +115,8 @@ style:
         settings: DecorativeTextSettingsViewModel,
         colorModeValue: String,
         outputStyleValue: String,
-        aspectRatioValue: String
+        aspectRatioValue: String,
+        duotoneLine: String
     ) -> String {
         let bgValue = settings.transparentBackground ? "Transparent" : "None (Generate with scene)"
 
@@ -133,7 +142,7 @@ output:
   background: "\(bgValue)"
 
 style:
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   output_style: "\(outputStyleValue)"
   aspect_ratio: "\(aspectRatioValue)"
 """
@@ -145,7 +154,8 @@ style:
         settings: DecorativeTextSettingsViewModel,
         colorModeValue: String,
         outputStyleValue: String,
-        aspectRatioValue: String
+        aspectRatioValue: String,
+        duotoneLine: String
     ) -> String {
         let bgValue = settings.transparentBackground ? "Transparent" : "None (Generate with scene)"
 
@@ -174,7 +184,7 @@ output:
   background: "\(bgValue)"
 
 style:
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   output_style: "\(outputStyleValue)"
   aspect_ratio: "\(aspectRatioValue)"
 """
@@ -186,7 +196,8 @@ style:
         settings: DecorativeTextSettingsViewModel,
         colorModeValue: String,
         outputStyleValue: String,
-        aspectRatioValue: String
+        aspectRatioValue: String,
+        duotoneLine: String
     ) -> String {
         let bgValue = settings.transparentBackground ? "Transparent" : "None (Generate with scene)"
 
@@ -197,14 +208,16 @@ style:
                 bgValue: bgValue,
                 colorModeValue: colorModeValue,
                 outputStyleValue: outputStyleValue,
-                aspectRatioValue: aspectRatioValue
+                aspectRatioValue: aspectRatioValue,
+                duotoneLine: duotoneLine
             )
         case .faceOnly:
             return generateMessageWindowFaceOnlyYAML(
                 settings: settings,
                 bgValue: bgValue,
                 colorModeValue: colorModeValue,
-                outputStyleValue: outputStyleValue
+                outputStyleValue: outputStyleValue,
+                duotoneLine: duotoneLine
             )
         case .textOnly:
             return generateMessageWindowTextOnlyYAML(
@@ -212,7 +225,8 @@ style:
                 bgValue: bgValue,
                 colorModeValue: colorModeValue,
                 outputStyleValue: outputStyleValue,
-                aspectRatioValue: aspectRatioValue
+                aspectRatioValue: aspectRatioValue,
+                duotoneLine: duotoneLine
             )
         }
     }
@@ -224,7 +238,8 @@ style:
         bgValue: String,
         colorModeValue: String,
         outputStyleValue: String,
-        aspectRatioValue: String
+        aspectRatioValue: String,
+        duotoneLine: String
     ) -> String {
         let faceSource = getFaceSourceValue(settings.faceIconImagePath)
 
@@ -265,7 +280,7 @@ output:
   background: "\(bgValue)"
 
 style:
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   output_style: "\(outputStyleValue)"
   aspect_ratio: "\(aspectRatioValue)"
 """
@@ -277,7 +292,8 @@ style:
         settings: DecorativeTextSettingsViewModel,
         bgValue: String,
         colorModeValue: String,
-        outputStyleValue: String
+        outputStyleValue: String,
+        duotoneLine: String
     ) -> String {
         let faceSource = getFaceSourceValue(settings.faceIconImagePath)
 
@@ -310,7 +326,7 @@ output:
   background: "\(bgValue)"
 
 style:
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   output_style: "\(outputStyleValue)"
   aspect_ratio: "1:1"
 """
@@ -323,7 +339,8 @@ style:
         bgValue: String,
         colorModeValue: String,
         outputStyleValue: String,
-        aspectRatioValue: String
+        aspectRatioValue: String,
+        duotoneLine: String
     ) -> String {
         return """
 # Message Window - Text Only (ui_text_overlay.yaml準拠)
@@ -351,7 +368,7 @@ output:
   background: "\(bgValue)"
 
 style:
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   output_style: "\(outputStyleValue)"
   aspect_ratio: "\(aspectRatioValue)"
 """

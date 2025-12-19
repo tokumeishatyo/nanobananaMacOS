@@ -75,15 +75,11 @@ struct LeftColumnView: View {
                             .labelsHidden()
                             .frame(width: 100)
 
-                            // 二色刷り選択時のみ表示
+                            // 二色刷り選択時のみ表示（現在は赤×黒固定）
                             if viewModel.selectedColorMode == .duotone {
-                                Picker("", selection: $viewModel.selectedDuotoneColor) {
-                                    ForEach(DuotoneColor.allCases) { color in
-                                        Text(color.rawValue).tag(color)
-                                    }
-                                }
-                                .labelsHidden()
-                                .frame(width: 100)
+                                Text("(赤×黒)")
+                                    .foregroundColor(.secondary)
+                                    .font(.caption)
                             }
                         }
                         .padding(.horizontal, 10)

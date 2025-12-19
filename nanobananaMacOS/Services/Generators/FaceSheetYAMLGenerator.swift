@@ -21,6 +21,9 @@ final class FaceSheetYAMLGenerator {
 
         // カラーモード
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
+        let duotoneLine = YAMLUtilities.isDuotone(mainViewModel.selectedColorMode)
+            ? "\n  duotone_style: \"\(YAMLUtilities.getDuotoneStyle())\""
+            : ""
 
         // YAML構築
         var yaml = """
@@ -132,7 +135,7 @@ output_cleanliness:
   - "The output must contain ONLY the character illustration on white background"
 
 style:
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   aspect_ratio: "1:1"  # 顔三面図は1:1固定
 """
 

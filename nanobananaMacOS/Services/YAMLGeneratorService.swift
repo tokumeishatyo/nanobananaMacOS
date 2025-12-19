@@ -143,6 +143,18 @@ enum YAMLUtilities {
         }
     }
 
+    /// 二色刷りスタイルを取得（現在は赤×黒固定、将来的に拡張可能）
+    static func getDuotoneStyle(_ duotoneColor: DuotoneColor = .redBlack) -> String {
+        // 現在は赤×黒固定で使用
+        return "red and black duotone, two-color print, manga style"
+        // 将来的な拡張: return duotoneColor.prompt
+    }
+
+    /// 二色刷りかどうかを判定
+    static func isDuotone(_ colorMode: ColorMode) -> Bool {
+        return colorMode == .duotone
+    }
+
     // MARK: - String Escaping
 
     /// YAML文字列のエスケープ（シングルライン）

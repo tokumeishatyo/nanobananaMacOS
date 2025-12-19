@@ -228,6 +228,9 @@ final class OutfitSheetYAMLGenerator {
         // スタイル情報
         let styleInfo = YAMLUtilities.getCharacterStyleInfo(mainViewModel.selectedOutputStyle)
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
+        let duotoneLine = YAMLUtilities.isDuotone(mainViewModel.selectedColorMode)
+            ? "\n  duotone_style: \"\(YAMLUtilities.getDuotoneStyle())\""
+            : ""
 
         // 追加説明
         let additionalDesc = YAMLUtilities.convertNewlinesToComma(settings.additionalDescription)
@@ -241,6 +244,7 @@ final class OutfitSheetYAMLGenerator {
                 settings: settings,
                 styleInfo: styleInfo,
                 colorModeValue: colorModeValue,
+                duotoneLine: duotoneLine,
                 additionalDesc: additionalDesc,
                 mainViewModel: mainViewModel
             )
@@ -252,6 +256,7 @@ final class OutfitSheetYAMLGenerator {
                 settings: settings,
                 styleInfo: styleInfo,
                 colorModeValue: colorModeValue,
+                duotoneLine: duotoneLine,
                 additionalDesc: additionalDesc,
                 mainViewModel: mainViewModel
             )
@@ -267,6 +272,7 @@ final class OutfitSheetYAMLGenerator {
         settings: OutfitSettingsViewModel,
         styleInfo: YAMLUtilities.CharacterStyleInfo,
         colorModeValue: String,
+        duotoneLine: String,
         additionalDesc: String,
         mainViewModel: MainViewModel
     ) -> String {
@@ -328,7 +334,7 @@ output:
 style:
   character_style: "\(styleInfo.style)"
   proportions: "\(styleInfo.proportions)"
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   aspect_ratio: "16:9"  # 衣装三面図は16:9固定
 
 # ====================================================
@@ -400,6 +406,7 @@ output_cleanliness:
         settings: OutfitSettingsViewModel,
         styleInfo: YAMLUtilities.CharacterStyleInfo,
         colorModeValue: String,
+        duotoneLine: String,
         additionalDesc: String,
         mainViewModel: MainViewModel
     ) -> String {
@@ -478,7 +485,7 @@ output:
 style:
   character_style: "\(styleInfo.style)"
   proportions: "\(styleInfo.proportions)"
-  color_mode: "\(colorModeValue)"
+  color_mode: "\(colorModeValue)"\(duotoneLine)
   aspect_ratio: "16:9"  # 衣装三面図は16:9固定
 
 # ====================================================

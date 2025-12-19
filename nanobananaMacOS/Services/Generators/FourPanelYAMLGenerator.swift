@@ -14,6 +14,9 @@ final class FourPanelYAMLGenerator {
         // スタイル設定
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
         let outputStyleValue = getOutputStyleValue(mainViewModel.selectedOutputStyle)
+        let duotoneLine = YAMLUtilities.isDuotone(mainViewModel.selectedColorMode)
+            ? "\nduotone_style: \"\(YAMLUtilities.getDuotoneStyle())\""
+            : ""
 
         // キャラクターセクション生成
         let charactersSection = generateCharactersSection(settings: settings)
@@ -34,7 +37,7 @@ Use the attached character reference sheets to maintain consistent character app
 
 # 4コマ漫画生成 (four_panel_manga.yaml準拠)
 title: "\(YAMLUtilities.escapeYAMLString(title))"\(YAMLUtilities.generateAuthorLine(author))
-color_mode: "\(colorModeValue)"
+color_mode: "\(colorModeValue)"\(duotoneLine)
 output_style: "\(outputStyleValue)"
 
 # 登場人物
