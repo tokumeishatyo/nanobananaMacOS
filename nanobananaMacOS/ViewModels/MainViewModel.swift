@@ -333,8 +333,14 @@ final class MainViewModel: ObservableObject {
             )
 
         case .infographic:
-            // TODO: インフォグラフィックYAML生成を実装
-            showErrorAlert(message: "インフォグラフィックのYAML生成は未実装です")
+            guard let settings = infographicSettings else {
+                showErrorAlert(message: "インフォグラフィックの詳細設定が必要です")
+                return
+            }
+            yamlPreviewText = yamlGeneratorService.generateInfographicYAML(
+                mainViewModel: self,
+                infographicSettings: settings
+            )
         }
     }
 

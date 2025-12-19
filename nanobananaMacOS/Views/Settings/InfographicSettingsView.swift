@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// インフォグラフィック設定ウィンドウ
 struct InfographicSettingsView: View {
@@ -6,6 +7,13 @@ struct InfographicSettingsView: View {
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((InfographicSettingsViewModel) -> Void)?
+
+    private enum FilePickerTarget {
+        case mainCharacter
+        case subCharacter
+    }
+    @State private var showingFilePicker = false
+    @State private var filePickerTarget: FilePickerTarget = .mainCharacter
 
     init(initialSettings: InfographicSettingsViewModel? = nil, onApply: ((InfographicSettingsViewModel) -> Void)? = nil) {
         self.onApply = onApply
@@ -103,7 +111,8 @@ struct InfographicSettingsView: View {
                                 TextField("中央に配置するキャラ画像", text: $viewModel.mainCharacterImagePath)
                                     .textFieldStyle(.roundedBorder)
                                 Button("参照") {
-                                    // TODO: ファイル選択
+                                    filePickerTarget = .mainCharacter
+                                    showingFilePicker = true
                                 }
                             }
 
@@ -113,7 +122,8 @@ struct InfographicSettingsView: View {
                                 TextField("ちびキャラなど（任意）", text: $viewModel.subCharacterImagePath)
                                     .textFieldStyle(.roundedBorder)
                                 Button("参照") {
-                                    // TODO: ファイル選択
+                                    filePickerTarget = .subCharacter
+                                    showingFilePicker = true
                                 }
                             }
                         }
@@ -164,6 +174,25 @@ struct InfographicSettingsView: View {
             .padding(16)
         }
         .frame(width: 750, height: 1000)
+        .fileImporter(
+            isPresented: $showingFilePicker,
+            allowedContentTypes: [.image],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                if let url = urls.first {
+                    switch filePickerTarget {
+                    case .mainCharacter:
+                        viewModel.mainCharacterImagePath = url.path
+                    case .subCharacter:
+                        viewModel.subCharacterImagePath = url.path
+                    }
+                }
+            case .failure(let error):
+                print("ファイル選択エラー: \(error.localizedDescription)")
+            }
+        }
     }
 
     private func sectionRow(index: Int) -> some View {

@@ -1032,6 +1032,33 @@ enum InfographicStyle: String, CaseIterable, Identifiable {
     case whiteboard = "ホワイトボード風"
 
     var id: String { rawValue }
+
+    /// YAML用キー
+    var key: String {
+        switch self {
+        case .graphicRecording: return "graphic_recording"
+        case .notebook: return "notebook"
+        case .sketch: return "sketch_diagram"
+        case .mindMap: return "mindmap"
+        case .whiteboard: return "whiteboard"
+        }
+    }
+
+    /// YAML用プロンプト
+    var prompt: String {
+        switch self {
+        case .graphicRecording:
+            return "graphic recording style, colorful hand-drawn infographic, visual note-taking, sketchy illustrations with text, vibrant colors, casual artistic style"
+        case .notebook:
+            return "notebook style, written on lined paper, handwritten notes, spiral notebook aesthetic, pen sketches, organized notes layout"
+        case .sketch:
+            return "simple sketch diagram, explanatory illustration, rough sketch style, concept drawing, whiteboard marker style, simple lines"
+        case .mindMap:
+            return "mind map style, radial diagram, central topic with branching ideas, organic flowing connections, colorful branches"
+        case .whiteboard:
+            return "whiteboard style, marker drawings, meeting room whiteboard aesthetic, clean simple diagrams, dry erase marker look"
+        }
+    }
 }
 
 // MARK: - Infographic Language
@@ -1048,4 +1075,19 @@ enum InfographicLanguage: String, CaseIterable, Identifiable {
     case other = "その他"
 
     var id: String { rawValue }
+
+    /// YAML用言語値
+    var languageValue: String {
+        switch self {
+        case .japanese: return "Japanese"
+        case .english: return "English"
+        case .chineseSimplified: return "Simplified Chinese"
+        case .chineseTraditional: return "Traditional Chinese"
+        case .korean: return "Korean"
+        case .spanish: return "Spanish"
+        case .french: return "French"
+        case .german: return "German"
+        case .other: return "Custom"
+        }
+    }
 }

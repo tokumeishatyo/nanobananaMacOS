@@ -13,6 +13,7 @@ protocol YAMLGeneratorServiceProtocol {
     func generateDecorativeTextYAML(mainViewModel: MainViewModel, decorativeTextSettings: DecorativeTextSettingsViewModel) -> String
     func generateFourPanelYAML(mainViewModel: MainViewModel, fourPanelSettings: FourPanelSettingsViewModel) -> String
     func generateStyleTransformYAML(mainViewModel: MainViewModel, styleTransformSettings: StyleTransformSettingsViewModel) -> String
+    func generateInfographicYAML(mainViewModel: MainViewModel, infographicSettings: InfographicSettingsViewModel) -> String
 }
 
 // MARK: - YAML Generator Service
@@ -32,6 +33,7 @@ final class YAMLGeneratorService: YAMLGeneratorServiceProtocol {
     private let decorativeTextGenerator = DecorativeTextYAMLGenerator()
     private let fourPanelGenerator = FourPanelYAMLGenerator()
     private let styleTransformGenerator = StyleTransformYAMLGenerator()
+    private let infographicGenerator = InfographicYAMLGenerator()
 
     // MARK: - Public Methods
 
@@ -79,6 +81,11 @@ final class YAMLGeneratorService: YAMLGeneratorServiceProtocol {
     @MainActor
     func generateStyleTransformYAML(mainViewModel: MainViewModel, styleTransformSettings: StyleTransformSettingsViewModel) -> String {
         return styleTransformGenerator.generate(mainViewModel: mainViewModel, settings: styleTransformSettings)
+    }
+
+    @MainActor
+    func generateInfographicYAML(mainViewModel: MainViewModel, infographicSettings: InfographicSettingsViewModel) -> String {
+        return infographicGenerator.generate(mainViewModel: mainViewModel, settings: infographicSettings)
     }
 }
 
