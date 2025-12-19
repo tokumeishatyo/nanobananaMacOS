@@ -332,55 +332,40 @@ Python版にあった「同一性保持」スライダーはUIから削除。
   - ドットキャラ化（5スタイル、5スプライトサイズ、色保持オプション）
   - 背景透過対応
   - Python版と同一形式のYAML出力
-- [ ] YAML生成機能（残り1種類の出力タイプ：インフォグラフィック）
+- [x] YAML生成機能（インフォグラフィック）
+  - 5スタイル対応（グラフィックレコーディング/ノート風/スケッチ/マインドマップ/ホワイトボード）
+  - 多言語出力対応（日本語/英語/中国語/韓国語/その他）
+  - 8セクションの情報配置
+  - メイン/おまけキャラクター画像対応
+  - Python版と同一形式のYAML出力
+- **✅ 全10種類のYAML生成機能完了**
 - [ ] Gemini API呼び出し
-- [x] ファイル選択ダイアログの実装（顔三面図・素体三面図・衣装着用・ポーズ・シーンビルダー・背景生成・装飾テキスト・4コマ漫画・スタイル変換）- SwiftUI fileImporter使用
-- [ ] ファイル選択ダイアログの実装（残りの設定ウィンドウ：インフォグラフィック）
+- [x] ファイル選択ダイアログの実装（全10種類の設定ウィンドウ）- SwiftUI fileImporter使用
 - [ ] 漫画コンポーザー
 - [ ] 背景透過ツール
 
-## 次のステップ：インフォグラフィックのYAML生成実装
+## 次のステップ：Gemini API呼び出し実装
 
-### 実装対象
+### YAML生成機能 ✅ 完了
 
-**インフォグラフィック** - キャラクターを使った説明図/グラレコ風画像を生成
+全10種類のYAML生成機能が完了：
 
-### 参照すべきファイル
+1. ✅ 顔三面図
+2. ✅ 素体三面図
+3. ✅ 衣装着用
+4. ✅ ポーズ
+5. ✅ シーンビルダー（ストーリーシーン）
+6. ✅ 背景生成
+7. ✅ 装飾テキスト
+8. ✅ 4コマ漫画
+9. ✅ スタイル変換
+10. ✅ インフォグラフィック
 
-**Python版:**
-- `/app/main.py` - `_generate_infographic_yaml()` メソッド
-- `/app/constants.py` - `INFOGRAPHIC_STYLES`, `INFOGRAPHIC_LANGUAGES`
+### 残りの実装タスク
 
-**Swift版（既存）:**
-- `nanobananaMacOS/Views/Settings/InfographicSettingsView.swift` - UI（実装済み）
-- `nanobananaMacOS/ViewModels/SettingsViewModels.swift` - `InfographicSettingsViewModel`（実装済み）
-
-### 実装手順
-
-1. **Python版のYAML生成コードを確認**
-   - 出力形式、セクション構成を把握
-
-2. **ジェネレーター作成**
-   - `nanobananaMacOS/Services/Generators/InfographicYAMLGenerator.swift` を新規作成
-
-3. **サービス層の更新**
-   - `YAMLGeneratorService.swift` に `generateInfographicYAML()` を追加
-
-4. **MainViewModelの更新**
-   - `generateYAML()` の `.infographic` ケースを実装
-
-### 残りのYAML生成タスク
-
-- [x] 顔三面図 ✅ 完了
-- [x] 素体三面図 ✅ 完了
-- [x] 衣装着用 ✅ 完了
-- [x] ポーズ ✅ 完了
-- [x] シーンビルダー（ストーリーシーン）✅ 完了
-- [x] 背景生成 ✅ 完了
-- [x] 装飾テキスト ✅ 完了
-- [x] 4コマ漫画 ✅ 完了
-- [x] スタイル変換 ✅ 完了
-- [ ] インフォグラフィック ← **次はここ（最後）**
+- [ ] Gemini API呼び出し
+- [ ] 漫画コンポーザー
+- [ ] 背景透過ツール
 
 ## Python版シーンビルダーのスタイルセクション欠落について
 
