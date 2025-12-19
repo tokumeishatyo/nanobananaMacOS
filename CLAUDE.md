@@ -302,61 +302,87 @@ Python版にあった「同一性保持」スライダーはUIから削除。
   - ポーズキャプチャモード（参考画像からポーズのみ抽出）
   - 同一性保持は1.0固定（UIから削除済み）
   - Python版と同一形式のYAML出力
-- [ ] YAML生成機能（残り6種類の出力タイプ）
+- [x] YAML生成機能（シーンビルダー - ストーリーシーン）
+  - 背景設定（画像ファイル/プロンプト生成）
+  - キャラクター配置（最大5人、動的生成）
+  - ダイアログ設定（ナレーション/セリフ）
+  - 装飾テキストオーバーレイ
+  - **スタイルセクション追加（Python版で欠落していた不具合を修正）**
+  - バトルシーン・ボスレイドは後日実装予定
+- [ ] YAML生成機能（残り5種類の出力タイプ）
 - [ ] Gemini API呼び出し
-- [x] ファイル選択ダイアログの実装（顔三面図・素体三面図・衣装着用・ポーズ）- SwiftUI fileImporter使用
+- [x] ファイル選択ダイアログの実装（顔三面図・素体三面図・衣装着用・ポーズ・シーンビルダー）- SwiftUI fileImporter使用
 - [ ] ファイル選択ダイアログの実装（残りの設定ウィンドウ）
 - [ ] 漫画コンポーザー
 - [ ] 背景透過ツール
 
-## 次のステップ：シーンビルダー機能のYAML生成実装
+## 次のステップ：背景生成のYAML生成実装
 
 ### 実装対象
 
-**シーンビルダー** - キャラクター画像と背景を組み合わせてシーンを構築
-
-**重要: 今回の実装範囲**
-- ✅ **ストーリーシーン** - 今回実装
-- ❌ **バトルシーン** - 後日実装予定（UIはdisabled）
-- ❌ **ボスレイド** - 後日実装予定（UIはdisabled）
+**背景生成** - シーンやキャラクターの背景画像を生成
 
 ### 参照すべきファイル
 
 **Python版:**
-- `/app/main.py` - `_generate_scene_builder_yaml()` メソッド
-- `/app/ui/scene_builder_window.py` - シーンビルダー設定ウィンドウ
+- `/app/main.py` - `_generate_background_yaml()` メソッド
+- `/app/ui/background_window.py` - 背景生成設定ウィンドウ
 
 **Swift版（既存）:**
-- `nanobananaMacOS/Views/Settings/SceneBuilderSettingsView.swift` - UI（実装済み）
-- `nanobananaMacOS/ViewModels/SettingsViewModels.swift` - `SceneBuilderSettingsViewModel`（実装済み）
+- `nanobananaMacOS/Views/Settings/BackgroundSettingsView.swift` - UI（実装済み）
+- `nanobananaMacOS/ViewModels/SettingsViewModels.swift` - `BackgroundSettingsViewModel`（実装済み）
 
-### 実装手順（顔/素体/衣装/ポーズと同じパターン）
+### 実装手順
 
 1. **Python版のYAML生成コードを確認**
-   - 出力形式、セクション構成、制約を把握
+   - 出力形式、セクション構成を把握
 
 2. **ジェネレーター作成**
-   - `nanobananaMacOS/Services/Generators/SceneBuilderYAMLGenerator.swift` を新規作成
-   - Python版と同一形式のYAML出力を実装
+   - `nanobananaMacOS/Services/Generators/BackgroundYAMLGenerator.swift` を新規作成
 
 3. **サービス層の更新**
-   - `YAMLGeneratorService.swift` に `generateSceneBuilderYAML()` を追加
+   - `YAMLGeneratorService.swift` に `generateBackgroundYAML()` を追加
 
 4. **MainViewModelの更新**
-   - `generateYAML()` の `.sceneBuilder` ケースを実装
+   - `generateYAML()` の `.background` ケースを実装
 
-5. **ファイル選択ダイアログの追加**
-   - `SceneBuilderSettingsView.swift` に fileImporter を追加
+5. **ファイル選択ダイアログの追加**（必要に応じて）
 
 ### 残りのYAML生成タスク
 
-- [x] ポーズ（Step 4）✅ 完了
-- [ ] シーンビルダー ← **次はここ**
-- [ ] 背景生成
+- [x] 顔三面図 ✅ 完了
+- [x] 素体三面図 ✅ 完了
+- [x] 衣装着用 ✅ 完了
+- [x] ポーズ ✅ 完了
+- [x] シーンビルダー（ストーリーシーン）✅ 完了
+- [ ] 背景生成 ← **次はここ**
 - [ ] 装飾テキスト
 - [ ] 4コマ漫画
 - [ ] スタイル変換
 - [ ] インフォグラフィック
+
+## Python版シーンビルダーのスタイルセクション欠落について
+
+### 問題
+
+Python版のシーンビルダーでは、トップ画面の「スタイル設定」（カラーモード、スタイル、アスペクト比）がYAMLに反映されていなかった。
+
+### 原因
+
+シーンビルダー機能を実装する際、他の機能とは異なるワークフローテンプレートをベースにしたため、スタイルセクションが含まれていなかった。
+
+### macOS版での修正
+
+macOS版では、他のジェネレータと同様に以下のスタイルセクションをYAML末尾に追加：
+
+```yaml
+style:
+  color_mode: "fullcolor"
+  output_style: "anime"
+  aspect_ratio: "16:9"
+```
+
+これにより、トップ画面のスタイル設定が正しくYAMLに反映されるようになった。
 
 ---
 
