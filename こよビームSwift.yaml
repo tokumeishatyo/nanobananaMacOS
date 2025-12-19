@@ -1,0 +1,94 @@
+# Infographic Generation (インフォグラフィック)
+# Style: グラレコ風
+type: infographic
+title: "こよみのすべて"
+author: "Unknown"
+
+# ====================================================
+# Style Settings
+# ====================================================
+style:
+  type: "graphic_recording"
+  style_prompt: "graphic recording style, colorful hand-drawn infographic, visual note-taking, sketchy illustrations with text, vibrant colors, casual artistic style"
+  aspect_ratio: "16:9"
+  output_language: "Japanese"
+
+# ====================================================
+# Title Configuration
+# ====================================================
+titles:
+  main_title: "こよみのすべて"
+  subtitle: "こよビーム"
+
+# ====================================================
+# Main Character Image
+# ====================================================
+main_character:
+  image: "こよみ変身.png"
+  position: "center"
+  instruction: "Place this character image at the center of the infographic"
+
+# ====================================================
+# Bonus Character Image
+# ====================================================
+bonus_character:
+  enabled: true
+  image: "ぷち.png"
+  placement: "AI decides optimal placement"
+  instruction: "Place this bonus character (e.g., chibi version) somewhere in the infographic as a decorative element"
+
+# ====================================================
+# Information Sections
+# ====================================================
+# Layout reference:
+#   [1] [2] [3]
+#   [4] CHAR [5]
+#   [6] [7] [8]
+sections:
+  - section_1:
+      title: "こよみ"
+      content: "こよみ"
+  - section_2:
+      title: "生年月日"
+      content: "おいらおに"
+
+# ====================================================
+# Generation Instructions
+# ====================================================
+prompt: |
+  Create a detailed infographic about this person/character in graphic_recording style.
+  Use the attached character image as the central figure.
+  Include extremely detailed information - small text is acceptable if it adds more detail.
+
+  Style: graphic recording style, colorful hand-drawn infographic, visual note-taking, sketchy illustrations with text, vibrant colors, casual artistic style
+
+  Main title: "こよみのすべて"
+  Subtitle: こよビーム
+
+  Include these sections around the character:
+  - こよみ: こよみ
+  - 生年月日: おいらおに
+
+  Output language: Japanese
+
+  IMPORTANT:
+  - Create related icons and decorations automatically based on the content
+  - Use the graphic_recording visual style consistently
+  - Make it visually engaging with colors, icons, and artistic elements
+  - Include as much detail as possible in small organized sections
+
+# ====================================================
+# Constraints
+# ====================================================
+constraints:
+  - "Use the provided character image as the main central figure"
+  - "Arrange information sections around the character"
+  - "Create appropriate icons and decorations based on content (AI decides)"
+  - "Output all text in Japanese"
+  - "Maintain graphic_recording style throughout"
+  - "Aspect ratio: 16:9"
+
+anti_hallucination:
+  - "Do NOT change the character's appearance from the provided image"
+  - "Do NOT omit any of the specified sections"
+  - "Do NOT add unrelated information not in the sections"

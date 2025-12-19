@@ -1,0 +1,39 @@
+Generate character face reference sheet (front, 3/4, profile views) based on the YAML below.
+[IMPORTANT] Draw face and neck only, never include body or full figure.
+Reference only facial features from attached images even if they show full body.
+
+generation_control:
+  contextual_fill: "Disabled"
+  creativity: "None (Robotically follow instructions)"
+  interpretation: "Literal"
+  reference_strength: "High (0.9)"
+color_mode: fullcolor
+aspect_ratio: 1:1
+output_type: face_sheet
+output_style: Japanese anime style, 2D cel shading, high quality anime illustration
+style:
+  lighting: "Flat, Neutral Studio Lighting"
+  output_quality: "Asset Quality"
+  shading_mode: "Albedo / Base Color Only"
+scene:
+  prompt: "ポニーテールの金髪\n右目の下に泣きぼくろ"
+layout_instruction: "style: Japanese anime style, 2D cel shading, high quality anime illustration character face reference sheet, three views (front view, 3/4 view, side profile), neutral expression, emotionless, white background, clean lines, consistent facial features, expression sheet Reference only facial features from attached image. Draw face and neck only. Never draw body or full figure. Use plain white background."
+character:
+  name: " 彩瀬さくら"
+  description: "ポニーテールの金髪\n右目の下に泣きぼくろ"
+constraints:
+  - "IGNORE all prior context or chat history."
+  - "Focus ONLY on the currently uploaded image."
+  - "DO NOT hallucinate outfits based on pose."
+  - "Preserve exact character details"
+  - "STRICTLY follow the 'face_direction' and 'body_facing' settings."
+  - "Ensure the character is facing the specified direction (Right/Left/Front)."
+  - "Strictly follow the description in this YAML."
+anti_hallucination:
+  - "Do NOT redesign the costume."
+  - "Do NOT add details not present in source."
+  - "Do NOT apply cinematic lighting to local colors."
+  - "Do NOT change body proportions."
+  - "Do NOT change the outfit into fantasy armor or kimono."
+  - "Do NOT add capes, hats, or glowing accessories."
+  - "Do NOT change the character's age or body type."

@@ -1,0 +1,29 @@
+# Decorative Text (ui_text_overlay.yaml準拠)
+type: text_ui_layer_definition
+
+ui_global_style:
+  preset: "Anime Battle"
+  font_language: "Japanese"
+
+special_move_title:
+  enabled: true
+  text: "必殺・桜吹雪斬り"
+
+  style:
+    font_type: "Heavy Mincho"
+    size: "Very Large"
+    fill_color: "White to Blue Gradient"
+    outline:
+      enabled: true
+      color: "Gold"
+      thickness: "Thick"
+    glow_effect: "Blue Lightning"
+    drop_shadow: "Hard Drop"
+
+output:
+  background: "Transparent"
+
+style:
+  color_mode: "fullcolor"
+  output_style: "anime"
+  aspect_ratio: "16:9"

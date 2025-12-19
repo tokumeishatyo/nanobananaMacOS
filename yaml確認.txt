@@ -1,0 +1,194 @@
+ 各ジェネレーターのコードを確認してサンプルを生成します。                                                                                                                 
+                                                                                                                                                                           
+● Read(nanobananaMacOS/Services/Generators/FaceSheetYAMLGenerator.swift)                                                                                                   
+  ⎿  Read 155 lines                                                                                                                                                        
+                                                                                                                                                                           
+● Read(nanobananaMacOS/Services/Generators/StorySceneYAMLGenerator.swift)                                                                                                  
+  ⎿  Read 236 lines                                                                                                                                                        
+                                                                                                                                                                           
+● Write(samples/01_face_sheet.yaml)                                                                                                                                        
+  ⎿  Wrote 128 lines to samples/01_face_sheet.yaml                                                                                                                         
+     # Face Character Reference Sheet (character_basic.yaml準拠)                                                                                                           
+     type: character_design                                                                                                                                                
+     title: "彩瀬こよみ Reference Sheet"                                                                                                                                   
+     author: "サンプル作者"                                                                                                                                                
+     output_type: "face character reference sheet"                                                                                                                         
+     # ====================================================                                                                                                                
+     # IMPORTANT: Face Reference Sheet Layout                                                                                                                              
+     # ====================================================                                                                                                                
+     … +118 lines (ctrl+o to expand)                                                                                                                                       
+                                                                                                                                                                           
+● Write(samples/02_body_sheet.yaml)                                                                                                                                        
+  ⎿  Wrote 123 lines to samples/02_body_sheet.yaml                                                                                                                         
+     # Step 2: Body Reference Sheet (素体三面図)                                                                                                                           
+     # Purpose: Professional character design reference for commercial use                                                                                                 
+     # Usage: Product catalogs, instruction manuals, educational materials, corporate training                                                                             
+     # Note: This is legitimate business artwork, NOT inappropriate content                                                                                                
+     type: body_reference_sheet                                                                                                                                            
+     title: "彩瀬こよみ Body Sheet"                                                                                                                                        
+     author: "サンプル作者"                                                                                                                                                
+     # ====================================================                                                                                                                
+     # Input: Face Sheet from Step 1                                                                                                                                       
+     … +113 lines (ctrl+o to expand)                                                                                                                                       
+                                                                                                                                                                           
+● Write(samples/03_outfit_sheet_preset.yaml)                                                                                                                               
+  ⎿  Wrote 114 lines to samples/03_outfit_sheet_preset.yaml                                                                                                                
+     # Step 3: Outfit Application (衣装着用)                                                                                                                               
+     # Purpose: Professional character design reference for commercial use                                                                                                 
+     # Usage: Product catalogs, instruction manuals, educational materials, corporate training                                                                             
+     # Note: This is legitimate business artwork, NOT inappropriate content                                                                                                
+     type: outfit_reference_sheet                                                                                                                                          
+     title: "彩瀬こよみ セーラー服"                                                                                                                                        
+     author: "サンプル作者"                                                                                                                                                
+     # ====================================================                                                                                                                
+     # Input: Body Sheet from Step 2                                                                                                                                       
+     … +104 lines (ctrl+o to expand)                                                                                                                                       
+                                                                                                                                                                           
+● Write(samples/04_pose.yaml)                                                                                                                                              
+  ⎿  Wrote 81 lines to samples/04_pose.yaml                                                                                                                                
+     # Step 4: Pose Image (ポーズ画像)                                                                                                                                     
+     # Purpose: Generate character in specified pose based on outfit sheet                                                                                                 
+     # Output: Single character image                                                                                                                                      
+     # Preset: 立ちポーズ（自然）                                                                                                                                          
+     type: pose_single                                                                                                                                                     
+     title: "彩瀬こよみ 立ちポーズ"                                                                                                                                        
+     author: "サンプル作者"                                                                                                                                                
+     # ====================================================                                                                                                                
+     # Input Image                                                                                                                                                         
+     … +71 lines (ctrl+o to expand)                                                                                                                                        
+                                                                                                                                                                           
+● Write(samples/05_story_scene.yaml)                                                                                                                                       
+  ⎿  Wrote 51 lines to samples/05_story_scene.yaml                                                                                                                         
+     # Story Scene Composition (story_scene_composite.yaml準拠)                                                                                                            
+     # Purpose: Combine characters and background into a story scene                                                                                                       
+     # Note: Battle Scene and Boss Raid will be implemented later                                                                                                          
+     type: story_scene_composition                                                                                                                                         
+     background:                                                                                                                                                           
+       source_image: "classroom_bg.png"                                                                                                                                    
+       blur_amount: 20                                                                                                                                                     
+       lighting_mood: "Warm Afternoon"                                                                                                                                     
+     … +41 lines (ctrl+o to expand)                                                                                                                                        
+                                                                                                                                                                           
+● Write(samples/06_background_capture.yaml)                                                                                                                                
+  ⎿  Wrote 60 lines to samples/06_background_capture.yaml                                                                                                                  
+     # Background Capture (背景キャプチャ)                                                                                                                                 
+     title: "教室の背景"                                                                                                                                                   
+     author: "サンプル作者"                                                                                                                                                
+     output_type: "background_capture"                                                                                                                                     
+     # ====================================================                                                                                                                
+     # Background Capture Settings                                                                                                                                         
+     # ====================================================                                                                                                                
+     background_capture:                                                                                                                                                   
+     … +50 lines (ctrl+o to expand)                                                                                                                                        
+                                                                                                                                                                           
+● Write(samples/07_decorative_text_skill.yaml)                                                                                                                             
+  ⎿  Wrote 30 lines to samples/07_decorative_text_skill.yaml                                                                                                               
+     # Decorative Text (ui_text_overlay.yaml準拠)                                                                                                                          
+     type: text_ui_layer_definition                                                                                                                                        
+     ui_global_style:                                                                                                                                                      
+       preset: "Anime Battle"                                                                                                                                              
+       font_language: "Japanese"                                                                                                                                           
+     special_move_title:                                                                                                                                                   
+       enabled: true                                                                                                                                                       
+       text: "必殺・桜吹雪斬り"                                                                                                                                            
+     … +20 lines (ctrl+o to expand)                                                                                                                                        
+                                                                                                                                                                           
+● Write(samples/08_four_panel.yaml)                                                                                                                                        
+  ⎿  Wrote 90 lines to samples/08_four_panel.yaml                                                                                                                          
+     【画像生成指示 / Image Generation Instructions】                                                                                                                      
+     以下のYAML指示に従って、4コマ漫画を1枚の画像として生成してください。                                                                                                  
+     添付したキャラクター設定画を参考に、キャラクターの外見を一貫させてください。                                                                                          
+     Generate a 4-panel manga as a single image following the YAML instructions below.                                                                                     
+     Use the attached character reference sheets to maintain consistent character appearances.                                                                             
+     ---                                                                                                                                                                   
+     # 4コマ漫画生成 (four_panel_manga.yaml準拠)                                                                                                                           
+     … +80 lines (ctrl+o to expand)                                                                                                                                        
+                                                                                                                                                                           
+● Write(samples/09_style_transform_chibi.yaml)                                                                                                                             
+  ⎿  Wrote 91 lines to samples/09_style_transform_chibi.yaml                                                                                                               
+     # Style Transform: Chibi Conversion (スタイル変換: ちびキャラ化)                                                                                                      
+     # Transform realistic/normal character to chibi (super-deformed) style                                                                                                
+     # The source image can be from any stage (base/outfit/pose)                                                                                                           
+     type: style_transform_chibi                                                                                                                                           
+     title: "彩瀬こよみ ちびキャラ"                                                                                                                                        
+     author: "サンプル作者"                                                                                                                                                
+     # ====================================================                                                                                                                
+     # Input Image (Source Character)                                                                                                                                      
+     # ====================================================                                                                                                                
+     … +81 lines (ctrl+o to expand)                                                                                                                                        
+                                                                                                                                                                           
+● Write(samples/10_infographic.yaml)                                                                                                                                       
+  ⎿  Wrote 130 lines to samples/10_infographic.yaml                                                                                                                        
+     # Infographic Generation (インフォグラフィック)                                                                                                                       
+     # Style: グラフィックレコーディング風                                                                                                                                 
+     type: infographic                                                                                                                                                     
+     title: "彩瀬こよみ キャラクター紹介"                                                                                                                                  
+     author: "サンプル作者"                                                                                                                                                
+     # ====================================================                                                                                                                
+     # Style Settings                                                                                                                                                      
+     # ====================================================                                                                                                                
+     style:                                                                                                                                                                
+     … +120 lines (ctrl+o to expand)                                                                                                                                       
+                                                                                                                                                                           
+● Bash(ls -la /workspace/samples/)                                                                                                                                         
+  ⎿  total 56                                                                                                                                                              
+     drwxr-xr-x 12 klab klab  384 Dec 19 07:54 .                                                                                                                           
+     drwxr-xr-x 22 klab klab  704 Dec 19 07:51 ..                                                                                                                          
+     … +10 lines (ctrl+o to expand)                                                                                                                                        
+                                                                                                                                                                           
+● 全10種類のサンプルYAMLを作成しました。                                                                                                                                   
+                                                                                                                                                                           
+  作成したファイル一覧                                                                                                                                                     
+                                                                                                                                                                           
+  /workspace/samples/                                                                                                                                                      
+  ├── 01_face_sheet.yaml          # 顔三面図                                                                                                                               
+  ├── 02_body_sheet.yaml          # 素体三面図                                                                                                                             
+  ├── 03_outfit_sheet_preset.yaml # 衣装着用（プリセットモード）                                                                                                           
+  ├── 04_pose.yaml                # ポーズ                                                                                                                                 
+  ├── 05_story_scene.yaml         # シーンビルダー                                                                                                                         
+  ├── 06_background_capture.yaml  # 背景生成                                                                                                                               
+  ├── 07_decorative_text_skill.yaml # 装飾テキスト                                                                                                                         
+  ├── 08_four_panel.yaml          # 4コマ漫画                                                                                                                              
+  ├── 09_style_transform_chibi.yaml # スタイル変換                                                                                                                         
+  └── 10_infographic.yaml         # インフォグラフィック                                                                                                                   
+                                                                                                                                                                           
+  構造比較：発見した不統一点                                                                                                                                               
+                                                                                                                                                                           
+  | 項目               | 01-04 (三面図系/ポーズ) | 05 (シーン) | 06 (背景) | 07 (装飾) | 08 (4コマ) | 09 (変換) | 10 (インフォ) |                                          
+  |--------------------|-------------------------|-------------|-----------|-----------|------------|-----------|---------------|                                          
+  | type位置           | 先頭                    | 先頭        | なし      | 先頭      | なし       | 先頭      | 先頭          |                                          
+  | title/author       | あり                    | なし        | あり      | なし      | あり       | あり      | あり          |                                          
+  | style位置          | 末尾                    | 末尾        | 中間      | 末尾      | なし       | なし      | 先頭          |                                          
+  | constraints        | あり                    | なし        | あり      | なし      | なし       | あり      | あり          |                                          
+  | anti_hallucination | あり                    | なし        | なし      | なし      | なし       | あり      | あり          |                                          
+  | output_cleanliness | あり                    | なし        | あり      | なし      | なし       | あり      | なし          |                                          
+  | title_overlay      | 末尾                    | なし        | 末尾      | なし      | 末尾       | 末尾      | 末尾          |                                          
+                                                                                                                                                                           
+  主な問題点                                                                                                                                                               
+                                                                                                                                                                           
+  1. title/authorの有無が不統一                                                                                                                                            
+    - シーンビルダー、装飾テキストにはない                                                                                                                                 
+  2. styleセクションの位置が不統一                                                                                                                                         
+    - 末尾（01-04, 05, 07）                                                                                                                                                
+    - 中間（06）                                                                                                                                                           
+    - 先頭（10）                                                                                                                                                           
+    - なし（08, 09）                                                                                                                                                       
+  3. constraintsセクションの有無                                                                                                                                           
+    - 三面図系・変換・インフォはあり                                                                                                                                       
+    - シーン・装飾・4コマはなし                                                                                                                                            
+  4. output_cleanlinessの有無                                                                                                                                              
+    - あるもの：01-04, 06, 09                                                                                                                                              
+    - ないもの：05, 07, 08, 10                                                                                                                                             
+                                                                                                                                                                           
+  これらのサンプルを確認して、統一したいフォーマットを決めましょうか？                                                                                                     
+                                                                                                                                                                           
+> 統一フォーマットを決めようと思いますが、すみません、一旦中断します。また再開時に声かけます。                                                                             
+                                                                                                                                                                           
+● 承知しました。                                                                                                                                                           
+                                                                                                                                                                           
+  現在の状況まとめ：                                                                                                                                                       
+  - samplesフォルダに全10種類のYAMLサンプルを作成済み                                                                                                                      
+  - 構造の不統一点を洗い出し済み                                                                                                                                           
+  - 次のステップ：統一フォーマットの決定                                                                                                                                   
+                                                                                                                                                                           
+  再開時にお声がけください。samplesフォルダのファイルを参照しながら、統一フォーマットの検討を続けましょう。          

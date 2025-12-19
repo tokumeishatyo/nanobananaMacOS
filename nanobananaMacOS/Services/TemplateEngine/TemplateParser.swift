@@ -35,8 +35,10 @@ final class TemplateParser {
                     }
                 }
 
-                // セクション名を探す
-                if trimmedLine == "\(sectionName):" {
+                // セクション名を探す（テンプレート抽出中でない場合のみ）
+                // ※テンプレート内にセクション名と同じキー（例: constraints:）が含まれる場合に
+                //   誤ってスキップされるのを防ぐ
+                if !inTemplate && trimmedLine == "\(sectionName):" {
                     inSection = true
                     continue
                 }
@@ -116,8 +118,8 @@ final class TemplateParser {
             }
 
             if inCommonSections {
-                // セクション名を探す
-                if trimmedLine == "\(sectionName):" {
+                // セクション名を探す（テンプレート抽出中でない場合のみ）
+                if !inTemplate && trimmedLine == "\(sectionName):" {
                     inSection = true
                     continue
                 }

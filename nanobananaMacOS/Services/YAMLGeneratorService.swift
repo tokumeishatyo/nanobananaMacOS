@@ -6,13 +6,6 @@ import Foundation
 /// TemplateEngineを使用してYAMLを生成
 final class YAMLGeneratorService {
 
-    // MARK: - Properties
-
-    /// テンプレートエンジン使用フラグ
-    /// true: TemplateEngineを使用（新方式）
-    /// false: 従来のハードコードジェネレーターを使用（レガシー）
-    private let useTemplateEngine: Bool
-
     // MARK: - Legacy Generators (テンプレート移行完了後に削除予定)
 
     private lazy var faceSheetGenerator = FaceSheetYAMLGenerator()
@@ -26,20 +19,20 @@ final class YAMLGeneratorService {
     private lazy var styleTransformGenerator = StyleTransformYAMLGenerator()
     private lazy var infographicGenerator = InfographicYAMLGenerator()
 
-    // MARK: - Initialization
-
-    /// 初期化
-    /// - Parameter useTemplateEngine: テンプレートエンジンを使用するか（デフォルト: false）
-    init(useTemplateEngine: Bool = false) {
-        self.useTemplateEngine = useTemplateEngine
-    }
-
     // MARK: - Unified Generate Method
 
     /// 統合YAML生成メソッド
     /// OutputTypeに応じて適切なYAMLを生成
+    /// - Parameters:
+    ///   - outputType: 出力タイプ
+    ///   - mainViewModel: メインビューモデル
+    ///   - useTemplateEngine: テンプレートエンジンを使用するか（デフォルト: false）
     @MainActor
-    func generateYAML(outputType: OutputType, mainViewModel: MainViewModel) -> String {
+    func generateYAML(
+        outputType: OutputType,
+        mainViewModel: MainViewModel,
+        useTemplateEngine: Bool = false
+    ) -> String {
         if useTemplateEngine {
             return generateWithTemplateEngine(outputType: outputType, mainViewModel: mainViewModel)
         } else {

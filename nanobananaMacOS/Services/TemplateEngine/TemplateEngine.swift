@@ -34,28 +34,40 @@ final class TemplateEngine {
         guard !isLoaded else { return }
 
         // MasterTemplate.yaml を読み込み
-        guard let masterTemplateURL = Bundle.main.url(
-            forResource: "MasterTemplate",
-            withExtension: "yaml",
-            subdirectory: "Templates"
-        ) else {
+        guard let masterTemplateURL = findTemplateURL(name: "MasterTemplate", extension: "yaml") else {
             throw TemplateEngineError.fileNotFound("MasterTemplate.yaml")
         }
 
         masterTemplateContent = try String(contentsOf: masterTemplateURL, encoding: .utf8)
 
         // SelectionMap.yaml を読み込み
-        guard let selectionMapURL = Bundle.main.url(
-            forResource: "SelectionMap",
-            withExtension: "yaml",
-            subdirectory: "Templates"
-        ) else {
+        guard let selectionMapURL = findTemplateURL(name: "SelectionMap", extension: "yaml") else {
             throw TemplateEngineError.fileNotFound("SelectionMap.yaml")
         }
 
         selectionMapContent = try String(contentsOf: selectionMapURL, encoding: .utf8)
 
         isLoaded = true
+    }
+
+    /// テンプレートファイルのURLを検索（複数のパスを試行）
+    private func findTemplateURL(name: String, extension ext: String) -> URL? {
+        // 1. Templates サブディレクトリ内を検索（folder reference の場合）
+        if let url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "Templates") {
+            return url
+        }
+
+        // 2. Resources/Templates サブディレクトリ内を検索
+        if let url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "Resources/Templates") {
+            return url
+        }
+
+        // 3. ルートを検索（group として追加された場合）
+        if let url = Bundle.main.url(forResource: name, withExtension: ext) {
+            return url
+        }
+
+        return nil
     }
 
     /// 開発用: 外部パスからテンプレートを読み込む

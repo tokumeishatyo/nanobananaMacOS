@@ -24,6 +24,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B183E0902EF5A41800D1974B /* MasterTemplate.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = MasterTemplate.yaml; sourceTree = "<group>"; };
+		B183E0912EF5A41800D1974B /* SelectionMap.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = SelectionMap.yaml; sourceTree = "<group>"; };
 		B1DB88C62EF2F2A200127A91 /* nanobananaMacOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = nanobananaMacOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1DB88D32EF2F2A300127A91 /* nanobananaMacOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = nanobananaMacOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1DB88DD2EF2F2A300127A91 /* nanobananaMacOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = nanobananaMacOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -72,9 +74,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B183E0922EF5A41800D1974B /* Templates */ = {
+			isa = PBXGroup;
+			children = (
+				B183E0902EF5A41800D1974B /* MasterTemplate.yaml */,
+				B183E0912EF5A41800D1974B /* SelectionMap.yaml */,
+			);
+			path = Templates;
+			sourceTree = "<group>";
+		};
 		B1DB88BD2EF2F2A200127A91 = {
 			isa = PBXGroup;
 			children = (
+				B183E0922EF5A41800D1974B /* Templates */,
 				B1DB88C82EF2F2A200127A91 /* nanobananaMacOS */,
 				B1DB88D62EF2F2A300127A91 /* nanobananaMacOSTests */,
 				B1DB88E02EF2F2A300127A91 /* nanobananaMacOSUITests */,

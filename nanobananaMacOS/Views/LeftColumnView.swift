@@ -172,6 +172,39 @@ struct LeftColumnView: View {
                     }
                 }
 
+                // MARK: - デバッグ設定
+                GroupBox {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Image(systemName: "ant.fill")
+                                .foregroundColor(.orange)
+                            Text("デバッグ設定")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.secondary)
+                        }
+
+                        Toggle(isOn: $viewModel.useTemplateEngine) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("テンプレートエンジン")
+                                    .font(.caption)
+                                Text(viewModel.useTemplateEngine ? "外部テンプレート使用" : "従来ジェネレーター使用")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .toggleStyle(.switch)
+                        .controlSize(.small)
+                        .padding(.horizontal, 10)
+                    }
+                    .padding(.vertical, 5)
+                }
+                .background(Color.orange.opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                )
+
                 Spacer()
             }
             .padding(10)
