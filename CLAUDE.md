@@ -376,6 +376,15 @@ Python版にあった「同一性保持」スライダーはUIから削除。
   - ローカルのYAMLファイル（.yaml/.yml）を読み込んでプレビュー表示
   - UTType(filenameExtension:)による拡張子フィルタリング
   - 読み込んだYAMLはコピー/保存で再利用可能
+- [x] YAML部分更新機能
+  - プレビューにYAMLがある状態で「YAML生成」→ 部分更新モード
+  - 更新対象: title, author, color_mode, aspect_ratio, title_overlay
+  - 詳細設定のバリデーションをスキップ（読み込んだYAMLの編集用）
+  - タイトル空欄はエラー（通常モードと同じ）
+- [x] 作者名ハンドリングの統一
+  - 作者名が空欄の場合、`author:`行自体を出力しない
+  - 新規生成・部分更新の両モードで一貫した動作
+  - 全10ジェネレーターでgenerateAuthorLine()ユーティリティを使用
 - [ ] Gemini API呼び出し
 - [ ] 漫画コンポーザー
 - [ ] 背景透過ツール
