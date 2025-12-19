@@ -283,8 +283,14 @@ final class MainViewModel: ObservableObject {
             )
 
         case .sceneBuilder:
-            // TODO: シーンビルダーYAML生成を実装
-            showErrorAlert(message: "シーンビルダーのYAML生成は未実装です")
+            guard let settings = sceneBuilderSettings else {
+                showErrorAlert(message: "シーンビルダーの詳細設定を行ってください")
+                return
+            }
+            yamlPreviewText = yamlGeneratorService.generateSceneBuilderYAML(
+                mainViewModel: self,
+                sceneBuilderSettings: settings
+            )
 
         case .background:
             // TODO: 背景生成YAML生成を実装

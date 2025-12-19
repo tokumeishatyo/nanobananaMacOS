@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// シーンビルダー設定ウィンドウ（Python版準拠）
 struct SceneBuilderSettingsView: View {
@@ -6,6 +7,15 @@ struct SceneBuilderSettingsView: View {
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((SceneBuilderSettingsViewModel) -> Void)?
+
+    // MARK: - File Picker State
+    enum FilePickerTarget {
+        case background
+        case storyCharacter(Int)  // index 0-4
+    }
+
+    @State private var showingFilePicker = false
+    @State private var filePickerTarget: FilePickerTarget = .background
 
     init(initialSettings: SceneBuilderSettingsViewModel? = nil, onApply: ((SceneBuilderSettingsViewModel) -> Void)? = nil) {
         self.onApply = onApply
@@ -115,6 +125,13 @@ struct SceneBuilderSettingsView: View {
             .sheet(isPresented: $viewModel.showTextOverlaySheet) {
                 TextOverlayPlacementView(items: $viewModel.textOverlayItems)
             }
+            .fileImporter(
+                isPresented: $showingFilePicker,
+                allowedContentTypes: [.image],
+                allowsMultipleSelection: false
+            ) { result in
+                handleFileSelection(result)
+            }
 
             Divider()
 
@@ -181,7 +198,8 @@ struct SceneBuilderSettingsView: View {
                         TextField("背景画像パス", text: $viewModel.backgroundImagePath)
                             .textFieldStyle(.roundedBorder)
                         Button("参照") {
-                            // TODO: ファイル選択
+                            filePickerTarget = .background
+                            showingFilePicker = true
                         }
                     }
                 } else {
@@ -307,8 +325,11 @@ struct SceneBuilderSettingsView: View {
                 TextField("画像", text: storyCharacterImageBinding(index: index))
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 80)
-                Button("参照") {}
-                    .font(.caption)
+                Button("参照") {
+                    filePickerTarget = .storyCharacter(index)
+                    showingFilePicker = true
+                }
+                .font(.caption)
             }
 
             // 表情
@@ -338,6 +359,27 @@ struct SceneBuilderSettingsView: View {
         if total == 1 { return "キャラ1" }
         if index == 0 { return "キャラ1（左端）" }
         return "キャラ\(index + 1)（\(index)の右隣）"
+    }
+
+    // MARK: - File Selection Handler
+
+    private func handleFileSelection(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            let path = url.path
+
+            switch filePickerTarget {
+            case .background:
+                viewModel.backgroundImagePath = path
+            case .storyCharacter(let index):
+                if index < viewModel.storyCharacters.count {
+                    viewModel.storyCharacters[index].imagePath = path
+                }
+            }
+        case .failure(let error):
+            print("ファイル選択エラー: \(error.localizedDescription)")
+        }
     }
 
     private var storyDialogSection: some View {

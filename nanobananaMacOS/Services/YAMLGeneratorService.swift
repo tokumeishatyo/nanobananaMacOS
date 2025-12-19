@@ -8,6 +8,7 @@ protocol YAMLGeneratorServiceProtocol {
     func generateBodySheetYAML(mainViewModel: MainViewModel, bodySheetSettings: BodySheetSettingsViewModel) -> String
     func generateOutfitSheetYAML(mainViewModel: MainViewModel, outfitSettings: OutfitSettingsViewModel) -> String
     func generatePoseYAML(mainViewModel: MainViewModel, poseSettings: PoseSettingsViewModel) -> String
+    func generateSceneBuilderYAML(mainViewModel: MainViewModel, sceneBuilderSettings: SceneBuilderSettingsViewModel) -> String
 }
 
 // MARK: - YAML Generator Service
@@ -22,6 +23,7 @@ final class YAMLGeneratorService: YAMLGeneratorServiceProtocol {
     private let bodySheetGenerator = BodySheetYAMLGenerator()
     private let outfitSheetGenerator = OutfitSheetYAMLGenerator()
     private let poseGenerator = PoseYAMLGenerator()
+    private let storySceneGenerator = StorySceneYAMLGenerator()
 
     // MARK: - Public Methods
 
@@ -43,6 +45,12 @@ final class YAMLGeneratorService: YAMLGeneratorServiceProtocol {
     @MainActor
     func generatePoseYAML(mainViewModel: MainViewModel, poseSettings: PoseSettingsViewModel) -> String {
         return poseGenerator.generate(mainViewModel: mainViewModel, settings: poseSettings)
+    }
+
+    @MainActor
+    func generateSceneBuilderYAML(mainViewModel: MainViewModel, sceneBuilderSettings: SceneBuilderSettingsViewModel) -> String {
+        // 現在はストーリーシーンのみ対応（バトルシーン・ボスレイドは後日実装）
+        return storySceneGenerator.generate(mainViewModel: mainViewModel, settings: sceneBuilderSettings)
     }
 }
 

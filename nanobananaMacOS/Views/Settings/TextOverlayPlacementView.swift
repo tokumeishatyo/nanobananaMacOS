@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// 装飾テキスト配置設定ウィンドウ（Python版準拠）
 /// シーンビルダーから呼び出される、最大10個の装飾テキストを配置
@@ -7,6 +8,10 @@ struct TextOverlayPlacementView: View {
     @Environment(\.dismiss) private var dismiss
 
     private let maxItems = 10
+
+    // MARK: - File Picker State
+    @State private var showingFilePicker = false
+    @State private var selectedItemIndex: Int = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -77,6 +82,27 @@ struct TextOverlayPlacementView: View {
             .padding(16)
         }
         .frame(width: 600, height: 500)
+        .fileImporter(
+            isPresented: $showingFilePicker,
+            allowedContentTypes: [.image],
+            allowsMultipleSelection: false
+        ) { result in
+            handleFileSelection(result)
+        }
+    }
+
+    // MARK: - File Selection Handler
+
+    private func handleFileSelection(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            if selectedItemIndex < items.count {
+                items[selectedItemIndex].imagePath = url.path
+            }
+        case .failure(let error):
+            print("ファイル選択エラー: \(error.localizedDescription)")
+        }
     }
 
     private func overlayItemRow(index: Int) -> some View {
@@ -92,7 +118,8 @@ struct TextOverlayPlacementView: View {
                 .frame(width: 160)
 
             Button("参照") {
-                // TODO: ファイル選択
+                selectedItemIndex = index
+                showingFilePicker = true
             }
             .font(.caption)
 
