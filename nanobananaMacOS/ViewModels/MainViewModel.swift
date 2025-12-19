@@ -353,106 +353,42 @@ final class MainViewModel: ObservableObject {
 
     /// 現在の出力タイプに応じたYAML生成
     private func generateYAMLForCurrentOutputType() {
+        // 設定がnilの場合はエラーメッセージを表示
+        if !hasSettingsForCurrentOutputType() {
+            showErrorAlert(message: "\(selectedOutputType.rawValue)の詳細設定を行ってください")
+            return
+        }
+
+        // 統合YAML生成メソッドを使用
+        yamlPreviewText = yamlGeneratorService.generateYAML(
+            outputType: selectedOutputType,
+            mainViewModel: self
+        )
+    }
+
+    /// 現在の出力タイプに対して設定が存在するかチェック
+    private func hasSettingsForCurrentOutputType() -> Bool {
         switch selectedOutputType {
         case .faceSheet:
-            guard let settings = faceSheetSettings else {
-                showErrorAlert(message: "顔三面図の詳細設定を行ってください")
-                return
-            }
-            yamlPreviewText = yamlGeneratorService.generateFaceSheetYAML(
-                mainViewModel: self,
-                faceSheetSettings: settings
-            )
-
+            return faceSheetSettings != nil
         case .bodySheet:
-            guard let settings = bodySheetSettings else {
-                showErrorAlert(message: "素体三面図の詳細設定を行ってください")
-                return
-            }
-            yamlPreviewText = yamlGeneratorService.generateBodySheetYAML(
-                mainViewModel: self,
-                bodySheetSettings: settings
-            )
-
+            return bodySheetSettings != nil
         case .outfit:
-            guard let settings = outfitSettings else {
-                showErrorAlert(message: "衣装着用の詳細設定を行ってください")
-                return
-            }
-            yamlPreviewText = yamlGeneratorService.generateOutfitSheetYAML(
-                mainViewModel: self,
-                outfitSettings: settings
-            )
-
+            return outfitSettings != nil
         case .pose:
-            guard let settings = poseSettings else {
-                showErrorAlert(message: "ポーズの詳細設定を行ってください")
-                return
-            }
-            yamlPreviewText = yamlGeneratorService.generatePoseYAML(
-                mainViewModel: self,
-                poseSettings: settings
-            )
-
+            return poseSettings != nil
         case .sceneBuilder:
-            guard let settings = sceneBuilderSettings else {
-                showErrorAlert(message: "シーンビルダーの詳細設定を行ってください")
-                return
-            }
-            yamlPreviewText = yamlGeneratorService.generateSceneBuilderYAML(
-                mainViewModel: self,
-                sceneBuilderSettings: settings
-            )
-
+            return sceneBuilderSettings != nil
         case .background:
-            guard let settings = backgroundSettings else {
-                showErrorAlert(message: "背景生成の詳細設定を行ってください")
-                return
-            }
-            yamlPreviewText = yamlGeneratorService.generateBackgroundYAML(
-                mainViewModel: self,
-                backgroundSettings: settings
-            )
-
+            return backgroundSettings != nil
         case .decorativeText:
-            guard let settings = decorativeTextSettings else {
-                showErrorAlert(message: "装飾テキストの詳細設定を行ってください")
-                return
-            }
-            yamlPreviewText = yamlGeneratorService.generateDecorativeTextYAML(
-                mainViewModel: self,
-                decorativeTextSettings: settings
-            )
-
+            return decorativeTextSettings != nil
         case .fourPanelManga:
-            guard let settings = fourPanelSettings else {
-                showErrorAlert(message: "4コマ漫画の詳細設定を行ってください")
-                return
-            }
-            yamlPreviewText = yamlGeneratorService.generateFourPanelYAML(
-                mainViewModel: self,
-                fourPanelSettings: settings
-            )
-
+            return fourPanelSettings != nil
         case .styleTransform:
-            guard let settings = styleTransformSettings else {
-                showErrorAlert(message: "スタイル変換の詳細設定を行ってください")
-                return
-            }
-            yamlPreviewText = yamlGeneratorService.generateStyleTransformYAML(
-                mainViewModel: self,
-                styleTransformSettings: settings
-            )
-
+            return styleTransformSettings != nil
         case .infographic:
-            guard let settings = infographicSettings else {
-                showErrorAlert(message: "インフォグラフィックの詳細設定が必要です")
-                return
-            }
-            yamlPreviewText = yamlGeneratorService.generateInfographicYAML(
-                mainViewModel: self,
-                infographicSettings: settings
-            )
+            return infographicSettings != nil
         }
     }
 

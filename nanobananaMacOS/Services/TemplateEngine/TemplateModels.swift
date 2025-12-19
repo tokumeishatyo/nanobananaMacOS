@@ -229,7 +229,7 @@ extension OutputType {
             return "face_sheet"
         case .bodySheet:
             return "body_sheet"
-        case .outfitSheet:
+        case .outfit:
             return "outfit_sheet"
         case .pose:
             return "pose"

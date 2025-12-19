@@ -171,20 +171,22 @@ final class TemplateEngine {
         case .bodySheet:
             return "body_sheet"
 
-        case .outfitSheet:
-            // プリセット/参考画像モードで分岐
-            let isReferenceMode = !mainViewModel.outfitSettings.referenceImagePath.isEmpty
+        case .outfit:
+            // プリセット/参考画像モードで分岐（useOutfitBuilder = false が参考画像モード）
+            let isReferenceMode = mainViewModel.outfitSettings.map { !$0.useOutfitBuilder } ?? false
             return isReferenceMode ? "outfit_sheet_reference" : "outfit_sheet_preset"
 
         case .pose:
-            // プリセット/参考画像モードで分岐
-            let isReferenceMode = !mainViewModel.poseSettings.poseImagePath.isEmpty
+            // プリセット/参考画像モードで分岐（usePoseCapture = true が参考画像モード）
+            let isReferenceMode = mainViewModel.poseSettings.map { $0.usePoseCapture } ?? false
             return isReferenceMode ? "pose_reference" : "pose_preset"
 
         case .sceneBuilder:
             // シーンタイプで分岐
-            let sceneType = mainViewModel.sceneBuilderSettings.selectedSceneType
-            switch sceneType {
+            guard let settings = mainViewModel.sceneBuilderSettings else {
+                return "scene_builder_story"
+            }
+            switch settings.sceneType {
             case .story:
                 return "scene_builder_story"
             case .battle:
@@ -195,8 +197,10 @@ final class TemplateEngine {
 
         case .background:
             // 参考画像の有無で分岐
-            let useReference = mainViewModel.backgroundSettings.useReferenceImage &&
-                              !mainViewModel.backgroundSettings.referenceImagePath.isEmpty
+            guard let settings = mainViewModel.backgroundSettings else {
+                return "background_without_reference"
+            }
+            let useReference = settings.useReferenceImage && !settings.referenceImagePath.isEmpty
             return useReference ? "background_with_reference" : "background_without_reference"
 
         case .decorativeText:
@@ -207,7 +211,7 @@ final class TemplateEngine {
 
         case .styleTransform:
             // 透過背景の有無で分岐
-            let useTransparent = mainViewModel.styleTransformSettings.useTransparentBackground
+            let useTransparent = mainViewModel.styleTransformSettings?.transparentBackground ?? false
             return useTransparent ? "style_transform_transparent" : "style_transform_normal"
 
         case .infographic:

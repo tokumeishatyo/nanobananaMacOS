@@ -23,7 +23,7 @@ final class VariableResolver {
             resolveFaceSheetVariables(from: mainViewModel, into: &variables)
         case .bodySheet:
             resolveBodySheetVariables(from: mainViewModel, into: &variables)
-        case .outfitSheet:
+        case .outfit:
             resolveOutfitSheetVariables(from: mainViewModel, into: &variables)
         case .pose:
             resolvePoseVariables(from: mainViewModel, into: &variables)
@@ -83,7 +83,7 @@ final class VariableResolver {
 
     @MainActor
     private func resolveFaceSheetVariables(from mainViewModel: MainViewModel, into variables: inout TemplateVariables) {
-        let settings = mainViewModel.faceSheetSettings
+        guard let settings = mainViewModel.faceSheetSettings else { return }
 
         // キャラクター情報
         let characterName = settings.characterName.isEmpty ? "Character" : settings.characterName
@@ -111,24 +111,23 @@ final class VariableResolver {
 
     @MainActor
     private func resolveBodySheetVariables(from mainViewModel: MainViewModel, into variables: inout TemplateVariables) {
-        let settings = mainViewModel.bodySheetSettings
-
-        // キャラクター情報
-        let characterName = settings.characterName.isEmpty ? "Character" : settings.characterName
-        variables.set("character_name", YAMLUtilities.escapeYAMLString(characterName))
-
-        let description = YAMLUtilities.convertNewlinesToComma(settings.appearanceDescription)
-        variables.set("character_description", description)
-
-        // 体型情報
-        variables.set("body_type", settings.selectedBodyType.rawValue)
-        variables.set("bust_description", settings.selectedBustFeature.prompt)
-        variables.set("expression_type", settings.selectedExpressionType.prompt)
+        guard let settings = mainViewModel.bodySheetSettings else { return }
 
         // 顔三面図参照
-        let faceSheetName = YAMLUtilities.getFileName(from: settings.faceSheetPath)
+        let faceSheetName = YAMLUtilities.getFileName(from: settings.faceSheetImagePath)
         if !faceSheetName.isEmpty {
             variables.set("face_sheet_path", YAMLUtilities.escapeYAMLString(faceSheetName))
+        }
+
+        // 体型情報
+        variables.set("body_type", settings.bodyTypePreset.rawValue)
+        variables.set("bust_feature", settings.bustFeature.rawValue)
+        variables.set("render_type", settings.bodyRenderType.rawValue)
+
+        // 追加説明
+        let additionalDesc = YAMLUtilities.convertNewlinesToComma(settings.additionalDescription)
+        if !additionalDesc.isEmpty {
+            variables.set("additional_description", additionalDesc)
         }
 
         // スタイル情報
@@ -142,31 +141,41 @@ final class VariableResolver {
 
     @MainActor
     private func resolveOutfitSheetVariables(from mainViewModel: MainViewModel, into variables: inout TemplateVariables) {
-        let settings = mainViewModel.outfitSettings
+        guard let settings = mainViewModel.outfitSettings else { return }
 
         // 素体三面図参照
-        let bodySheetName = YAMLUtilities.getFileName(from: settings.bodySheetPath)
+        let bodySheetName = YAMLUtilities.getFileName(from: settings.bodySheetImagePath)
         if !bodySheetName.isEmpty {
             variables.set("body_sheet_path", YAMLUtilities.escapeYAMLString(bodySheetName))
         }
 
-        // モード判定
-        let isReferenceMode = !settings.referenceImagePath.isEmpty
+        // モード判定（useOutfitBuilder = true ならプリセットモード）
+        let isReferenceMode = !settings.useOutfitBuilder
         variables.set("is_reference_mode", isReferenceMode)
 
         if isReferenceMode {
             // 参考画像モード
-            let outfitImageName = YAMLUtilities.getFileName(from: settings.referenceImagePath)
+            let outfitImageName = YAMLUtilities.getFileName(from: settings.referenceOutfitImagePath)
             variables.set("outfit_image_path", YAMLUtilities.escapeYAMLString(outfitImageName))
-            variables.set("fit_mode", settings.selectedFitMode.rawValue)
+            variables.set("fit_mode", settings.fitMode)
             variables.set("include_headwear", settings.includeHeadwear)
+            let refDesc = YAMLUtilities.convertNewlinesToComma(settings.referenceDescription)
+            if !refDesc.isEmpty {
+                variables.set("reference_description", refDesc)
+            }
         } else {
             // プリセットモード
-            variables.set("outfit_category", settings.selectedCategory.rawValue)
-            variables.set("outfit_shape", settings.selectedShape?.rawValue ?? "")
-            variables.set("outfit_color", settings.selectedColor.rawValue)
-            variables.set("outfit_pattern", settings.selectedPattern.rawValue)
-            variables.set("outfit_impression", settings.selectedImpression.rawValue)
+            variables.set("outfit_category", settings.outfitCategory.rawValue)
+            variables.set("outfit_shape", settings.outfitShape)
+            variables.set("outfit_color", settings.outfitColor.rawValue)
+            variables.set("outfit_pattern", settings.outfitPattern.rawValue)
+            variables.set("outfit_style", settings.outfitStyle.rawValue)
+        }
+
+        // 追加説明
+        let additionalDesc = YAMLUtilities.convertNewlinesToComma(settings.additionalDescription)
+        if !additionalDesc.isEmpty {
+            variables.set("additional_description", additionalDesc)
         }
     }
 
@@ -174,41 +183,55 @@ final class VariableResolver {
 
     @MainActor
     private func resolvePoseVariables(from mainViewModel: MainViewModel, into variables: inout TemplateVariables) {
-        let settings = mainViewModel.poseSettings
+        guard let settings = mainViewModel.poseSettings else { return }
 
         // 衣装三面図参照
-        let outfitSheetName = YAMLUtilities.getFileName(from: settings.outfitSheetPath)
+        let outfitSheetName = YAMLUtilities.getFileName(from: settings.outfitSheetImagePath)
         if !outfitSheetName.isEmpty {
             variables.set("outfit_sheet_path", YAMLUtilities.escapeYAMLString(outfitSheetName))
         }
 
-        // モード判定
-        let isReferenceMode = !settings.poseImagePath.isEmpty
+        // モード判定（usePoseCapture = true が参考画像モード）
+        let isReferenceMode = settings.usePoseCapture
         variables.set("is_reference_mode", isReferenceMode)
 
         if isReferenceMode {
             // 参考画像モード
-            let poseImageName = YAMLUtilities.getFileName(from: settings.poseImagePath)
+            let poseImageName = YAMLUtilities.getFileName(from: settings.poseReferenceImagePath)
             variables.set("pose_image_path", YAMLUtilities.escapeYAMLString(poseImageName))
         } else {
             // プリセットモード
-            variables.set("pose_preset", settings.selectedPosePreset.prompt)
-            variables.set("camera_angle", settings.selectedCameraAngle.prompt)
+            variables.set("pose_preset", settings.selectedPreset.rawValue)
         }
 
-        // シーン設定
-        variables.set("background_description", YAMLUtilities.escapeYAMLString(settings.backgroundDescription))
-        variables.set("lighting", settings.selectedLighting.prompt)
+        // 向き・表情
+        variables.set("eye_line", settings.eyeLine.rawValue)
+        variables.set("expression", settings.expression.rawValue)
+        let expressionDetail = settings.expressionDetail.trimmingCharacters(in: .whitespaces)
+        if !expressionDetail.isEmpty {
+            variables.set("expression_detail", YAMLUtilities.escapeYAMLString(expressionDetail))
+        }
+
+        // 動作説明
+        let actionDesc = settings.actionDescription.trimmingCharacters(in: .whitespaces)
+        if !actionDesc.isEmpty {
+            variables.set("action_description", YAMLUtilities.escapeYAMLString(actionDesc))
+        }
+
+        // ビジュアル効果
+        variables.set("include_effects", settings.includeEffects)
+        variables.set("transparent_background", settings.transparentBackground)
+        variables.set("wind_effect", settings.windEffect.rawValue)
     }
 
     // MARK: - Scene Builder Variables
 
     @MainActor
     private func resolveSceneBuilderVariables(from mainViewModel: MainViewModel, into variables: inout TemplateVariables) {
-        let settings = mainViewModel.sceneBuilderSettings
+        guard let settings = mainViewModel.sceneBuilderSettings else { return }
 
         // シーンタイプ
-        variables.set("scene_type", settings.selectedSceneType.rawValue)
+        variables.set("scene_type", settings.sceneType.rawValue)
 
         // シーンタイプに応じた変数を設定
         // 詳細は既存のStorySceneYAMLGenerator等を参照
@@ -218,7 +241,7 @@ final class VariableResolver {
 
     @MainActor
     private func resolveBackgroundVariables(from mainViewModel: MainViewModel, into variables: inout TemplateVariables) {
-        let settings = mainViewModel.backgroundSettings
+        guard let settings = mainViewModel.backgroundSettings else { return }
 
         // 参考画像
         let useReference = settings.useReferenceImage && !settings.referenceImagePath.isEmpty
@@ -237,20 +260,21 @@ final class VariableResolver {
 
     @MainActor
     private func resolveDecorativeTextVariables(from mainViewModel: MainViewModel, into variables: inout TemplateVariables) {
-        let settings = mainViewModel.decorativeTextSettings
+        guard let settings = mainViewModel.decorativeTextSettings else { return }
 
         // テキスト内容
-        variables.set("text_content", YAMLUtilities.escapeYAMLString(settings.textContent))
+        variables.set("text_content", YAMLUtilities.escapeYAMLString(settings.text))
 
-        // スタイル
-        variables.set("text_style", settings.selectedStyle.rawValue)
+        // テキストタイプ
+        variables.set("text_type", settings.textType.rawValue)
+        variables.set("transparent_background", settings.transparentBackground)
     }
 
     // MARK: - Four Panel Variables
 
     @MainActor
     private func resolveFourPanelVariables(from mainViewModel: MainViewModel, into variables: inout TemplateVariables) {
-        let settings = mainViewModel.fourPanelSettings
+        guard let settings = mainViewModel.fourPanelSettings else { return }
 
         // キャラクター配列
         var characters: [[String: Any]] = []
@@ -335,7 +359,7 @@ final class VariableResolver {
 
     @MainActor
     private func resolveStyleTransformVariables(from mainViewModel: MainViewModel, into variables: inout TemplateVariables) {
-        let settings = mainViewModel.styleTransformSettings
+        guard let settings = mainViewModel.styleTransformSettings else { return }
 
         // 変換元画像
         let sourceImageName = YAMLUtilities.getFileName(from: settings.sourceImagePath)
@@ -343,44 +367,42 @@ final class VariableResolver {
             variables.set("source_image_path", YAMLUtilities.escapeYAMLString(sourceImageName))
         }
 
-        // 変換スタイル
-        variables.set("target_style", settings.selectedTargetStyle.rawValue)
-        variables.set("style_prompt", settings.selectedTargetStyle.prompt)
+        // 変換タイプ
+        variables.set("transform_type", settings.transformType.rawValue)
 
         // 背景設定
-        variables.set("use_transparent_background", settings.useTransparentBackground)
-        variables.set("output_background", settings.useTransparentBackground ? "transparent" : "white")
+        variables.set("transparent_background", settings.transparentBackground)
+        variables.set("output_background", settings.transparentBackground ? "transparent" : "white")
     }
 
     // MARK: - Infographic Variables
 
     @MainActor
     private func resolveInfographicVariables(from mainViewModel: MainViewModel, into variables: inout TemplateVariables) {
-        let settings = mainViewModel.infographicSettings
+        guard let settings = mainViewModel.infographicSettings else { return }
 
         // スタイル
-        variables.set("infographic_type", settings.selectedStyle.key)
-        variables.set("style_prompt", settings.selectedStyle.prompt)
+        variables.set("infographic_style", settings.infographicStyle.rawValue)
 
         // 言語
-        variables.set("output_language", settings.selectedLanguage.rawValue)
+        variables.set("output_language", settings.outputLanguage.rawValue)
 
         // タイトル
         variables.set("main_title", YAMLUtilities.escapeYAMLString(settings.mainTitle))
         variables.set("subtitle", YAMLUtilities.escapeYAMLString(settings.subtitle))
 
         // メインキャラクター
-        let characterImageName = YAMLUtilities.getFileName(from: settings.characterImagePath)
-        if !characterImageName.isEmpty {
-            variables.set("character_image_path", YAMLUtilities.escapeYAMLString(characterImageName))
+        let mainCharImageName = YAMLUtilities.getFileName(from: settings.mainCharacterImagePath)
+        if !mainCharImageName.isEmpty {
+            variables.set("main_character_image_path", YAMLUtilities.escapeYAMLString(mainCharImageName))
         }
 
-        // ボーナスキャラクター
-        let hasBonusCharacter = settings.bonusCharacterEnabled && !settings.bonusCharacterImagePath.isEmpty
-        variables.set("bonus_character_enabled", hasBonusCharacter)
-        if hasBonusCharacter {
-            let bonusImageName = YAMLUtilities.getFileName(from: settings.bonusCharacterImagePath)
-            variables.set("bonus_character_image_path", YAMLUtilities.escapeYAMLString(bonusImageName))
+        // サブキャラクター
+        let subCharImageName = YAMLUtilities.getFileName(from: settings.subCharacterImagePath)
+        let hasSubCharacter = !subCharImageName.isEmpty
+        variables.set("sub_character_enabled", hasSubCharacter)
+        if hasSubCharacter {
+            variables.set("sub_character_image_path", YAMLUtilities.escapeYAMLString(subCharImageName))
         }
 
         // セクション配列
@@ -419,14 +441,16 @@ final class VariableResolver {
         switch ratio {
         case .square:
             return "1:1"
-        case .landscape16_9:
+        case .wide16_9:
             return "16:9"
-        case .portrait9_16:
+        case .tall9_16:
             return "9:16"
-        case .landscape4_3:
+        case .standard4_3:
             return "4:3"
         case .portrait3_4:
             return "3:4"
+        case .ultraWide3_1:
+            return "3:1"
         }
     }
 

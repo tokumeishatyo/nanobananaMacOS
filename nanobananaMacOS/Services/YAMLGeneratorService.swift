@@ -79,26 +79,69 @@ final class YAMLGeneratorService {
     private func generateWithLegacyGenerator(outputType: OutputType, mainViewModel: MainViewModel) -> String {
         switch outputType {
         case .faceSheet:
-            return faceSheetGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.faceSheetSettings)
+            guard let settings = mainViewModel.faceSheetSettings else {
+                return generateSettingsRequiredError(outputType: outputType)
+            }
+            return faceSheetGenerator.generate(mainViewModel: mainViewModel, settings: settings)
         case .bodySheet:
-            return bodySheetGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.bodySheetSettings)
-        case .outfitSheet:
-            return outfitSheetGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.outfitSettings)
+            guard let settings = mainViewModel.bodySheetSettings else {
+                return generateSettingsRequiredError(outputType: outputType)
+            }
+            return bodySheetGenerator.generate(mainViewModel: mainViewModel, settings: settings)
+        case .outfit:
+            guard let settings = mainViewModel.outfitSettings else {
+                return generateSettingsRequiredError(outputType: outputType)
+            }
+            return outfitSheetGenerator.generate(mainViewModel: mainViewModel, settings: settings)
         case .pose:
-            return poseGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.poseSettings)
+            guard let settings = mainViewModel.poseSettings else {
+                return generateSettingsRequiredError(outputType: outputType)
+            }
+            return poseGenerator.generate(mainViewModel: mainViewModel, settings: settings)
         case .sceneBuilder:
-            return storySceneGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.sceneBuilderSettings)
+            guard let settings = mainViewModel.sceneBuilderSettings else {
+                return generateSettingsRequiredError(outputType: outputType)
+            }
+            return storySceneGenerator.generate(mainViewModel: mainViewModel, settings: settings)
         case .background:
-            return backgroundGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.backgroundSettings)
+            guard let settings = mainViewModel.backgroundSettings else {
+                return generateSettingsRequiredError(outputType: outputType)
+            }
+            return backgroundGenerator.generate(mainViewModel: mainViewModel, settings: settings)
         case .decorativeText:
-            return decorativeTextGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.decorativeTextSettings)
+            guard let settings = mainViewModel.decorativeTextSettings else {
+                return generateSettingsRequiredError(outputType: outputType)
+            }
+            return decorativeTextGenerator.generate(mainViewModel: mainViewModel, settings: settings)
         case .fourPanelManga:
-            return fourPanelGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.fourPanelSettings)
+            guard let settings = mainViewModel.fourPanelSettings else {
+                return generateSettingsRequiredError(outputType: outputType)
+            }
+            return fourPanelGenerator.generate(mainViewModel: mainViewModel, settings: settings)
         case .styleTransform:
-            return styleTransformGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.styleTransformSettings)
+            guard let settings = mainViewModel.styleTransformSettings else {
+                return generateSettingsRequiredError(outputType: outputType)
+            }
+            return styleTransformGenerator.generate(mainViewModel: mainViewModel, settings: settings)
         case .infographic:
-            return infographicGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.infographicSettings)
+            guard let settings = mainViewModel.infographicSettings else {
+                return generateSettingsRequiredError(outputType: outputType)
+            }
+            return infographicGenerator.generate(mainViewModel: mainViewModel, settings: settings)
         }
+    }
+
+    /// 設定未入力エラーメッセージを生成
+    private func generateSettingsRequiredError(outputType: OutputType) -> String {
+        return """
+        # ====================================================
+        # Error: 詳細設定が必要です
+        # ====================================================
+        # 出力タイプ: \(outputType.rawValue)
+        #
+        # 「詳細設定」ボタンをクリックして設定を行ってください。
+        # ====================================================
+        """
     }
 }
 
