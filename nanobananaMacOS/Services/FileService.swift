@@ -63,9 +63,12 @@ final class FileService: FileServiceProtocol {
     /// - Returns: 操作結果と読み込んだ内容
     func loadYAML() async -> (result: FileOperationResult, content: String?) {
         let openPanel = NSOpenPanel()
-        // YAMLはplainTextとして扱う
-        openPanel.allowedContentTypes = [.plainText]
-        openPanel.allowsOtherFileTypes = true
+        // .yaml と .yml 拡張子のみを許可
+        let yamlTypes: [UTType] = [
+            UTType(filenameExtension: "yaml"),
+            UTType(filenameExtension: "yml")
+        ].compactMap { $0 }
+        openPanel.allowedContentTypes = yamlTypes
         openPanel.allowsMultipleSelection = false
         openPanel.canChooseDirectories = false
         openPanel.canChooseFiles = true
