@@ -323,8 +323,14 @@ final class MainViewModel: ObservableObject {
             )
 
         case .styleTransform:
-            // TODO: スタイル変換YAML生成を実装
-            showErrorAlert(message: "スタイル変換のYAML生成は未実装です")
+            guard let settings = styleTransformSettings else {
+                showErrorAlert(message: "スタイル変換の詳細設定を行ってください")
+                return
+            }
+            yamlPreviewText = yamlGeneratorService.generateStyleTransformYAML(
+                mainViewModel: self,
+                styleTransformSettings: settings
+            )
 
         case .infographic:
             // TODO: インフォグラフィックYAML生成を実装

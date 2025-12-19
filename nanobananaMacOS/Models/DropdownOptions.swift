@@ -914,6 +914,30 @@ enum ChibiStyle: String, CaseIterable, Identifiable {
     case puchi = "ぷちキャラ（まるっこい）"
 
     var id: String { rawValue }
+
+    /// YAML用プロンプト
+    var prompt: String {
+        switch self {
+        case .standard:
+            return "2-head-tall chibi style, super deformed, cute big head, small body"
+        case .deformed:
+            return "1.5-head-tall extreme chibi, very large head, tiny body, maximum cute"
+        case .miniChara:
+            return "3-head-tall mini character style, moderately deformed, cute proportions"
+        case .puchi:
+            return "puchi chara style, round soft shapes, blob-like cute, simplified features"
+        }
+    }
+
+    /// 頭身比
+    var headRatio: String {
+        switch self {
+        case .standard: return "2:1"
+        case .deformed: return "1.5:1"
+        case .miniChara: return "3:1"
+        case .puchi: return "2:1"
+        }
+    }
 }
 
 // MARK: - Pixel Style
@@ -926,6 +950,44 @@ enum PixelStyle: String, CaseIterable, Identifiable {
     case modern = "モダンピクセル"
 
     var id: String { rawValue }
+
+    /// YAML用プロンプト
+    var prompt: String {
+        switch self {
+        case .bit8:
+            return "8-bit pixel art style, NES/Famicom era, limited color palette, chunky pixels"
+        case .bit16:
+            return "16-bit pixel art style, SNES/Super Famicom era, vibrant colors, detailed sprites"
+        case .bit32:
+            return "32-bit pixel art style, PlayStation/Saturn era, high detail sprites, rich colors"
+        case .gba:
+            return "GBA pixel art style, Game Boy Advance era, portable game aesthetic"
+        case .modern:
+            return "modern pixel art style, indie game aesthetic, clean sharp pixels, contemporary"
+        }
+    }
+
+    /// 解像度
+    var resolution: String {
+        switch self {
+        case .bit8: return "low"
+        case .bit16: return "medium"
+        case .bit32: return "high"
+        case .gba: return "medium"
+        case .modern: return "high"
+        }
+    }
+
+    /// 色数
+    var colors: String {
+        switch self {
+        case .bit8: return "16"
+        case .bit16: return "256"
+        case .bit32: return "full"
+        case .gba: return "256"
+        case .modern: return "full"
+        }
+    }
 }
 
 // MARK: - Sprite Size
@@ -938,6 +1000,22 @@ enum SpriteSize: String, CaseIterable, Identifiable {
     case size256 = "256x256"
 
     var id: String { rawValue }
+
+    /// YAML用プロンプト
+    var prompt: String {
+        switch self {
+        case .size16:
+            return "16x16 pixel sprite, very small, icon-sized"
+        case .size32:
+            return "32x32 pixel sprite, small game sprite size"
+        case .size64:
+            return "64x64 pixel sprite, medium detailed sprite"
+        case .size128:
+            return "128x128 pixel sprite, large detailed sprite"
+        case .size256:
+            return "256x256 pixel sprite, high detail sprite art"
+        }
+    }
 }
 
 // MARK: - ===========================================
