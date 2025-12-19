@@ -75,7 +75,7 @@ struct SceneBuilderSettingsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 合成タイプ選択
+            // 合成タイプ選択（現在はストーリーシーンのみ対応）
             HStack {
                 Text("合成タイプ:")
                     .fontWeight(.semibold)
@@ -86,6 +86,10 @@ struct SceneBuilderSettingsView: View {
                 }
                 .labelsHidden()
                 .frame(width: 180)
+                .disabled(true)  // バトルシーン・ボスレイドは後日実装予定
+                Text("※ バトルシーン・ボスレイドは後日実装予定")
+                    .font(.caption)
+                    .foregroundColor(.gray)
                 Spacer()
             }
             .padding(.horizontal, 16)
@@ -206,9 +210,8 @@ struct SceneBuilderSettingsView: View {
                             Text(mood.rawValue).tag(mood)
                         }
                     }
+                    .pickerStyle(.segmented)
                     .labelsHidden()
-                    .frame(width: 120)
-                    Spacer()
                 }
 
                 if viewModel.storyLightingMood == .custom {
