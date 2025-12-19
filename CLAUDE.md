@@ -371,8 +371,12 @@ Python版にあった「同一性保持」スライダーはUIから削除。
   - メイン/おまけキャラクター画像対応
   - Python版と同一形式のYAML出力
 - **✅ 全10種類のYAML生成機能完了**
-- [ ] Gemini API呼び出し
 - [x] ファイル選択ダイアログの実装（全10種類の設定ウィンドウ）- SwiftUI fileImporter使用
+- [x] YAML読み込み機能
+  - ローカルのYAMLファイル（.yaml/.yml）を読み込んでプレビュー表示
+  - UTType(filenameExtension:)による拡張子フィルタリング
+  - 読み込んだYAMLはコピー/保存で再利用可能
+- [ ] Gemini API呼び出し
 - [ ] 漫画コンポーザー
 - [ ] 背景透過ツール
 
