@@ -140,6 +140,7 @@ style:
         // タイトルオーバーレイ
         yaml += YAMLUtilities.generateTitleOverlay(
             title: mainViewModel.title,
+            author: mainViewModel.authorName,
             includeTitleInImage: mainViewModel.includeTitleInImage
         )
 

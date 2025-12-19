@@ -314,28 +314,41 @@ Python版にあった「同一性保持」スライダーはUIから削除。
   - テキスト記述モード（参考画像なし）
   - 人物自動除去オプション
   - Python版と同一形式のYAML出力
-- [ ] YAML生成機能（残り4種類の出力タイプ）
+- [x] YAML生成機能（装飾テキスト）
+  - 4タイプ対応（技名テロップ/決め台詞/キャラ名プレート/メッセージウィンドウ）
+  - メッセージウィンドウは3モード（フル/顔のみ/セリフのみ）
+  - Python版と同一形式のYAML出力
+- [x] YAML生成機能（4コマ漫画）
+  - キャラクター設定（2人まで、参照画像対応）
+  - 4コマ分のシーン・セリフ・ナレーション
+  - MangaPanelDataをclassに変更（SwiftUI警告対策）
+  - Python版と同一形式のYAML出力
+- [x] title_overlay作者名対応（Python版バグ修正）
+  - 作者名なし: タイトルのみtop-center
+  - 作者名あり: タイトル左(large)、作者名右(small)
+  - 全ジェネレーターで対応
+- [ ] YAML生成機能（残り2種類の出力タイプ）
 - [ ] Gemini API呼び出し
-- [x] ファイル選択ダイアログの実装（顔三面図・素体三面図・衣装着用・ポーズ・シーンビルダー・背景生成）- SwiftUI fileImporter使用
+- [x] ファイル選択ダイアログの実装（顔三面図・素体三面図・衣装着用・ポーズ・シーンビルダー・背景生成・装飾テキスト・4コマ漫画）- SwiftUI fileImporter使用
 - [ ] ファイル選択ダイアログの実装（残りの設定ウィンドウ）
 - [ ] 漫画コンポーザー
 - [ ] 背景透過ツール
 
-## 次のステップ：装飾テキストのYAML生成実装
+## 次のステップ：スタイル変換のYAML生成実装
 
 ### 実装対象
 
-**装飾テキスト** - 技名テロップ、決め台詞吹き出し、漫画擬音などの装飾テキスト画像を生成
+**スタイル変換** - 既存画像を別スタイル（ちびキャラ、ドット絵等）に変換
 
 ### 参照すべきファイル
 
 **Python版:**
-- `/app/main.py` - `_generate_decorative_text_yaml()` メソッド
-- `/app/ui/decorative_text_window.py` - 装飾テキスト設定ウィンドウ
+- `/app/main.py` - `_generate_style_transform_yaml()` メソッド
+- `/app/ui/style_transform_window.py` - スタイル変換設定ウィンドウ
 
 **Swift版（既存）:**
-- `nanobananaMacOS/Views/Settings/DecorativeTextSettingsView.swift` - UI（実装済み）
-- `nanobananaMacOS/ViewModels/SettingsViewModels.swift` - `DecorativeTextSettingsViewModel`（実装済み）
+- `nanobananaMacOS/Views/Settings/StyleTransformSettingsView.swift` - UI（実装済み）
+- `nanobananaMacOS/ViewModels/SettingsViewModels.swift` - `StyleTransformSettingsViewModel`（実装済み）
 
 ### 実装手順
 
@@ -343,13 +356,13 @@ Python版にあった「同一性保持」スライダーはUIから削除。
    - 出力形式、セクション構成を把握
 
 2. **ジェネレーター作成**
-   - `nanobananaMacOS/Services/Generators/DecorativeTextYAMLGenerator.swift` を新規作成
+   - `nanobananaMacOS/Services/Generators/StyleTransformYAMLGenerator.swift` を新規作成
 
 3. **サービス層の更新**
-   - `YAMLGeneratorService.swift` に `generateDecorativeTextYAML()` を追加
+   - `YAMLGeneratorService.swift` に `generateStyleTransformYAML()` を追加
 
 4. **MainViewModelの更新**
-   - `generateYAML()` の `.decorativeText` ケースを実装
+   - `generateYAML()` の `.styleTransform` ケースを実装
 
 ### 残りのYAML生成タスク
 
@@ -359,9 +372,9 @@ Python版にあった「同一性保持」スライダーはUIから削除。
 - [x] ポーズ ✅ 完了
 - [x] シーンビルダー（ストーリーシーン）✅ 完了
 - [x] 背景生成 ✅ 完了
-- [ ] 装飾テキスト ← **次はここ**
-- [ ] 4コマ漫画
-- [ ] スタイル変換
+- [x] 装飾テキスト ✅ 完了
+- [x] 4コマ漫画 ✅ 完了
+- [ ] スタイル変換 ← **次はここ**
 - [ ] インフォグラフィック
 
 ## Python版シーンビルダーのスタイルセクション欠落について
@@ -386,6 +399,38 @@ style:
 ```
 
 これにより、トップ画面のスタイル設定が正しくYAMLに反映されるようになった。
+
+---
+
+## アスペクト比のYAML出力について（Googleフィードバック対応）
+
+### 問題
+
+YAML出力で`aspect_ratio: "1:1（正方形）"`のように日本語説明が含まれていた。
+
+### 原因
+
+`AspectRatio`enumの`rawValue`をそのままYAML出力に使用していた。`rawValue`はUI表示用に日本語説明を含んでいる。
+
+### 修正
+
+YAML出力時は`rawValue`ではなく`yamlValue`プロパティを使用するように変更：
+
+```swift
+// Before
+let aspectRatioValue = mainViewModel.selectedAspectRatio.rawValue  // "1:1（正方形）"
+
+// After
+let aspectRatioValue = mainViewModel.selectedAspectRatio.yamlValue  // "1:1"
+```
+
+**対象ジェネレータ:**
+- BackgroundYAMLGenerator
+- DecorativeTextYAMLGenerator
+- StorySceneYAMLGenerator
+- PoseYAMLGenerator
+
+**注意:** 他のジェネレータ（FaceSheet, BodySheet, Outfit）はアスペクト比が固定値のためこの問題は発生しない。
 
 ---
 

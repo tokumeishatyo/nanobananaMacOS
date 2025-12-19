@@ -54,8 +54,11 @@ struct FourPanelSettingsView: View {
                     panelHeaderSection
 
                     // 各コマの入力
-                    ForEach(0..<4, id: \.self) { index in
-                        panelInputSection(index: index)
+                    ForEach(Array(viewModel.panels.enumerated()), id: \.element.id) { index, panel in
+                        PanelInputView(
+                            panel: panel,
+                            label: panelLabels[index]
+                        )
                     }
                 }
                 .padding(16)
@@ -183,13 +186,20 @@ struct FourPanelSettingsView: View {
             Spacer()
         }
     }
+}
 
-    // MARK: - 各コマの入力セクション
-    private func panelInputSection(index: Int) -> some View {
+// MARK: - Panel Input View
+
+/// 各コマの入力セクション（ObservableObjectを直接バインド）
+private struct PanelInputView: View {
+    @ObservedObject var panel: MangaPanelData
+    let label: String
+
+    var body: some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 10) {
                 // ヘッダー
-                Text(panelLabels[index])
+                Text(label)
                     .font(.subheadline)
                     .fontWeight(.bold)
 
@@ -197,7 +207,7 @@ struct FourPanelSettingsView: View {
                 HStack {
                     Text("シーン:")
                         .frame(width: 70, alignment: .leading)
-                    TextField("背景、キャラクターの配置、表情、アクションなど", text: panelSceneBinding(index: index))
+                    TextField("背景、キャラクターの配置、表情、アクションなど", text: $panel.scene)
                         .textFieldStyle(.roundedBorder)
                 }
 
@@ -207,7 +217,7 @@ struct FourPanelSettingsView: View {
                         .frame(width: 70, alignment: .leading)
 
                     // キャラ選択（3択→ボタン）
-                    Picker("", selection: panelSpeech1CharBinding(index: index)) {
+                    Picker("", selection: $panel.speech1Char) {
                         ForEach(SpeechCharacter.allCases) { char in
                             Text(char.rawValue).tag(char)
                         }
@@ -215,11 +225,11 @@ struct FourPanelSettingsView: View {
                     .pickerStyle(.segmented)
                     .frame(width: 180)
 
-                    TextField("セリフ内容", text: panelSpeech1TextBinding(index: index))
+                    TextField("セリフ内容", text: $panel.speech1Text)
                         .textFieldStyle(.roundedBorder)
 
                     // 位置選択（2択→ボタン）
-                    Picker("", selection: panelSpeech1PosBinding(index: index)) {
+                    Picker("", selection: $panel.speech1Position) {
                         ForEach(SpeechPosition.allCases) { pos in
                             Text(pos.rawValue).tag(pos)
                         }
@@ -233,7 +243,7 @@ struct FourPanelSettingsView: View {
                     Text("セリフ2:")
                         .frame(width: 70, alignment: .leading)
 
-                    Picker("", selection: panelSpeech2CharBinding(index: index)) {
+                    Picker("", selection: $panel.speech2Char) {
                         ForEach(SpeechCharacter.allCases) { char in
                             Text(char.rawValue).tag(char)
                         }
@@ -241,10 +251,10 @@ struct FourPanelSettingsView: View {
                     .pickerStyle(.segmented)
                     .frame(width: 180)
 
-                    TextField("セリフ内容（任意）", text: panelSpeech2TextBinding(index: index))
+                    TextField("セリフ内容（任意）", text: $panel.speech2Text)
                         .textFieldStyle(.roundedBorder)
 
-                    Picker("", selection: panelSpeech2PosBinding(index: index)) {
+                    Picker("", selection: $panel.speech2Position) {
                         ForEach(SpeechPosition.allCases) { pos in
                             Text(pos.rawValue).tag(pos)
                         }
@@ -257,69 +267,12 @@ struct FourPanelSettingsView: View {
                 HStack {
                     Text("ナレーション:")
                         .frame(width: 70, alignment: .leading)
-                    TextField("ナレーション（任意）", text: panelNarrationBinding(index: index))
+                    TextField("ナレーション（任意）", text: $panel.narration)
                         .textFieldStyle(.roundedBorder)
                 }
             }
             .padding(10)
         }
-    }
-
-    // MARK: - Bindings Helper
-    private func panelSceneBinding(index: Int) -> Binding<String> {
-        Binding(
-            get: { viewModel.panels[index].scene },
-            set: { viewModel.panels[index].scene = $0 }
-        )
-    }
-
-    private func panelSpeech1CharBinding(index: Int) -> Binding<SpeechCharacter> {
-        Binding(
-            get: { viewModel.panels[index].speech1Char },
-            set: { viewModel.panels[index].speech1Char = $0 }
-        )
-    }
-
-    private func panelSpeech1TextBinding(index: Int) -> Binding<String> {
-        Binding(
-            get: { viewModel.panels[index].speech1Text },
-            set: { viewModel.panels[index].speech1Text = $0 }
-        )
-    }
-
-    private func panelSpeech1PosBinding(index: Int) -> Binding<SpeechPosition> {
-        Binding(
-            get: { viewModel.panels[index].speech1Position },
-            set: { viewModel.panels[index].speech1Position = $0 }
-        )
-    }
-
-    private func panelSpeech2CharBinding(index: Int) -> Binding<SpeechCharacter> {
-        Binding(
-            get: { viewModel.panels[index].speech2Char },
-            set: { viewModel.panels[index].speech2Char = $0 }
-        )
-    }
-
-    private func panelSpeech2TextBinding(index: Int) -> Binding<String> {
-        Binding(
-            get: { viewModel.panels[index].speech2Text },
-            set: { viewModel.panels[index].speech2Text = $0 }
-        )
-    }
-
-    private func panelSpeech2PosBinding(index: Int) -> Binding<SpeechPosition> {
-        Binding(
-            get: { viewModel.panels[index].speech2Position },
-            set: { viewModel.panels[index].speech2Position = $0 }
-        )
-    }
-
-    private func panelNarrationBinding(index: Int) -> Binding<String> {
-        Binding(
-            get: { viewModel.panels[index].narration },
-            set: { viewModel.panels[index].narration = $0 }
-        )
     }
 }
 

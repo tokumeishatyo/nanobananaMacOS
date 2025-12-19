@@ -55,15 +55,11 @@ layout_instruction: |
 """
 
         // タイトルオーバーレイ
-        if mainViewModel.includeTitleInImage && !mainViewModel.title.isEmpty {
-            yaml += """
-
-title_overlay:
-  enabled: true
-  text: "\(YAMLUtilities.escapeYAMLString(mainViewModel.title))"
-  position: "top-center"
-"""
-        }
+        yaml += YAMLUtilities.generateTitleOverlay(
+            title: mainViewModel.title,
+            author: mainViewModel.authorName,
+            includeTitleInImage: mainViewModel.includeTitleInImage
+        )
 
         return yaml
     }

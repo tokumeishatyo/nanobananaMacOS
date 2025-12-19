@@ -50,6 +50,7 @@ final class DecorativeTextYAMLGenerator {
         var result = yaml
         result += YAMLUtilities.generateTitleOverlay(
             title: mainViewModel.title,
+            author: mainViewModel.authorName,
             includeTitleInImage: mainViewModel.includeTitleInImage
         )
 

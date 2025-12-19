@@ -291,16 +291,17 @@ final class FourPanelSettingsViewModel: ObservableObject {
 }
 
 /// 4コマ漫画の1コマ分のデータ
-struct MangaPanelData: Identifiable {
+/// classにすることで、プロパティ変更時に配列全体の再発行を防ぐ
+final class MangaPanelData: ObservableObject, Identifiable {
     let id = UUID()
-    var scene: String = ""           // シーン説明
-    var speech1Char: SpeechCharacter = .character1
-    var speech1Text: String = ""
-    var speech1Position: SpeechPosition = .left
-    var speech2Char: SpeechCharacter = .none
-    var speech2Text: String = ""
-    var speech2Position: SpeechPosition = .right
-    var narration: String = ""       // ナレーション
+    @Published var scene: String = ""           // シーン説明
+    @Published var speech1Char: SpeechCharacter = .character1
+    @Published var speech1Text: String = ""
+    @Published var speech1Position: SpeechPosition = .left
+    @Published var speech2Char: SpeechCharacter = .none
+    @Published var speech2Text: String = ""
+    @Published var speech2Position: SpeechPosition = .right
+    @Published var narration: String = ""       // ナレーション
 }
 
 // MARK: - Style Transform Settings ViewModel

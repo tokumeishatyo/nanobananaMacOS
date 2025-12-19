@@ -165,14 +165,38 @@ enum YAMLUtilities {
     // MARK: - Title Overlay
 
     /// タイトルオーバーレイYAMLを生成
-    static func generateTitleOverlay(title: String, includeTitleInImage: Bool) -> String {
+    /// - Parameters:
+    ///   - title: タイトル
+    ///   - author: 作者名（空の場合はタイトルのみ中央配置）
+    ///   - includeTitleInImage: 画像にタイトルを含めるか
+    /// - Returns: タイトルオーバーレイYAML
+    static func generateTitleOverlay(title: String, author: String, includeTitleInImage: Bool) -> String {
         guard includeTitleInImage && !title.isEmpty else { return "" }
-        return """
+
+        // 作者名がない場合: タイトルのみ中央配置
+        if author.isEmpty {
+            return """
 
 title_overlay:
   enabled: true
   text: "\(escapeYAMLString(title))"
-  position: "top-left"
+  position: "top-center"
+"""
+        }
+
+        // 作者名がある場合: タイトル左（大）、作者名右（小）
+        return """
+
+title_overlay:
+  enabled: true
+  title:
+    text: "\(escapeYAMLString(title))"
+    position: "top-left"
+    size: "large"
+  author:
+    text: "\(escapeYAMLString(author))"
+    position: "top-right"
+    size: "small"
 """
     }
 }
