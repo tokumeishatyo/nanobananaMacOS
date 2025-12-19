@@ -24,7 +24,7 @@ final class StorySceneYAMLGenerator {
         // スタイル設定（トップ画面から取得）
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
         let outputStyleValue = getOutputStyleValue(mainViewModel.selectedOutputStyle)
-        let aspectRatioValue = mainViewModel.selectedAspectRatio.rawValue
+        let aspectRatioValue = mainViewModel.selectedAspectRatio.yamlValue
 
         // YAML生成
         let yaml = """

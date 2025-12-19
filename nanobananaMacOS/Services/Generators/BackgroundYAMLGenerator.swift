@@ -14,7 +14,7 @@ final class BackgroundYAMLGenerator {
         // スタイル設定
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
         let outputStyleValue = getOutputStyleValue(mainViewModel.selectedOutputStyle)
-        let aspectRatioValue = mainViewModel.selectedAspectRatio.rawValue
+        let aspectRatioValue = mainViewModel.selectedAspectRatio.yamlValue
 
         // モードに応じてYAML生成
         let yaml: String

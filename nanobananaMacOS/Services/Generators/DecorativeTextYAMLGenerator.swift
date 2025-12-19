@@ -14,7 +14,7 @@ final class DecorativeTextYAMLGenerator {
         // スタイル設定
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
         let outputStyleValue = getOutputStyleValue(mainViewModel.selectedOutputStyle)
-        let aspectRatioValue = mainViewModel.selectedAspectRatio.rawValue
+        let aspectRatioValue = mainViewModel.selectedAspectRatio.yamlValue
 
         // テキストタイプに応じてYAML生成
         let yaml: String
