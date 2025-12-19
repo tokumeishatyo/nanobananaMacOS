@@ -1,91 +1,104 @@
 import Foundation
 
-// MARK: - YAML Generator Protocol
-
-/// YAML生成サービスプロトコル
-protocol YAMLGeneratorServiceProtocol {
-    func generateFaceSheetYAML(mainViewModel: MainViewModel, faceSheetSettings: FaceSheetSettingsViewModel) -> String
-    func generateBodySheetYAML(mainViewModel: MainViewModel, bodySheetSettings: BodySheetSettingsViewModel) -> String
-    func generateOutfitSheetYAML(mainViewModel: MainViewModel, outfitSettings: OutfitSettingsViewModel) -> String
-    func generatePoseYAML(mainViewModel: MainViewModel, poseSettings: PoseSettingsViewModel) -> String
-    func generateSceneBuilderYAML(mainViewModel: MainViewModel, sceneBuilderSettings: SceneBuilderSettingsViewModel) -> String
-    func generateBackgroundYAML(mainViewModel: MainViewModel, backgroundSettings: BackgroundSettingsViewModel) -> String
-    func generateDecorativeTextYAML(mainViewModel: MainViewModel, decorativeTextSettings: DecorativeTextSettingsViewModel) -> String
-    func generateFourPanelYAML(mainViewModel: MainViewModel, fourPanelSettings: FourPanelSettingsViewModel) -> String
-    func generateStyleTransformYAML(mainViewModel: MainViewModel, styleTransformSettings: StyleTransformSettingsViewModel) -> String
-    func generateInfographicYAML(mainViewModel: MainViewModel, infographicSettings: InfographicSettingsViewModel) -> String
-}
-
 // MARK: - YAML Generator Service
 
 /// YAML生成サービス実装
-/// 各出力タイプ別のジェネレータを呼び出すファサード
-final class YAMLGeneratorService: YAMLGeneratorServiceProtocol {
+/// TemplateEngineを使用してYAMLを生成
+final class YAMLGeneratorService {
 
-    // MARK: - Generators
+    // MARK: - Properties
 
-    private let faceSheetGenerator = FaceSheetYAMLGenerator()
-    private let bodySheetGenerator = BodySheetYAMLGenerator()
-    private let outfitSheetGenerator = OutfitSheetYAMLGenerator()
-    private let poseGenerator = PoseYAMLGenerator()
-    private let storySceneGenerator = StorySceneYAMLGenerator()
-    private let backgroundGenerator = BackgroundYAMLGenerator()
-    private let decorativeTextGenerator = DecorativeTextYAMLGenerator()
-    private let fourPanelGenerator = FourPanelYAMLGenerator()
-    private let styleTransformGenerator = StyleTransformYAMLGenerator()
-    private let infographicGenerator = InfographicYAMLGenerator()
+    /// テンプレートエンジン使用フラグ
+    /// true: TemplateEngineを使用（新方式）
+    /// false: 従来のハードコードジェネレーターを使用（レガシー）
+    private let useTemplateEngine: Bool
 
-    // MARK: - Public Methods
+    // MARK: - Legacy Generators (テンプレート移行完了後に削除予定)
 
-    @MainActor
-    func generateFaceSheetYAML(mainViewModel: MainViewModel, faceSheetSettings: FaceSheetSettingsViewModel) -> String {
-        return faceSheetGenerator.generate(mainViewModel: mainViewModel, settings: faceSheetSettings)
+    private lazy var faceSheetGenerator = FaceSheetYAMLGenerator()
+    private lazy var bodySheetGenerator = BodySheetYAMLGenerator()
+    private lazy var outfitSheetGenerator = OutfitSheetYAMLGenerator()
+    private lazy var poseGenerator = PoseYAMLGenerator()
+    private lazy var storySceneGenerator = StorySceneYAMLGenerator()
+    private lazy var backgroundGenerator = BackgroundYAMLGenerator()
+    private lazy var decorativeTextGenerator = DecorativeTextYAMLGenerator()
+    private lazy var fourPanelGenerator = FourPanelYAMLGenerator()
+    private lazy var styleTransformGenerator = StyleTransformYAMLGenerator()
+    private lazy var infographicGenerator = InfographicYAMLGenerator()
+
+    // MARK: - Initialization
+
+    /// 初期化
+    /// - Parameter useTemplateEngine: テンプレートエンジンを使用するか（デフォルト: false）
+    init(useTemplateEngine: Bool = false) {
+        self.useTemplateEngine = useTemplateEngine
     }
 
+    // MARK: - Unified Generate Method
+
+    /// 統合YAML生成メソッド
+    /// OutputTypeに応じて適切なYAMLを生成
     @MainActor
-    func generateBodySheetYAML(mainViewModel: MainViewModel, bodySheetSettings: BodySheetSettingsViewModel) -> String {
-        return bodySheetGenerator.generate(mainViewModel: mainViewModel, settings: bodySheetSettings)
+    func generateYAML(outputType: OutputType, mainViewModel: MainViewModel) -> String {
+        if useTemplateEngine {
+            return generateWithTemplateEngine(outputType: outputType, mainViewModel: mainViewModel)
+        } else {
+            return generateWithLegacyGenerator(outputType: outputType, mainViewModel: mainViewModel)
+        }
     }
 
+    // MARK: - Template Engine Method
+
+    /// TemplateEngineを使用してYAML生成
     @MainActor
-    func generateOutfitSheetYAML(mainViewModel: MainViewModel, outfitSettings: OutfitSettingsViewModel) -> String {
-        return outfitSheetGenerator.generate(mainViewModel: mainViewModel, settings: outfitSettings)
+    private func generateWithTemplateEngine(outputType: OutputType, mainViewModel: MainViewModel) -> String {
+        do {
+            return try TemplateEngine.shared.generateYAML(
+                outputType: outputType,
+                mainViewModel: mainViewModel
+            )
+        } catch {
+            // エラー時はエラーメッセージをYAMLコメントとして返す
+            return """
+            # ====================================================
+            # Template Engine Error
+            # ====================================================
+            # \(error.localizedDescription)
+            #
+            # テンプレートファイルが見つからないか、構文エラーがあります。
+            # Resources/Templates/ フォルダを確認してください。
+            # ====================================================
+            """
+        }
     }
 
-    @MainActor
-    func generatePoseYAML(mainViewModel: MainViewModel, poseSettings: PoseSettingsViewModel) -> String {
-        return poseGenerator.generate(mainViewModel: mainViewModel, settings: poseSettings)
-    }
+    // MARK: - Legacy Generator Methods
 
+    /// 従来のジェネレーターを使用してYAML生成
     @MainActor
-    func generateSceneBuilderYAML(mainViewModel: MainViewModel, sceneBuilderSettings: SceneBuilderSettingsViewModel) -> String {
-        // 現在はストーリーシーンのみ対応（バトルシーン・ボスレイドは後日実装）
-        return storySceneGenerator.generate(mainViewModel: mainViewModel, settings: sceneBuilderSettings)
-    }
-
-    @MainActor
-    func generateBackgroundYAML(mainViewModel: MainViewModel, backgroundSettings: BackgroundSettingsViewModel) -> String {
-        return backgroundGenerator.generate(mainViewModel: mainViewModel, settings: backgroundSettings)
-    }
-
-    @MainActor
-    func generateDecorativeTextYAML(mainViewModel: MainViewModel, decorativeTextSettings: DecorativeTextSettingsViewModel) -> String {
-        return decorativeTextGenerator.generate(mainViewModel: mainViewModel, settings: decorativeTextSettings)
-    }
-
-    @MainActor
-    func generateFourPanelYAML(mainViewModel: MainViewModel, fourPanelSettings: FourPanelSettingsViewModel) -> String {
-        return fourPanelGenerator.generate(mainViewModel: mainViewModel, settings: fourPanelSettings)
-    }
-
-    @MainActor
-    func generateStyleTransformYAML(mainViewModel: MainViewModel, styleTransformSettings: StyleTransformSettingsViewModel) -> String {
-        return styleTransformGenerator.generate(mainViewModel: mainViewModel, settings: styleTransformSettings)
-    }
-
-    @MainActor
-    func generateInfographicYAML(mainViewModel: MainViewModel, infographicSettings: InfographicSettingsViewModel) -> String {
-        return infographicGenerator.generate(mainViewModel: mainViewModel, settings: infographicSettings)
+    private func generateWithLegacyGenerator(outputType: OutputType, mainViewModel: MainViewModel) -> String {
+        switch outputType {
+        case .faceSheet:
+            return faceSheetGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.faceSheetSettings)
+        case .bodySheet:
+            return bodySheetGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.bodySheetSettings)
+        case .outfitSheet:
+            return outfitSheetGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.outfitSettings)
+        case .pose:
+            return poseGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.poseSettings)
+        case .sceneBuilder:
+            return storySceneGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.sceneBuilderSettings)
+        case .background:
+            return backgroundGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.backgroundSettings)
+        case .decorativeText:
+            return decorativeTextGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.decorativeTextSettings)
+        case .fourPanelManga:
+            return fourPanelGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.fourPanelSettings)
+        case .styleTransform:
+            return styleTransformGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.styleTransformSettings)
+        case .infographic:
+            return infographicGenerator.generate(mainViewModel: mainViewModel, settings: mainViewModel.infographicSettings)
+        }
     }
 }
 
