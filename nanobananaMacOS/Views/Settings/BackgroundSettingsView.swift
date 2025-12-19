@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// 背景生成設定ウィンドウ（シンプル版）
 struct BackgroundSettingsView: View {
@@ -6,6 +7,9 @@ struct BackgroundSettingsView: View {
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((BackgroundSettingsViewModel) -> Void)?
+
+    // MARK: - File Picker State
+    @State private var showingFilePicker = false
 
     init(initialSettings: BackgroundSettingsViewModel? = nil, onApply: ((BackgroundSettingsViewModel) -> Void)? = nil) {
         self.onApply = onApply
@@ -49,7 +53,7 @@ struct BackgroundSettingsView: View {
                                 .textFieldStyle(.roundedBorder)
                                 .disabled(!viewModel.useReferenceImage)
                             Button("参照") {
-                                // TODO: ファイル選択
+                                showingFilePicker = true
                             }
                             .disabled(!viewModel.useReferenceImage)
                         }
@@ -111,6 +115,25 @@ struct BackgroundSettingsView: View {
             .padding(16)
         }
         .frame(width: 500, height: 470)
+        .fileImporter(
+            isPresented: $showingFilePicker,
+            allowedContentTypes: [.image],
+            allowsMultipleSelection: false
+        ) { result in
+            handleFileSelection(result)
+        }
+    }
+
+    // MARK: - File Selection Handler
+
+    private func handleFileSelection(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            viewModel.referenceImagePath = url.path
+        case .failure(let error):
+            print("ファイル選択エラー: \(error.localizedDescription)")
+        }
     }
 
     /// プレースホルダーテキスト

@@ -293,8 +293,14 @@ final class MainViewModel: ObservableObject {
             )
 
         case .background:
-            // TODO: 背景生成YAML生成を実装
-            showErrorAlert(message: "背景生成のYAML生成は未実装です")
+            guard let settings = backgroundSettings else {
+                showErrorAlert(message: "背景生成の詳細設定を行ってください")
+                return
+            }
+            yamlPreviewText = yamlGeneratorService.generateBackgroundYAML(
+                mainViewModel: self,
+                backgroundSettings: settings
+            )
 
         case .decorativeText:
             // TODO: 装飾テキストYAML生成を実装
