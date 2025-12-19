@@ -16,23 +16,33 @@ final class TemplateParser {
         var inTemplate = false
         var templateLines: [String] = []
         var templateIndent = 0
+        var outputTypeIndent = 0  // 出力タイプのインデントレベルを記録
 
         for line in lines {
             let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+            let currentIndent = line.prefix(while: { $0 == " " || $0 == "\t" }).count
 
             // output_types セクション内の特定タイプを探す
             if trimmedLine == "\(outputType):" {
                 inOutputType = true
+                outputTypeIndent = currentIndent  // インデントレベルを記録
                 continue
             }
 
             if inOutputType {
                 // 次の出力タイプに到達したら終了
-                if !line.hasPrefix(" ") && !line.hasPrefix("\t") && !trimmedLine.isEmpty && !trimmedLine.hasPrefix("#") {
-                    if !trimmedLine.hasPrefix(outputType) {
-                        inOutputType = false
-                        continue
-                    }
+                // （同じインデントレベルで別の名前: で始まる行）
+                if currentIndent == outputTypeIndent && !trimmedLine.isEmpty &&
+                   trimmedLine.hasSuffix(":") && !trimmedLine.hasPrefix("#") &&
+                   trimmedLine != "\(outputType):" {
+                    inOutputType = false
+                    break
+                }
+
+                // トップレベルのキー（インデントなし）に到達したら終了
+                if currentIndent == 0 && !trimmedLine.isEmpty && !trimmedLine.hasPrefix("#") {
+                    inOutputType = false
+                    break
                 }
 
                 // セクション名を探す（テンプレート抽出中でない場合のみ）

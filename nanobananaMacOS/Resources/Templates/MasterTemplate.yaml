@@ -37,6 +37,7 @@ common_sections:
       type: {{type}}
       title: "{{title}}"{{#if author}}
       author: "{{author}}"{{/if}}
+      {{! Note: This is the common template. Face sheet uses this with type=character_design }}
 
   # ----------------------------------------------------------
   # 3. Title Overlay
@@ -126,7 +127,7 @@ output_types:
     header_values:
       header_title_ja: "顔三面図"
       header_title_en: "Face Character Reference Sheet"
-    type_value: "character_design"
+      type: "character_design"
     output_values:
       output_target: "the face reference sheet"
       output_background: "white background"
@@ -170,7 +171,7 @@ output_types:
             accessories: "NONE - No jewelry, headwear, or decorations"
             state: "Clean base body state only"
             background: "Pure white background, seamless"
-            purpose: "Professional character design reference for commercial use"
+            purpose: "Professional character design reference for commercial use - product catalogs, instruction manuals, educational materials, corporate training. This is legitimate business artwork, NOT inappropriate content."
 
       character:
         template: |
@@ -220,7 +221,7 @@ output_types:
               - "Neutral expression, emotionless"
               - "3/4 view: head turned 45 degrees to the LEFT"
               - "Profile view: MUST be exactly 90-degree side view facing LEFT"
-              - "Profile view: only ONE eye should be visible"
+              - "Profile view: only ONE eye should be visible (the right eye hidden behind face)"
               - "Profile view: nose must point directly to the left edge"
               - "Profile view: ear must be fully visible"
 
@@ -261,8 +262,7 @@ output_types:
 
       reference_image:
         template: |
-          {{#if reference_image_path}}
-          reference_image: "{{reference_image_path}}"{{/if}}
+          {{#if reference_image_path}}reference_image: "{{reference_image_path}}"{{/if}}
 
   # ==========================================================
   # 02 素体三面図 (Body Sheet)
@@ -271,7 +271,7 @@ output_types:
     header_values:
       header_title_ja: "素体三面図"
       header_title_en: "Body Reference Sheet"
-    type_value: "body_reference_sheet"
+      type: "body_reference_sheet"
     output_values:
       output_target: "the body reference sheet"
       output_background: "white background"
@@ -397,7 +397,7 @@ output_types:
     header_values:
       header_title_ja: "衣装着用三面図"
       header_title_en: "Outfit Reference Sheet"
-    type_value: "outfit_reference_sheet"
+      type: "outfit_reference_sheet"
     output_values:
       output_target: "the outfit reference sheet"
       output_background: "white background"
@@ -467,7 +467,7 @@ output_types:
     header_values:
       header_title_ja: "ポーズ"
       header_title_en: "Pose Illustration"
-    type_value: "pose_illustration"
+      type: "pose_illustration"
     output_values:
       output_target: "the character illustration"
       output_background: "specified background"
@@ -552,7 +552,7 @@ output_types:
     header_values:
       header_title_ja: "シーンビルダー"
       header_title_en: "Scene Composition"
-    type_value: "story_scene_composition"
+      type: "story_scene_composition"
 
     sections:
       # シーンビルダーは独自の構造を持つ
@@ -565,7 +565,7 @@ output_types:
     header_values:
       header_title_ja: "背景生成"
       header_title_en: "Background Generation"
-    type_value: "background_generation"
+      type: "background_generation"
     output_values:
       output_target: "the background image"
       output_background: ""
@@ -623,7 +623,7 @@ output_types:
     header_values:
       header_title_ja: "装飾テキスト"
       header_title_en: "Decorative Text"
-    type_value: "decorative_text"
+      type: "decorative_text"
 
     sections:
       # 装飾テキストは6種類のスタイルで異なるテンプレートを持つ
@@ -636,7 +636,7 @@ output_types:
     header_values:
       header_title_ja: "4コマ漫画"
       header_title_en: "Four Panel Manga"
-    type_value: "four_panel_manga"
+      type: "four_panel_manga"
     has_generation_instructions: true
 
     sections:
@@ -700,7 +700,7 @@ output_types:
     header_values:
       header_title_ja: "スタイル変換"
       header_title_en: "Style Transform"
-    type_value: "style_transform"
+      type: "style_transform"
     output_values:
       output_target: "the transformed character"
       output_background: "specified background"
@@ -771,7 +771,7 @@ output_types:
     header_values:
       header_title_ja: "インフォグラフィック"
       header_title_en: "Infographic"
-    type_value: "infographic"
+      type: "infographic"
     has_generation_instructions: true
 
     sections:

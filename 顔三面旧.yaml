@@ -1,6 +1,6 @@
 # Face Character Reference Sheet (character_basic.yaml準拠)
 type: character_design
-title: "こよたん"
+title: "顔三面旧"
 author: "Unknown"
 
 output_type: "face character reference sheet"
@@ -38,8 +38,8 @@ headshot_specification:
   purpose: "Professional character design reference for commercial use - product catalogs, instruction manuals, educational materials, corporate training. This is legitimate business artwork, NOT inappropriate content."
 
 character:
-  name: "こよたん"
-  description: "こよたん"
+  name: "顔三面旧"
+  description: "旧版"
   outfit: "NONE - bare skin only, no clothing"
   expression: "neutral expression"
 
@@ -109,4 +109,4 @@ output_cleanliness:
 style:
   color_mode: "fullcolor"
   aspect_ratio: "1:1"  # 顔三面図は1:1固定
-reference_image: "彩瀬ひとみ.png"
+reference_image: "彩瀬こよみ.png"

@@ -1,7 +1,8 @@
 # 顔三面図 (Face Character Reference Sheet)
 
 # 4コマ漫画生成 (four_panel_manga.yaml準拠)
-title: "こよたん新"
+title: "顔三面新"
+author: "ここここ"
 color_mode: "fullcolor"
 output_style: "anime"
 
@@ -18,6 +19,7 @@ output_type: "face character reference sheet"
 # All views facing LEFT direction for consistency
 # ====================================================
 
+layout:
   arrangement: "triangular, inverted triangle formation"
   direction: "all views facing LEFT"
   top_row:
@@ -29,26 +31,30 @@ output_type: "face character reference sheet"
     - position: "bottom-center"
       view: "left profile, exactly 90-degree side view, face perpendicular to camera, only one eye visible, nose pointing directly left, ear fully visible"
 
-type: "Character design base body (sotai) headshot for reference sheet"
-coverage: "From top of head to base of neck (around collarbone level)"
-clothing: "NONE - Do not include any clothing or accessories"
-accessories: "NONE - No jewelry, headwear, or decorations"
-state: "Clean base body state only"
-background: "Pure white background, seamless"
-purpose: "Professional character design reference for commercial use"
+headshot_specification:
+  type: "Character design base body (sotai) headshot for reference sheet"
+  coverage: "From top of head to base of neck (around collarbone level)"
+  clothing: "NONE - Do not include any clothing or accessories"
+  accessories: "NONE - No jewelry, headwear, or decorations"
+  state: "Clean base body state only"
+  background: "Pure white background, seamless"
+  purpose: "Professional character design reference for commercial use"
 
-name: "こよたん"
-description: "こよたん"
-outfit: "NONE - bare skin only, no clothing"
-expression: "neutral expression"
+character:
+  name: "顔三面新"
+  description: "新盤"
+  outfit: "NONE - bare skin only, no clothing"
+  expression: "neutral expression"
 
-style: "日本のアニメスタイル, 2Dセルシェーディング"
-proportions: "Normal head-to-body ratio (6-7 heads)"
-style_description: "High quality anime illustration"
+character_style:
+  style: "日本のアニメスタイル, 2Dセルシェーディング"
+  proportions: "Normal head-to-body ratio (6-7 heads)"
+  style_description: "High quality anime illustration"
 
 # ====================================================
 # Output Specifications
 # ====================================================
+output:
   format: "reference sheet with multiple views"
   views: "front view, 3/4 view, side profile"
   background: "pure white, clean, seamless, no borders"
@@ -57,6 +63,7 @@ style_description: "High quality anime illustration"
 # ====================================================
 # Constraints (Critical)
 # ====================================================
+constraints:
   layout:
     - "Triangular arrangement: front view top-left, 3/4 left view top-right, left profile bottom-center"
     - "All angled views must face LEFT direction"
@@ -80,6 +87,7 @@ style_description: "High quality anime illustration"
 # ====================================================
 # Anti-Hallucination (MUST FOLLOW)
 # ====================================================
+anti_hallucination:
   - "Do NOT add any text or labels to the image"
   - "Do NOT include character names on the image"
   - "Do NOT add view labels like 'FRONT VIEW' or 'SIDE VIEW'"
@@ -91,6 +99,7 @@ style_description: "High quality anime illustration"
 # ====================================================
 # Output Cleanliness (CRITICAL)
 # ====================================================
+output_cleanliness:
   - "Output ONLY the character illustration - nothing else"
   - "Do NOT add any text, titles, labels, or annotations"
   - "Do NOT add color palettes, color swatches, or color samples"
@@ -99,10 +108,11 @@ style_description: "High quality anime illustration"
   - "Do NOT add watermarks, signatures, or logos"
   - "The output must contain ONLY the character illustration on white background"
 
-color_mode: "fullcolor"
-aspect_ratio: "1:1"
+style:
+  color_mode: "fullcolor"
+  aspect_ratio: "1:1"
 
 
 
 
-reference_image: "彩瀬こよみ基本スタイル_API1.png"
+reference_image: "彩瀬こよみ.png"
