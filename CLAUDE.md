@@ -309,28 +309,33 @@ Python版にあった「同一性保持」スライダーはUIから削除。
   - 装飾テキストオーバーレイ
   - **スタイルセクション追加（Python版で欠落していた不具合を修正）**
   - バトルシーン・ボスレイドは後日実装予定
-- [ ] YAML生成機能（残り5種類の出力タイプ）
+- [x] YAML生成機能（背景生成）
+  - 背景キャプチャモード（参考画像あり）
+  - テキスト記述モード（参考画像なし）
+  - 人物自動除去オプション
+  - Python版と同一形式のYAML出力
+- [ ] YAML生成機能（残り4種類の出力タイプ）
 - [ ] Gemini API呼び出し
-- [x] ファイル選択ダイアログの実装（顔三面図・素体三面図・衣装着用・ポーズ・シーンビルダー）- SwiftUI fileImporter使用
+- [x] ファイル選択ダイアログの実装（顔三面図・素体三面図・衣装着用・ポーズ・シーンビルダー・背景生成）- SwiftUI fileImporter使用
 - [ ] ファイル選択ダイアログの実装（残りの設定ウィンドウ）
 - [ ] 漫画コンポーザー
 - [ ] 背景透過ツール
 
-## 次のステップ：背景生成のYAML生成実装
+## 次のステップ：装飾テキストのYAML生成実装
 
 ### 実装対象
 
-**背景生成** - シーンやキャラクターの背景画像を生成
+**装飾テキスト** - 技名テロップ、決め台詞吹き出し、漫画擬音などの装飾テキスト画像を生成
 
 ### 参照すべきファイル
 
 **Python版:**
-- `/app/main.py` - `_generate_background_yaml()` メソッド
-- `/app/ui/background_window.py` - 背景生成設定ウィンドウ
+- `/app/main.py` - `_generate_decorative_text_yaml()` メソッド
+- `/app/ui/decorative_text_window.py` - 装飾テキスト設定ウィンドウ
 
 **Swift版（既存）:**
-- `nanobananaMacOS/Views/Settings/BackgroundSettingsView.swift` - UI（実装済み）
-- `nanobananaMacOS/ViewModels/SettingsViewModels.swift` - `BackgroundSettingsViewModel`（実装済み）
+- `nanobananaMacOS/Views/Settings/DecorativeTextSettingsView.swift` - UI（実装済み）
+- `nanobananaMacOS/ViewModels/SettingsViewModels.swift` - `DecorativeTextSettingsViewModel`（実装済み）
 
 ### 実装手順
 
@@ -338,15 +343,13 @@ Python版にあった「同一性保持」スライダーはUIから削除。
    - 出力形式、セクション構成を把握
 
 2. **ジェネレーター作成**
-   - `nanobananaMacOS/Services/Generators/BackgroundYAMLGenerator.swift` を新規作成
+   - `nanobananaMacOS/Services/Generators/DecorativeTextYAMLGenerator.swift` を新規作成
 
 3. **サービス層の更新**
-   - `YAMLGeneratorService.swift` に `generateBackgroundYAML()` を追加
+   - `YAMLGeneratorService.swift` に `generateDecorativeTextYAML()` を追加
 
 4. **MainViewModelの更新**
-   - `generateYAML()` の `.background` ケースを実装
-
-5. **ファイル選択ダイアログの追加**（必要に応じて）
+   - `generateYAML()` の `.decorativeText` ケースを実装
 
 ### 残りのYAML生成タスク
 
@@ -355,8 +358,8 @@ Python版にあった「同一性保持」スライダーはUIから削除。
 - [x] 衣装着用 ✅ 完了
 - [x] ポーズ ✅ 完了
 - [x] シーンビルダー（ストーリーシーン）✅ 完了
-- [ ] 背景生成 ← **次はここ**
-- [ ] 装飾テキスト
+- [x] 背景生成 ✅ 完了
+- [ ] 装飾テキスト ← **次はここ**
 - [ ] 4コマ漫画
 - [ ] スタイル変換
 - [ ] インフォグラフィック
