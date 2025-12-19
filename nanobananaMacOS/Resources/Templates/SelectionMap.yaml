@@ -1,0 +1,347 @@
+# ============================================================
+# AI創作工房 セクション選択マップ
+# ============================================================
+# 各出力タイプがどのセクションを使用するかを定義します。
+# セクションは定義順に出力されます。
+# ============================================================
+
+version: "1.0"
+
+# ============================================================
+# 出力タイプ別セクション選択
+# ============================================================
+selection_map:
+
+  # ==========================================================
+  # 01 顔三面図 (Face Sheet)
+  # ==========================================================
+  face_sheet:
+    output_type_key: "face_sheet"
+    sections:
+      - header                    # 冒頭コメント
+      - title_elements            # type, title, author
+      - output_type               # output_type: "face character..."
+      - layout                    # レイアウト設定
+      - headshot_specification    # ヘッドショット仕様
+      - character                 # キャラクター情報
+      - character_style           # キャラクタースタイル
+      - output                    # 出力仕様
+      - constraints               # 制約
+      - anti_hallucination        # 禁止事項
+      - output_cleanliness        # 出力の清潔さ
+      - style                     # スタイル設定
+      - title_overlay             # タイトルオーバーレイ（条件付き）
+      - reference_image           # 参考画像（条件付き）
+
+  # ==========================================================
+  # 02 素体三面図 (Body Sheet)
+  # ==========================================================
+  body_sheet:
+    output_type_key: "body_sheet"
+    sections:
+      - header
+      - title_elements
+      - output_type
+      - input                     # 顔三面図参照
+      - layout
+      - body_specification
+      - character
+      - character_style
+      - output
+      - constraints
+      - anti_hallucination
+      - output_cleanliness
+      - style
+      - title_overlay
+
+  # ==========================================================
+  # 03 衣装着用三面図 (Outfit Sheet)
+  # ==========================================================
+  # 2つのモードがある: preset_mode, reference_mode
+  outfit_sheet_preset:
+    output_type_key: "outfit_sheet"
+    mode: "preset"
+    sections:
+      - header
+      - title_elements
+      - output_type
+      - input                     # 素体三面図参照
+      - outfit_specification      # プリセット衣装設定
+      - layout
+      - constraints
+      - anti_hallucination
+      - output_cleanliness
+      - style
+      - title_overlay
+
+  outfit_sheet_reference:
+    output_type_key: "outfit_sheet"
+    mode: "reference"
+    sections:
+      - header
+      - title_elements
+      - output_type
+      - input                     # 素体三面図参照
+      - outfit_reference          # 参考画像衣装設定
+      - layout
+      - constraints
+      - anti_hallucination
+      - output_cleanliness
+      - style
+      - title_overlay
+
+  # ==========================================================
+  # 04 ポーズ (Pose)
+  # ==========================================================
+  # 2つのモードがある: preset_mode, reference_mode
+  pose_preset:
+    output_type_key: "pose"
+    mode: "preset"
+    sections:
+      - header
+      - title_elements
+      - input                     # 衣装三面図参照
+      - pose_preset               # プリセットポーズ
+      - scene
+      - output
+      - constraints
+      - anti_hallucination
+      - output_cleanliness
+      - style
+      - title_overlay
+
+  pose_reference:
+    output_type_key: "pose"
+    mode: "reference"
+    sections:
+      - header
+      - title_elements
+      - input                     # 衣装三面図参照
+      - pose_reference            # 参考画像ポーズ
+      - scene
+      - output
+      - constraints
+      - anti_hallucination
+      - output_cleanliness
+      - style
+      - title_overlay
+
+  # ==========================================================
+  # 05 シーンビルダー (Scene Builder)
+  # ==========================================================
+  # 3つのシーンタイプがある: story, battle, boss_raid
+  scene_builder_story:
+    output_type_key: "scene_builder"
+    scene_type: "story"
+    sections:
+      - header
+      - story_background
+      - story_interaction
+      - story_characters
+      - comic_overlay
+      - decorative_text_overlays
+      - style
+
+  scene_builder_battle:
+    output_type_key: "scene_builder"
+    scene_type: "battle"
+    sections:
+      - header
+      - battle_configuration
+      - style
+
+  scene_builder_boss_raid:
+    output_type_key: "scene_builder"
+    scene_type: "boss_raid"
+    sections:
+      - header
+      - boss_raid_configuration
+      - style
+
+  # ==========================================================
+  # 06 背景生成 (Background)
+  # ==========================================================
+  # 2つのモードがある: with_reference, without_reference
+  background_with_reference:
+    output_type_key: "background"
+    mode: "with_reference"
+    sections:
+      - header
+      - title_elements
+      - input_with_reference
+      - description
+      - constraints
+      - output_cleanliness
+      - style
+      - title_overlay
+
+  background_without_reference:
+    output_type_key: "background"
+    mode: "without_reference"
+    sections:
+      - header
+      - title_elements
+      - input_without_reference
+      - description
+      - constraints
+      - output_cleanliness
+      - style
+      - title_overlay
+
+  # ==========================================================
+  # 07 装飾テキスト (Decorative Text)
+  # ==========================================================
+  # 6つのスタイルがある
+  decorative_text:
+    output_type_key: "decorative_text"
+    # スタイルによってテンプレートが異なる
+    # 各スタイルの詳細はTemplateEngineで処理
+    sections:
+      - header
+      - text_configuration
+      - style_specific_settings
+      - constraints
+      - style
+
+  # ==========================================================
+  # 08 4コマ漫画 (Four Panel)
+  # ==========================================================
+  four_panel:
+    output_type_key: "four_panel"
+    has_generation_instructions: true
+    sections:
+      - generation_instructions   # YAML外ヘッダー
+      - title_elements
+      - characters
+      - panels
+      - layout
+      - title_overlay
+
+  # ==========================================================
+  # 09 スタイル変換 (Style Transform)
+  # ==========================================================
+  # 2つのモードがある: with_transparent, without_transparent
+  style_transform_normal:
+    output_type_key: "style_transform"
+    mode: "normal"
+    sections:
+      - header
+      - title_elements
+      - input
+      - transform
+      - preservation
+      - output_background
+      - constraints
+      - anti_hallucination
+      - output_cleanliness
+      - style
+
+  style_transform_transparent:
+    output_type_key: "style_transform"
+    mode: "transparent"
+    sections:
+      - header
+      - title_elements
+      - input
+      - transform
+      - preservation
+      - output_background         # transparent
+      - constraints
+      - anti_hallucination
+      - output_cleanliness
+      - style
+
+  # ==========================================================
+  # 10 インフォグラフィック (Infographic)
+  # ==========================================================
+  infographic:
+    output_type_key: "infographic"
+    has_generation_instructions: true
+    sections:
+      - header
+      - title_elements
+      - configuration
+      - titles
+      - main_character
+      - bonus_character           # 条件付き
+      - sections_content
+      - prompt                    # 動的生成指示
+      - constraints
+      - anti_hallucination
+      - style
+      - title_overlay
+
+# ============================================================
+# 変数マッピング定義
+# ============================================================
+# 各出力タイプで使用する変数とその取得元
+# ============================================================
+variable_mappings:
+
+  # 共通変数
+  common:
+    title: "MainViewModel.title"
+    author: "MainViewModel.authorName"
+    color_mode: "MainViewModel.selectedColorMode"
+    is_duotone: "MainViewModel.selectedColorMode == .duotone"
+    duotone_style: "YAMLUtilities.getDuotoneStyle()"
+    output_style: "MainViewModel.selectedOutputStyle"
+    aspect_ratio: "MainViewModel.selectedAspectRatio"
+    title_overlay_enabled: "MainViewModel.includeTitleInImage"
+
+  # 顔三面図固有
+  face_sheet:
+    character_name: "FaceSheetSettingsViewModel.characterName"
+    character_description: "FaceSheetSettingsViewModel.appearanceDescription"
+    expression: "FaceSheetSettingsViewModel.expression"
+    reference_image_path: "FaceSheetSettingsViewModel.referenceImagePath"
+    style_info_style: "YAMLUtilities.getCharacterStyleInfo().style"
+    style_info_proportions: "YAMLUtilities.getCharacterStyleInfo().proportions"
+    style_info_description: "YAMLUtilities.getCharacterStyleInfo().description"
+
+  # 素体三面図固有
+  body_sheet:
+    character_name: "BodySheetSettingsViewModel.characterName"
+    character_description: "BodySheetSettingsViewModel.appearanceDescription"
+    face_sheet_path: "BodySheetSettingsViewModel.faceSheetPath"
+    body_type: "BodySheetSettingsViewModel.bodyType"
+    bust_description: "BodySheetSettingsViewModel.bustDescription"
+    expression_type: "BodySheetSettingsViewModel.expressionType"
+
+  # 衣装着用固有
+  outfit_sheet:
+    body_sheet_path: "OutfitSettingsViewModel.bodySheetPath"
+    outfit_category: "OutfitSettingsViewModel.selectedCategory"
+    outfit_shape: "OutfitSettingsViewModel.selectedShape"
+    outfit_color: "OutfitSettingsViewModel.selectedColor"
+    outfit_pattern: "OutfitSettingsViewModel.selectedPattern"
+    outfit_impression: "OutfitSettingsViewModel.selectedImpression"
+    outfit_image_path: "OutfitSettingsViewModel.referenceImagePath"
+    fit_mode: "OutfitSettingsViewModel.selectedFitMode"
+    include_headwear: "OutfitSettingsViewModel.includeHeadwear"
+
+  # ポーズ固有
+  pose:
+    outfit_sheet_path: "PoseSettingsViewModel.outfitSheetPath"
+    pose_preset: "PoseSettingsViewModel.selectedPosePreset"
+    camera_angle: "PoseSettingsViewModel.selectedCameraAngle"
+    pose_image_path: "PoseSettingsViewModel.poseImagePath"
+    background_description: "PoseSettingsViewModel.backgroundDescription"
+    lighting: "PoseSettingsViewModel.selectedLighting"
+
+  # 4コマ漫画固有
+  four_panel:
+    characters: "FourPanelSettingsViewModel.characters[]"
+    panels: "FourPanelSettingsViewModel.panels[]"
+
+  # インフォグラフィック固有
+  infographic:
+    infographic_type: "InfographicSettingsViewModel.selectedStyle"
+    style_prompt: "InfographicSettingsViewModel.stylePrompt"
+    output_language: "InfographicSettingsViewModel.selectedLanguage"
+    main_title: "InfographicSettingsViewModel.mainTitle"
+    subtitle: "InfographicSettingsViewModel.subtitle"
+    character_image_path: "InfographicSettingsViewModel.characterImagePath"
+    bonus_character_enabled: "InfographicSettingsViewModel.bonusCharacterEnabled"
+    bonus_character_image_path: "InfographicSettingsViewModel.bonusCharacterImagePath"
+    info_sections: "InfographicSettingsViewModel.sections[]"
