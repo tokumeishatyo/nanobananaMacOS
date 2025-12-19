@@ -8,9 +8,6 @@ final class DecorativeTextYAMLGenerator {
     /// 装飾テキストYAMLを生成
     @MainActor
     func generate(mainViewModel: MainViewModel, settings: DecorativeTextSettingsViewModel) -> String {
-        let title = mainViewModel.title.isEmpty ? "Decorative Text" : mainViewModel.title
-        let author = mainViewModel.authorName.isEmpty ? "Unknown" : mainViewModel.authorName
-
         // スタイル設定
         let colorModeValue = YAMLUtilities.getColorModeValue(mainViewModel.selectedColorMode)
         let outputStyleValue = getOutputStyleValue(mainViewModel.selectedOutputStyle)

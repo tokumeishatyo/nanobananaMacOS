@@ -313,8 +313,14 @@ final class MainViewModel: ObservableObject {
             )
 
         case .fourPanelManga:
-            // TODO: 4コマ漫画YAML生成を実装
-            showErrorAlert(message: "4コマ漫画のYAML生成は未実装です")
+            guard let settings = fourPanelSettings else {
+                showErrorAlert(message: "4コマ漫画の詳細設定を行ってください")
+                return
+            }
+            yamlPreviewText = yamlGeneratorService.generateFourPanelYAML(
+                mainViewModel: self,
+                fourPanelSettings: settings
+            )
 
         case .styleTransform:
             // TODO: スタイル変換YAML生成を実装

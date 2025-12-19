@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// 4コマ漫画設定ウィンドウ（Python版準拠）
 struct FourPanelSettingsView: View {
@@ -8,6 +9,14 @@ struct FourPanelSettingsView: View {
     var onApply: ((FourPanelSettingsViewModel) -> Void)?
 
     private let panelLabels = ["1コマ目（起）", "2コマ目（承）", "3コマ目（転）", "4コマ目（結）"]
+
+    // MARK: - File Picker State
+    private enum FilePickerTarget {
+        case character1
+        case character2
+    }
+    @State private var showingFilePicker = false
+    @State private var filePickerTarget: FilePickerTarget = .character1
 
     init(initialSettings: FourPanelSettingsViewModel? = nil, onApply: ((FourPanelSettingsViewModel) -> Void)? = nil) {
         self.onApply = onApply
@@ -70,6 +79,13 @@ struct FourPanelSettingsView: View {
             .padding(16)
         }
         .frame(width: 800, height: 1000)
+        .fileImporter(
+            isPresented: $showingFilePicker,
+            allowedContentTypes: [.image],
+            allowsMultipleSelection: false
+        ) { result in
+            handleFileSelection(result)
+        }
     }
 
     // MARK: - 登場人物設定
@@ -100,7 +116,8 @@ struct FourPanelSettingsView: View {
                     TextField("キャラクター参照画像パス", text: $viewModel.character1ImagePath)
                         .textFieldStyle(.roundedBorder)
                     Button("参照") {
-                        // TODO: ファイル選択
+                        filePickerTarget = .character1
+                        showingFilePicker = true
                     }
                 }
 
@@ -126,11 +143,29 @@ struct FourPanelSettingsView: View {
                     TextField("キャラクター参照画像パス（任意）", text: $viewModel.character2ImagePath)
                         .textFieldStyle(.roundedBorder)
                     Button("参照") {
-                        // TODO: ファイル選択
+                        filePickerTarget = .character2
+                        showingFilePicker = true
                     }
                 }
             }
             .padding(10)
+        }
+    }
+
+    // MARK: - File Selection Handler
+
+    private func handleFileSelection(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            switch filePickerTarget {
+            case .character1:
+                viewModel.character1ImagePath = url.path
+            case .character2:
+                viewModel.character2ImagePath = url.path
+            }
+        case .failure(let error):
+            print("ファイル選択エラー: \(error.localizedDescription)")
         }
     }
 
