@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// 装飾テキスト設定ウィンドウ（Python版準拠）
 struct DecorativeTextSettingsView: View {
@@ -6,6 +7,9 @@ struct DecorativeTextSettingsView: View {
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((DecorativeTextSettingsViewModel) -> Void)?
+
+    // MARK: - File Picker State
+    @State private var showingFaceIconFilePicker = false
 
     init(initialSettings: DecorativeTextSettingsViewModel? = nil, onApply: ((DecorativeTextSettingsViewModel) -> Void)? = nil) {
         self.onApply = onApply
@@ -32,6 +36,7 @@ struct DecorativeTextSettingsView: View {
             vm.messageFrameType = settings.messageFrameType
             vm.messageOpacity = settings.messageOpacity
             vm.faceIconPosition = settings.faceIconPosition
+            vm.faceIconImagePath = settings.faceIconImagePath
             _viewModel = StateObject(wrappedValue: vm)
         } else {
             _viewModel = StateObject(wrappedValue: DecorativeTextSettingsViewModel())
@@ -418,12 +423,31 @@ struct DecorativeTextSettingsView: View {
                         TextField("（任意）衣装/ポーズ画像から顔を使用", text: $viewModel.faceIconImagePath)
                             .textFieldStyle(.roundedBorder)
                         Button("参照") {
-                            // TODO: ファイル選択
+                            showingFaceIconFilePicker = true
                         }
                     }
                 }
             }
             .padding(10)
+        }
+        .fileImporter(
+            isPresented: $showingFaceIconFilePicker,
+            allowedContentTypes: [.image],
+            allowsMultipleSelection: false
+        ) { result in
+            handleFaceIconFileSelection(result)
+        }
+    }
+
+    // MARK: - File Selection Handler
+
+    private func handleFaceIconFileSelection(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            viewModel.faceIconImagePath = url.path
+        case .failure(let error):
+            print("ファイル選択エラー: \(error.localizedDescription)")
         }
     }
 }

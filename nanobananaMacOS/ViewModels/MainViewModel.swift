@@ -303,8 +303,14 @@ final class MainViewModel: ObservableObject {
             )
 
         case .decorativeText:
-            // TODO: 装飾テキストYAML生成を実装
-            showErrorAlert(message: "装飾テキストのYAML生成は未実装です")
+            guard let settings = decorativeTextSettings else {
+                showErrorAlert(message: "装飾テキストの詳細設定を行ってください")
+                return
+            }
+            yamlPreviewText = yamlGeneratorService.generateDecorativeTextYAML(
+                mainViewModel: self,
+                decorativeTextSettings: settings
+            )
 
         case .fourPanelManga:
             // TODO: 4コマ漫画YAML生成を実装

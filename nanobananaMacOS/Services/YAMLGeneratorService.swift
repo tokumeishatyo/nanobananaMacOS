@@ -10,6 +10,7 @@ protocol YAMLGeneratorServiceProtocol {
     func generatePoseYAML(mainViewModel: MainViewModel, poseSettings: PoseSettingsViewModel) -> String
     func generateSceneBuilderYAML(mainViewModel: MainViewModel, sceneBuilderSettings: SceneBuilderSettingsViewModel) -> String
     func generateBackgroundYAML(mainViewModel: MainViewModel, backgroundSettings: BackgroundSettingsViewModel) -> String
+    func generateDecorativeTextYAML(mainViewModel: MainViewModel, decorativeTextSettings: DecorativeTextSettingsViewModel) -> String
 }
 
 // MARK: - YAML Generator Service
@@ -26,6 +27,7 @@ final class YAMLGeneratorService: YAMLGeneratorServiceProtocol {
     private let poseGenerator = PoseYAMLGenerator()
     private let storySceneGenerator = StorySceneYAMLGenerator()
     private let backgroundGenerator = BackgroundYAMLGenerator()
+    private let decorativeTextGenerator = DecorativeTextYAMLGenerator()
 
     // MARK: - Public Methods
 
@@ -58,6 +60,11 @@ final class YAMLGeneratorService: YAMLGeneratorServiceProtocol {
     @MainActor
     func generateBackgroundYAML(mainViewModel: MainViewModel, backgroundSettings: BackgroundSettingsViewModel) -> String {
         return backgroundGenerator.generate(mainViewModel: mainViewModel, settings: backgroundSettings)
+    }
+
+    @MainActor
+    func generateDecorativeTextYAML(mainViewModel: MainViewModel, decorativeTextSettings: DecorativeTextSettingsViewModel) -> String {
+        return decorativeTextGenerator.generate(mainViewModel: mainViewModel, settings: decorativeTextSettings)
     }
 }
 
