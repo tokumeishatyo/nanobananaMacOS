@@ -26,8 +26,7 @@ final class FaceSheetYAMLGenerator {
         var yaml = """
 # Face Character Reference Sheet (character_basic.yaml準拠)
 type: character_design
-title: "\(YAMLUtilities.escapeYAMLString(title))"
-author: "\(YAMLUtilities.escapeYAMLString(author))"
+title: "\(YAMLUtilities.escapeYAMLString(title))"\(YAMLUtilities.generateAuthorLine(author))
 
 output_type: "face character reference sheet"
 

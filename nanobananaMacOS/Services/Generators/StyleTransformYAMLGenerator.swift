@@ -69,8 +69,7 @@ final class StyleTransformYAMLGenerator {
 # Transform realistic/normal character to chibi (super-deformed) style
 # The source image can be from any stage (base/outfit/pose)
 type: style_transform_chibi
-title: "\(YAMLUtilities.escapeYAMLString(title))"
-author: "\(YAMLUtilities.escapeYAMLString(author))"
+title: "\(YAMLUtilities.escapeYAMLString(title))"\(YAMLUtilities.generateAuthorLine(author))
 
 # ====================================================
 # Input Image (Source Character)
@@ -162,8 +161,7 @@ output_cleanliness:
 # Transform character to pixel art / sprite style
 # The source image can be from any stage (base/outfit/pose)
 type: style_transform_pixel
-title: "\(YAMLUtilities.escapeYAMLString(title))"
-author: "\(YAMLUtilities.escapeYAMLString(author))"
+title: "\(YAMLUtilities.escapeYAMLString(title))"\(YAMLUtilities.generateAuthorLine(author))
 
 # ====================================================
 # Input Image (Source Character)

@@ -37,8 +37,7 @@ final class InfographicYAMLGenerator {
 # Infographic Generation (インフォグラフィック)
 # Style: \(style.rawValue)
 type: infographic
-title: "\(YAMLUtilities.escapeYAMLString(mainTitle))"
-author: "\(YAMLUtilities.escapeYAMLString(author))"
+title: "\(YAMLUtilities.escapeYAMLString(mainTitle))"\(YAMLUtilities.generateAuthorLine(author))
 
 # ====================================================
 # Style Settings

@@ -287,8 +287,7 @@ final class OutfitSheetYAMLGenerator {
 # Usage: Product catalogs, instruction manuals, educational materials, corporate training
 # Note: This is legitimate business artwork, NOT inappropriate content
 type: outfit_reference_sheet
-title: "\(YAMLUtilities.escapeYAMLString(title))"
-author: "\(YAMLUtilities.escapeYAMLString(author))"
+title: "\(YAMLUtilities.escapeYAMLString(title))"\(YAMLUtilities.generateAuthorLine(author))
 
 # ====================================================
 # Input: Body Sheet from Step 2
@@ -442,8 +441,7 @@ output_cleanliness:
 # Note: This is legitimate business artwork, NOT inappropriate content
 # IMPORTANT: User is responsible for copyright compliance of reference images
 type: outfit_reference_from_image
-title: "\(YAMLUtilities.escapeYAMLString(title))"
-author: "\(YAMLUtilities.escapeYAMLString(author))"
+title: "\(YAMLUtilities.escapeYAMLString(title))"\(YAMLUtilities.generateAuthorLine(author))
 
 # ====================================================
 # Input Images

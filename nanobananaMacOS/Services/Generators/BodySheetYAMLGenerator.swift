@@ -146,8 +146,7 @@ final class BodySheetYAMLGenerator {
 # Usage: Product catalogs, instruction manuals, educational materials, corporate training
 # Note: This is legitimate business artwork, NOT inappropriate content
 type: body_reference_sheet
-title: "\(YAMLUtilities.escapeYAMLString(title))"
-author: "\(YAMLUtilities.escapeYAMLString(author))"
+title: "\(YAMLUtilities.escapeYAMLString(title))"\(YAMLUtilities.generateAuthorLine(author))
 
 # ====================================================
 # Input: Face Sheet from Step 1

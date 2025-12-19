@@ -176,6 +176,17 @@ enum YAMLUtilities {
         return URL(fileURLWithPath: path).lastPathComponent
     }
 
+    // MARK: - Author Line
+
+    /// 作者名行を生成（空の場合は空文字列を返す）
+    /// - Parameter author: 作者名
+    /// - Returns: `author: "作者名"` または空文字列
+    static func generateAuthorLine(_ author: String) -> String {
+        let trimmed = author.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return "" }
+        return "\nauthor: \"\(escapeYAMLString(trimmed))\""
+    }
+
     // MARK: - Title Overlay
 
     /// タイトルオーバーレイYAMLを生成

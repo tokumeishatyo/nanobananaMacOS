@@ -227,7 +227,13 @@ final class MainViewModel: ObservableObject {
 
     /// YAML生成
     func generateYAML() {
-        // バリデーション
+        // 既存YAMLがある場合は部分更新モード
+        if !yamlPreviewText.isEmpty {
+            updateExistingYAML()
+            return
+        }
+
+        // 新規生成モード：バリデーション
         let validationResult = validationService.validateForYAMLGeneration(mainViewModel: self)
 
         switch validationResult {
@@ -237,6 +243,112 @@ final class MainViewModel: ObservableObject {
         case .failure(let message):
             showErrorAlert(message: message)
         }
+    }
+
+    /// 既存YAMLの部分更新（カラーモード、アスペクト比、タイトル、作者名、タイトルオーバーレイ）
+    private func updateExistingYAML() {
+        // タイトル必須チェック
+        if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            showErrorAlert(message: "タイトルを入力してください")
+            return
+        }
+
+        var yaml = yamlPreviewText
+
+        // 1. トップレベルのtitle:を更新
+        let escapedTitle = YAMLUtilities.escapeYAMLString(title)
+        let titlePattern = #"(^|\n)(title:\s*)"[^"]*""#
+        if let titleRegex = try? NSRegularExpression(pattern: titlePattern, options: []) {
+            let range = NSRange(yaml.startIndex..., in: yaml)
+            yaml = titleRegex.stringByReplacingMatches(
+                in: yaml,
+                options: [],
+                range: range,
+                withTemplate: "$1$2\"\(escapedTitle)\""
+            )
+        }
+
+        // 2. トップレベルのauthor:を更新（空欄の場合は行ごと削除）
+        let trimmedAuthor = authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedAuthor.isEmpty {
+            // author行を削除
+            let removeAuthorPattern = #"\nauthor:\s*"[^"]*""#
+            if let removeRegex = try? NSRegularExpression(pattern: removeAuthorPattern, options: []) {
+                let range = NSRange(yaml.startIndex..., in: yaml)
+                yaml = removeRegex.stringByReplacingMatches(in: yaml, options: [], range: range, withTemplate: "")
+            }
+        } else {
+            // author行を更新
+            let escapedAuthor = YAMLUtilities.escapeYAMLString(trimmedAuthor)
+            let authorPattern = #"(^|\n)(author:\s*)"[^"]*""#
+            if let authorRegex = try? NSRegularExpression(pattern: authorPattern, options: []) {
+                let range = NSRange(yaml.startIndex..., in: yaml)
+                yaml = authorRegex.stringByReplacingMatches(
+                    in: yaml,
+                    options: [],
+                    range: range,
+                    withTemplate: "$1$2\"\(escapedAuthor)\""
+                )
+            }
+        }
+
+        // 3. color_modeを個別に更新（styleセクション内のどこにあっても対応）
+        let colorModeValue = YAMLUtilities.getColorModeValue(selectedColorMode)
+        let colorModePattern = #"(color_mode:\s*)"[^"]*""#
+        if let colorModeRegex = try? NSRegularExpression(pattern: colorModePattern, options: []) {
+            let range = NSRange(yaml.startIndex..., in: yaml)
+            yaml = colorModeRegex.stringByReplacingMatches(
+                in: yaml,
+                options: [],
+                range: range,
+                withTemplate: "$1\"\(colorModeValue)\""
+            )
+        }
+
+        // 4. aspect_ratioを個別に更新（styleセクション内のどこにあっても対応）
+        let aspectRatioValue = selectedAspectRatio.yamlValue
+        let aspectRatioPattern = #"(aspect_ratio:\s*)"[^"]*""#
+        if let aspectRatioRegex = try? NSRegularExpression(pattern: aspectRatioPattern, options: []) {
+            let range = NSRange(yaml.startIndex..., in: yaml)
+            yaml = aspectRatioRegex.stringByReplacingMatches(
+                in: yaml,
+                options: [],
+                range: range,
+                withTemplate: "$1\"\(aspectRatioValue)\""
+            )
+        }
+
+        // 5. タイトルオーバーレイの更新
+        yaml = updateTitleOverlay(in: yaml)
+
+        yamlPreviewText = yaml
+        showSuccessAlert(message: "YAMLを更新しました")
+    }
+
+    /// タイトルオーバーレイセクションの更新
+    private func updateTitleOverlay(in yaml: String) -> String {
+        var result = yaml
+
+        // 既存のtitle_overlayセクションを削除（複数行対応）
+        // title_overlay: から次のセクション（# または空行2つ）まで
+        let removePattern = #"\n?title_overlay:\s*\n(?:  [^\n]*\n)*(?:    [^\n]*\n)*"#
+        if let removeRegex = try? NSRegularExpression(pattern: removePattern, options: []) {
+            let range = NSRange(result.startIndex..., in: result)
+            result = removeRegex.stringByReplacingMatches(in: result, options: [], range: range, withTemplate: "")
+        }
+
+        // 新しいtitle_overlayを追加（必要な場合）
+        let newTitleOverlay = YAMLUtilities.generateTitleOverlay(
+            title: title,
+            author: authorName,
+            includeTitleInImage: includeTitleInImage
+        )
+
+        if !newTitleOverlay.isEmpty {
+            result += newTitleOverlay
+        }
+
+        return result
     }
 
     /// 現在の出力タイプに応じたYAML生成

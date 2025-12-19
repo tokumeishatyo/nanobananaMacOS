@@ -94,8 +94,7 @@ final class BackgroundYAMLGenerator {
 
         return """
 # Background Capture (背景キャプチャ)
-title: "\(YAMLUtilities.escapeYAMLString(title))"
-author: "\(YAMLUtilities.escapeYAMLString(author))"
+title: "\(YAMLUtilities.escapeYAMLString(title))"\(YAMLUtilities.generateAuthorLine(author))
 
 output_type: "background_capture"
 
@@ -150,8 +149,7 @@ output_cleanliness:
 
         return """
 # Background Generation
-title: "\(YAMLUtilities.escapeYAMLString(title))"
-author: "\(YAMLUtilities.escapeYAMLString(author))"
+title: "\(YAMLUtilities.escapeYAMLString(title))"\(YAMLUtilities.generateAuthorLine(author))
 
 output_type: "background only"
 

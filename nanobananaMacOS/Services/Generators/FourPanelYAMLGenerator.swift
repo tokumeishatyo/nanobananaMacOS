@@ -33,8 +33,7 @@ Use the attached character reference sheets to maintain consistent character app
 ---
 
 # 4コマ漫画生成 (four_panel_manga.yaml準拠)
-title: "\(YAMLUtilities.escapeYAMLString(title))"
-author: "\(YAMLUtilities.escapeYAMLString(author))"
+title: "\(YAMLUtilities.escapeYAMLString(title))"\(YAMLUtilities.generateAuthorLine(author))
 color_mode: "\(colorModeValue)"
 output_style: "\(outputStyleValue)"
 

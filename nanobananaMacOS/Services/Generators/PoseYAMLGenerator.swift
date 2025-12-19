@@ -50,8 +50,7 @@ final class PoseYAMLGenerator {
 # Purpose: Generate character in specified pose based on outfit sheet
 # Output: Single character image
 \(presetComment)type: pose_single
-title: "\(YAMLUtilities.escapeYAMLString(title))"
-author: "\(YAMLUtilities.escapeYAMLString(author))"
+title: "\(YAMLUtilities.escapeYAMLString(title))"\(YAMLUtilities.generateAuthorLine(author))
 
 # ====================================================
 # Input Image
