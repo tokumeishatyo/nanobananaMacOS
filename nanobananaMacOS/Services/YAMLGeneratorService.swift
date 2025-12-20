@@ -38,8 +38,8 @@ final class YAMLGeneratorService {
 
         case .pose:
             // ポーズは2種類のテンプレートがある
-            let usePreset = mainViewModel.poseSettings?.usePosePreset ?? true
-            let templateName = usePreset ? "04_pose_preset.yaml" : "04_pose_capture.yaml"
+            let useCapture = mainViewModel.poseSettings?.usePoseCapture ?? false
+            let templateName = useCapture ? "04_pose_capture.yaml" : "04_pose_preset.yaml"
             return generatePlaceholderYAML(outputType: outputType, templateName: templateName)
 
         case .sceneBuilder:
