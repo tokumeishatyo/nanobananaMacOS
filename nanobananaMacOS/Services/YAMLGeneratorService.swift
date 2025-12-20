@@ -6,6 +6,11 @@ import Foundation
 /// テンプレートファイルを読み込み、変数を置換してYAMLを生成
 final class YAMLGeneratorService {
 
+    // MARK: - Properties
+
+    /// テンプレートエンジン
+    private let templateEngine = TemplateEngine()
+
     // MARK: - Generate Method
 
     /// YAML生成メソッド
@@ -18,15 +23,130 @@ final class YAMLGeneratorService {
         outputType: OutputType,
         mainViewModel: MainViewModel
     ) -> String {
-        // TODO: テンプレートエンジン実装後に置き換え
+        switch outputType {
+        case .faceSheet:
+            return generateFaceSheetYAML(mainViewModel: mainViewModel)
+
+        case .bodySheet:
+            return generatePlaceholderYAML(outputType: outputType, templateName: "02_body_sheet.yaml")
+
+        case .outfit:
+            // 衣装着用は2種類のテンプレートがある
+            let usePreset = mainViewModel.outfitSettings?.useOutfitBuilder ?? true
+            let templateName = usePreset ? "03_outfit_preset.yaml" : "03_outfit_reference.yaml"
+            return generatePlaceholderYAML(outputType: outputType, templateName: templateName)
+
+        case .pose:
+            // ポーズは2種類のテンプレートがある
+            let usePreset = mainViewModel.poseSettings?.usePosePreset ?? true
+            let templateName = usePreset ? "04_pose_preset.yaml" : "04_pose_capture.yaml"
+            return generatePlaceholderYAML(outputType: outputType, templateName: templateName)
+
+        case .sceneBuilder:
+            return generatePlaceholderYAML(outputType: outputType, templateName: "05_scene_story.yaml")
+
+        case .background:
+            return generatePlaceholderYAML(outputType: outputType, templateName: "06_background.yaml")
+
+        case .decorativeText:
+            return generatePlaceholderYAML(outputType: outputType, templateName: "07_decorative_text.yaml")
+
+        case .fourPanelManga:
+            return generatePlaceholderYAML(outputType: outputType, templateName: "08_four_panel.yaml")
+
+        case .styleTransform:
+            return generatePlaceholderYAML(outputType: outputType, templateName: "09_style_transform.yaml")
+
+        case .infographic:
+            return generatePlaceholderYAML(outputType: outputType, templateName: "10_infographic.yaml")
+        }
+    }
+
+    // MARK: - Face Sheet YAML Generation
+
+    /// 顔三面図YAML生成
+    @MainActor
+    private func generateFaceSheetYAML(mainViewModel: MainViewModel) -> String {
+        guard let settings = mainViewModel.faceSheetSettings else {
+            return "# Error: 顔三面図の設定がありません"
+        }
+
+        // 変数辞書を構築
+        let variables = buildFaceSheetVariables(mainViewModel: mainViewModel, settings: settings)
+
+        // テンプレートをレンダリング
+        return templateEngine.render(templateName: "01_face_sheet.yaml", variables: variables)
+    }
+
+    /// 顔三面図用の変数辞書を構築
+    @MainActor
+    private func buildFaceSheetVariables(
+        mainViewModel: MainViewModel,
+        settings: FaceSheetSettingsViewModel
+    ) -> [String: String] {
+        // 作者名の処理（空欄の場合は"Unknown"）
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let author = authorName.isEmpty ? "Unknown" : authorName
+
+        // title_overlay設定
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        return [
+            // ヘッダーパーシャル用
+            "header_comment": "Face Character Reference Sheet",
+            "type": "character_design",
+            "title": mainViewModel.title,
+            "author": author,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // 顔三面図固有
+            "name": settings.characterName,
+            "reference_sheet": YAMLUtilities.getFileName(from: settings.referenceImagePath),
+            "description": YAMLUtilities.convertNewlinesToComma(settings.appearanceDescription)
+        ]
+    }
+
+    /// title_overlayの位置設定を取得
+    private func getTitleOverlayPositions(
+        includeTitleInImage: Bool,
+        hasAuthor: Bool
+    ) -> (titlePosition: String, titleSize: String, authorPosition: String, authorSize: String) {
+        if !includeTitleInImage {
+            return ("", "", "", "")
+        }
+
+        if hasAuthor {
+            // 作者名あり: タイトル左(large)、作者名右(small)
+            return ("top-left", "large", "top-right", "small")
+        } else {
+            // 作者名なし: タイトルのみtop-center
+            return ("top-center", "medium", "", "")
+        }
+    }
+
+    // MARK: - Placeholder
+
+    /// 未実装の出力タイプ用プレースホルダー
+    private func generatePlaceholderYAML(outputType: OutputType, templateName: String) -> String {
         return """
         # ====================================================
-        # テンプレートエンジン実装中
+        # \(outputType.rawValue) - 実装予定
         # ====================================================
-        # 出力タイプ: \(outputType.rawValue)
+        # テンプレート: \(templateName)
         #
-        # 新しいテンプレートエンジンを実装中です。
-        # yaml_templates/ フォルダのテンプレートを使用します。
+        # この出力タイプは実装予定です。
+        # yaml_templates/\(templateName) を使用します。
         # ====================================================
         """
     }
@@ -59,5 +179,63 @@ enum YAMLUtilities {
     static func getFileName(from path: String) -> String {
         guard !path.isEmpty else { return "" }
         return URL(fileURLWithPath: path).lastPathComponent
+    }
+}
+
+// MARK: - Enum Extensions for YAML Values
+
+extension ColorMode {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .fullColor:
+            return "fullcolor"
+        case .monochrome:
+            return "monochrome"
+        case .sepia:
+            return "sepia"
+        case .duotone:
+            return "duotone"
+        }
+    }
+}
+
+extension OutputStyle {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .anime:
+            return "anime"
+        case .pixelArt:
+            return "pixel_art"
+        case .chibi:
+            return "chibi"
+        case .realistic:
+            return "realistic"
+        case .watercolor:
+            return "watercolor"
+        case .oilPainting:
+            return "oil_painting"
+        }
+    }
+}
+
+extension AspectRatio {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .square:
+            return "1:1"
+        case .wide16_9:
+            return "16:9"
+        case .tall9_16:
+            return "9:16"
+        case .standard4_3:
+            return "4:3"
+        case .portrait3_4:
+            return "3:4"
+        case .ultraWide3_1:
+            return "3:1"
+        }
     }
 }
