@@ -413,9 +413,11 @@ Python版にあった「同一性保持」スライダーはUIから削除。
   - テンプレートファイル読み込み（バンドルリソース優先）
   - パーシャル展開（`{{> header param="value"}}`）
   - 変数置換（`{{variable}}`）
+  - 空白値フィールド削除（`key: ""` → 行削除、空セクション削除）
 - [x] yaml_templatesフォルダをnanobananaMacOS/内に移動
 - [x] Xcodeプロジェクト設定（Copy Bundle Resources）
 - [x] 顔三面図（01_face_sheet.yaml）実装・動作確認完了
+- [x] authorデフォルト値を空欄に変更（"Unknown" → ""）
 - [ ] 素体三面図（02_body_sheet.yaml）
 - [ ] 衣装着用（03_outfit_preset/reference.yaml）
 - [ ] 他の出力タイプを順次対応
