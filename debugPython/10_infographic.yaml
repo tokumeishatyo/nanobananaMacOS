@@ -1,30 +1,48 @@
-# Infographic Generation (インフォグラフィック)
-# Style: グラフィックレコーディング風
-type: infographic
-title: "彩瀬こよみ キャラクター紹介"
-author: "サンプル作者"
+# ====================================================
+# Infographic (インフォグラフィック)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
 
 # ====================================================
 # Style
 # ====================================================
 style:
-  type: "graphic_recording"
-  style_prompt: "graphic recording style, hand-drawn look, colorful markers, visual notes, icons and illustrations, whiteboard aesthetic"
-  aspect_ratio: "16:9"
-  output_language: "Japanese"
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
 
 # ====================================================
-# Title
+# Title Overlay
 # ====================================================
-titles:
-  main_title: "彩瀬こよみ キャラクター紹介"
-  subtitle: "元気いっぱいの高校生"
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
+
+# ====================================================
+# Input
+# ====================================================
+input:
+  infographic_style: "{{infographic_style}}"
+  output_language: "{{output_language}}"
+  main_title: "{{main_title}}"
+  subtitle: "{{subtitle}}"
+  main_character_image: "{{main_character_image}}"
+  bonus_character_image: "{{bonus_character_image}}"
 
 # ====================================================
 # Main Character
 # ====================================================
 main_character:
-  image: "koyomi_pose.png"
+  image: "{{main_character_image}}"
   position: "center"
   instruction: "Place this character image at the center of the infographic"
 
@@ -32,82 +50,55 @@ main_character:
 # Bonus Character
 # ====================================================
 bonus_character:
-  enabled: true
-  image: "koyomi_chibi.png"
+  enabled: {{bonus_character_enabled}}
+  image: "{{bonus_character_image}}"
   placement: "AI decides optimal placement"
   instruction: "Place this bonus character (e.g., chibi version) somewhere in the infographic as a decorative element"
 
 # ====================================================
-# Sections
+# Generation
 # ====================================================
 # Layout reference:
 #   [1] [2] [3]
 #   [4] CHAR [5]
 #   [6] [7] [8]
-sections:
-  - section_1:
-      title: "基本情報"
-      content: "名前: 彩瀬こよみ, 年齢: 17歳, 身長: 158cm"
-
-  - section_2:
-      title: "性格"
-      content: "明るく元気, 好奇心旺盛, 友達思い"
-
-  - section_3:
-      title: "好きなもの"
-      content: "パンケーキ, カフェ巡り, 写真撮影"
-
-  - section_4:
-      title: "苦手なもの"
-      content: "早起き, 虫, ホラー映画"
-
-  - section_5:
-      title: "特技"
-      content: "料理, イラスト, カラオケ"
-
-  - section_6:
-      title: "夢"
-      content: "イラストレーターになること"
-
-# ====================================================
-# Generation
-# ====================================================
 prompt: |
-  Create a detailed infographic about this person/character in graphic_recording style.
+  Create a detailed infographic about this person/character in {{infographic_style}} style.
   Use the attached character image as the central figure.
   Include extremely detailed information - small text is acceptable if it adds more detail.
 
-  Style: graphic recording style, hand-drawn look, colorful markers, visual notes, icons and illustrations, whiteboard aesthetic
+  Style: {{infographic_style_prompt}}
 
-  Main title: "彩瀬こよみ キャラクター紹介"
-  Subtitle: "元気いっぱいの高校生"
+  Main title: "{{main_title}}"
+  Subtitle: "{{subtitle}}"
 
   Include these sections around the character:
-  - 基本情報: 名前: 彩瀬こよみ, 年齢: 17歳, 身長: 158cm
-  - 性格: 明るく元気, 好奇心旺盛, 友達思い
-  - 好きなもの: パンケーキ, カフェ巡り, 写真撮影
-  - 苦手なもの: 早起き, 虫, ホラー映画
-  - 特技: 料理, イラスト, カラオケ
-  - 夢: イラストレーターになること
+  - {{section_1_title}}: {{section_1_content}}
+  - {{section_2_title}}: {{section_2_content}}
+  - {{section_3_title}}: {{section_3_content}}
+  - {{section_4_title}}: {{section_4_content}}
+  - {{section_5_title}}: {{section_5_content}}
+  - {{section_6_title}}: {{section_6_content}}
+  - {{section_7_title}}: {{section_7_content}}
+  - {{section_8_title}}: {{section_8_content}}
 
-  Output language: Japanese
+  Output language: {{output_language}}
 
   IMPORTANT:
   - Create related icons and decorations automatically based on the content
-  - Use the graphic_recording visual style consistently
+  - Use the {{infographic_style}} visual style consistently
   - Make it visually engaging with colors, icons, and artistic elements
   - Include as much detail as possible in small organized sections
 
 # ====================================================
-# Constraints
+# Constraints (CRITICAL)
 # ====================================================
 constraints:
   - "Use the provided character image as the main central figure"
   - "Arrange information sections around the character"
   - "Create appropriate icons and decorations based on content (AI decides)"
-  - "Output all text in Japanese"
-  - "Maintain graphic_recording style throughout"
-  - "Aspect ratio: 16:9"
+  - "Output all text in specified output_language"
+  - "Maintain infographic style throughout"
 
 # ====================================================
 # Anti-Hallucination (MUST FOLLOW)
@@ -116,14 +107,3 @@ anti_hallucination:
   - "Do NOT change the character's appearance from the provided image"
   - "Do NOT omit any of the specified sections"
   - "Do NOT add unrelated information not in the sections"
-
-title_overlay:
-  enabled: true
-  title:
-    text: "彩瀬こよみ キャラクター紹介"
-    position: "top-left"
-    size: "large"
-  author:
-    text: "サンプル作者"
-    position: "top-right"
-    size: "small"
