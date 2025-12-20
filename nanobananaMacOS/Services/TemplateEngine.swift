@@ -82,9 +82,21 @@ final class TemplateEngine {
 
     /// テンプレートファイルを読み込む
     private func loadTemplate(_ name: String) -> String? {
-        guard let directory = templatesDirectory else { return nil }
-        let url = directory.appendingPathComponent(name)
-        return try? String(contentsOf: url, encoding: .utf8)
+        // 1. バンドルから直接検索（リリース時・ファイルがフラットにコピーされる場合）
+        let baseName = (name as NSString).deletingPathExtension
+        if let bundleURL = Bundle.main.url(forResource: baseName, withExtension: "yaml") {
+            return try? String(contentsOf: bundleURL, encoding: .utf8)
+        }
+
+        // 2. テンプレートディレクトリから検索（開発時）
+        if let directory = templatesDirectory {
+            let url = directory.appendingPathComponent(name)
+            if let content = try? String(contentsOf: url, encoding: .utf8) {
+                return content
+            }
+        }
+
+        return nil
     }
 
     /// パーシャルを展開（{{> partial_name key="value"}}）
