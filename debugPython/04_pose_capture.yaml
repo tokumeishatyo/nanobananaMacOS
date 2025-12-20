@@ -1,39 +1,44 @@
-# Step 4: Pose Image (ポーズ画像)
-# Purpose: Generate character in specified pose based on outfit sheet
-# Output: Single character image
-type: pose_single
-title: "彩瀬こよみ ダイナミックポーズ"
-author: "サンプル作者"
+# ====================================================
+# Pose Image (ポーズ画像 - キャプチャ)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
 
 # ====================================================
-# Input Image
+# Style
+# ====================================================
+style:
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
+
+# ====================================================
+# Title Overlay
+# ====================================================
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
+
+# ====================================================
+# Input
 # ====================================================
 input:
-  character_sheet: "03_outfit_sheet.png"
-  identity_preservation: 1.0
-  purpose: "Generate posed character from outfit sheet"
-
-# ====================================================
-# Pose Capture
-# ====================================================
-pose_capture:
-  enabled: true
-  reference_image: "action_pose_ref.png"
-  capture_target: "pose_only"
-  instruction: |
-    Capture ONLY the pose (body position, arm/leg positions, gestures) from the reference image.
-    Apply this pose to the character while preserving:
-    - Character's face and facial features from character_sheet
-    - Character's outfit and clothing from character_sheet
-    - Character's colors and design from character_sheet
-    Do NOT transfer any appearance elements from the reference image.
-
-pose:
-  source: "captured from reference image"
-  expression: "excited, smiling"
-  eye_line: "カメラ目線"
-  include_effects: true
-  wind_effect: "strong breeze, hair flowing dynamically"
+  pose_reference: "{{pose_reference}}"
+  character_sheet: "{{character_sheet}}"
+  eye_line: "{{eye_line}}"
+  expression: "{{expression}}"
+  expression_detail: "{{expression_detail}}"
+  include_effects: {{include_effects}}
+  wind_effect: "{{wind_effect}}"
+  transparent_background: {{transparent_background}}
 
 # ====================================================
 # Output
@@ -46,6 +51,11 @@ output:
 # Constraints (CRITICAL)
 # ====================================================
 constraints:
+  pose_capture:
+    - "Capture ONLY the pose (body position, arm/leg positions, gestures) from pose_reference"
+    - "Preserve character's face and facial features from character_sheet"
+    - "Preserve character's outfit and clothing from character_sheet"
+    - "Do NOT transfer any appearance elements from pose_reference"
   character_preservation:
     - "Preserve exact character design, face, and colors from input image"
     - "Maintain clothing details exactly as shown in input"
@@ -70,19 +80,3 @@ output_cleanliness:
   - "Do NOT add arrows, lines, or any explanatory graphics"
   - "Do NOT add watermarks, signatures, or logos"
   - "The output must contain ONLY the single character on the specified background"
-
-style:
-  color_mode: "fullcolor"
-  output_style: "anime"
-  aspect_ratio: "9:16"
-
-title_overlay:
-  enabled: true
-  title:
-    text: "彩瀬こよみ ダイナミックポーズ"
-    position: "top-left"
-    size: "large"
-  author:
-    text: "サンプル作者"
-    position: "top-right"
-    size: "small"
