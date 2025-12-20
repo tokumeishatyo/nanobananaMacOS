@@ -1,0 +1,50 @@
+# Story Scene Composition (story_scene_composite.yaml準拠)
+# Purpose: Combine characters and background into a story scene
+# Note: Battle Scene and Boss Raid will be implemented later
+type: story_scene_composition
+
+background:
+  source_image: "classroom_bg.png"
+  blur_amount: 20
+  lighting_mood: "Warm Afternoon"
+
+scene_interaction:
+  layout_type: "Side by Side"
+  distance: "Close"
+
+character_1:
+  source_image: "koyomi_pose.png"
+  position: "Leftmost"
+  scale: 1.0
+  expression_override: "Smiling"
+  physical_traits: "ポニーテールの赤髪"
+
+character_2:
+  source_image: "sakura_pose.png"
+  position: "Right of Character 1"
+  scale: 1.0
+  expression_override: "Laughing"
+  physical_traits: "黒髪ショート"
+
+comic_overlay:
+  enabled: true
+  style: "Slice of Life / Visual Novel"
+  narration_box:
+    text: "放課後の教室で、二人は楽しそうに話していた。"
+    position: "Top Left"
+  dialogues:
+    - speaker: "Character 1 (Leftmost)"
+      text: "今日の放課後、カフェに行かない？"
+      shape: "Round (Normal)"
+    - speaker: "Character 2 (Right of 1)"
+      text: "いいね！新しくできたお店に行ってみよう！"
+      shape: "Round (Normal)"
+
+post_processing:
+  filter: "Soft Anime Look"
+  bloom_effect: "Low"
+
+style:
+  color_mode: "fullcolor"
+  output_style: "anime"
+  aspect_ratio: "16:9"

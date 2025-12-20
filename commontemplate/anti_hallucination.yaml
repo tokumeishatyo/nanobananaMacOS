@@ -1,0 +1,22 @@
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  # --- Three-view common (body, outfit_preset, outfit_reference) ---
+  - "Do NOT change the view order - ALWAYS front/side/back from left to right"
+
+  # --- Side view common (face, body, outfit_preset, outfit_reference) ---
+  - "Side view MUST NOT show both eyes - if both eyes are visible, it is NOT a correct 90-degree profile"
+
+# ====================================================
+# Usage:
+# ====================================================
+# Add type-specific items after including common items.
+#
+# Example for outfit_preset:
+# anti_hallucination:
+#   {{include:common/anti_hallucination.yaml}}
+#   - "Do NOT change the face from the body sheet reference"
+#   - "Do NOT alter body proportions"
+#   - "Do NOT add accessories not specified in outfit"
+#   - "Apply ONLY the specified outfit"

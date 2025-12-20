@@ -1,0 +1,27 @@
+# Decorative Text (ui_text_overlay.yaml準拠)
+type: text_ui_layer_definition
+
+ui_global_style:
+  preset: "Character Name Plate"
+  font_language: "Japanese"
+
+name_tag:
+  enabled: true
+  text: "彩瀬こよみ"
+
+  style:
+    type: "Jagged Sticker"
+    rotation: "5 degrees"
+
+constraints:
+  - "Generate ONLY the name plate/tag element"
+  - "Do NOT add any game UI elements (health bars, meters, VS logos)"
+  - "Do NOT add any fighting game or battle interface elements"
+
+output:
+  background: "Transparent"
+
+style:
+  color_mode: "fullcolor"
+  output_style: "anime"
+  aspect_ratio: "16:9"

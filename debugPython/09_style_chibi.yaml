@@ -1,0 +1,90 @@
+# Style Transform: Chibi Conversion (スタイル変換: ちびキャラ化)
+# Transform realistic/normal character to chibi (super-deformed) style
+# The source image can be from any stage (base/outfit/pose)
+type: style_transform_chibi
+title: "彩瀬こよみ ちびキャラ"
+author: "サンプル作者"
+
+# ====================================================
+# Input - Source Character
+# ====================================================
+input:
+  source_image: "koyomi_pose.png"
+  source_stage: "any (base body / with outfit / with pose)"
+
+# ====================================================
+# Transform
+# ====================================================
+transform:
+  type: "chibi"
+  style: "2頭身"
+  style_prompt: "chibi, super deformed, 2 head tall, very large head, tiny body, cute"
+  head_ratio: "2 heads tall"
+
+# ====================================================
+# Preservation
+# ====================================================
+preserve:
+  elements: "outfit and clothing, pose and action"
+  face_features: "Maintain character's face identity (eyes, hair color, expression)"
+  outfit_details: true
+  pose_action: true
+
+# ====================================================
+# Output
+# ====================================================
+output:
+  style: "chibi / super-deformed"
+  aspect_ratio: "1:1"
+  background: "transparent"
+  quality: "clean linework, cute proportions"
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  chibi_rules:
+    - "Transform to chibi style with 2 heads tall head-to-body ratio"
+    - "Large head, small body, simplified features"
+    - "Maintain character identity (face, hair, colors)"
+    - "Keep the cuteness and appeal of chibi style"
+  preservation_rules:
+    - "Preserve: outfit and clothing, pose and action"
+    - "Maintain the same outfit design (simplified for chibi proportions)"
+    - "Keep the same pose action (adapted for chibi body)"
+  style_consistency:
+    - "Use consistent chibi proportions throughout"
+    - "Clean, cute linework suitable for chibi style"
+    - "Transparent background for easy compositing"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT change character's identity (face, hair color)"
+  - "Do NOT add new accessories not in source"
+  - "Do NOT change outfit design significantly"
+  - "MAINTAIN chibi proportions consistently"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the chibi character illustration - nothing else"
+  - "Do NOT add any text, titles, labels, or annotations"
+  - "Do NOT add color palettes, color swatches, or color samples"
+  - "Do NOT add size comparison charts or reference guides"
+  - "Do NOT add arrows, lines, or any explanatory graphics"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "The output must contain ONLY the chibi character on the specified background"
+
+title_overlay:
+  enabled: true
+  title:
+    text: "彩瀬こよみ ちびキャラ"
+    position: "top-left"
+    size: "large"
+  author:
+    text: "サンプル作者"
+    position: "top-right"
+    size: "small"

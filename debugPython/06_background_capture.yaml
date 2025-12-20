@@ -1,0 +1,56 @@
+# Background Capture (背景キャプチャ)
+title: "教室の背景"
+author: "サンプル作者"
+
+output_type: "background_capture"
+
+# ====================================================
+# Background Capture
+# ====================================================
+background_capture:
+  enabled: true
+  reference_image: "photo_classroom.jpg"
+  transform_instruction: "Convert to anime/illustration style, clean lines, vibrant colors"
+  aspect_ratio: "16:9"
+  aspect_ratio_instruction: "Output aspect ratio: 16:9"
+
+  remove_people:
+    enabled: true
+    instruction: "Remove all people/humans from the image. Fill the removed areas naturally with background elements."
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  - "Use the reference image as the base for the background"
+  - "Apply the transformation instruction to modify the style/atmosphere"
+  - "Do NOT include any characters or people in the output"
+  - "Maintain the general composition and layout from the reference"
+  - "Output aspect ratio: 16:9"
+
+style:
+  color_mode: "fullcolor"
+  output_style: "anime"
+  aspect_ratio: "16:9"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the background illustration - nothing else"
+  - "Do NOT add any text, titles, labels, or annotations"
+  - "Do NOT add color palettes or color samples"
+  - "Do NOT add location markers, arrows, or explanatory graphics"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "The output must contain ONLY the background scene"
+
+title_overlay:
+  enabled: true
+  title:
+    text: "教室の背景"
+    position: "top-left"
+    size: "large"
+  author:
+    text: "サンプル作者"
+    position: "top-right"
+    size: "small"

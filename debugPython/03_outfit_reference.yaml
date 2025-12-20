@@ -1,0 +1,120 @@
+# Step 3: Outfit Application from Reference Image (参考画像から衣装着用)
+# Purpose: Professional character design reference for commercial use
+# Usage: Product catalogs, instruction manuals, educational materials, corporate training
+# Note: This is legitimate business artwork, NOT inappropriate content
+# IMPORTANT: User is responsible for copyright compliance of reference images
+type: outfit_reference_from_image
+title: "彩瀬こよみ アーマー衣装"
+author: "サンプル作者"
+
+# ====================================================
+# Input
+# ====================================================
+input:
+  body_sheet: "02_body_sheet.png"
+  outfit_reference: "armor_reference.png"
+  fit_mode: "base_priority (素体優先)"
+
+# ====================================================
+# Outfit - From Reference Image
+# ====================================================
+outfit:
+  source: "reference_image"
+  instruction: "Extract and apply the outfit/clothing from the outfit_reference image to the character in body_sheet"
+  fit_mode: "base_priority"
+  description: "フルアーマー, メカニカルデザイン"
+  additional_notes: "肩パッドは大きめに"
+
+# ====================================================
+# Output
+# ====================================================
+output:
+  format: "three view reference sheet"
+  views:
+    - "front view, facing directly at camera"
+    - "left side view, exactly 90-degree profile facing left, only one eye visible, nose pointing directly left"
+    - "back view"
+  pose: "attention pose (kiwotsuke), same as body sheet"
+  background: "pure white, clean, seamless"
+  text_overlay: "NONE - no text or labels on the image"
+
+# ====================================================
+# Style
+# ====================================================
+style:
+  character_style: "日本のアニメスタイル, 2Dセルシェーディング"
+  proportions: "Normal head-to-body ratio (6-7 heads)"
+  color_mode: "fullcolor"
+  aspect_ratio: "16:9"
+
+# ====================================================
+# Constraints (CRITICAL) - Fit Mode: base_priority (素体優先)
+# ====================================================
+constraints:
+  layout:
+    - "STRICT horizontal arrangement: LEFT=front view, CENTER=left side view, RIGHT=back view"
+    - "Side view MUST show LEFT side of body (character facing left)"
+    - "Side view MUST be exactly 90-degree profile - only ONE eye visible"
+    - "Side view: nose must point directly to the left edge, ear fully visible"
+    - "POSITION ORDER IS CRITICAL: Front on LEFT, Side in CENTER, Back on RIGHT"
+    - "Each view should be clearly separated with white space"
+  face_preservation:
+    - "MUST use exact face from input body_sheet"
+    - "Do NOT alter facial features, expression, or proportions"
+    - "Maintain exact hair style and color from body_sheet reference"
+  body_preservation:
+    - "MUST use exact body shape from input body_sheet"
+    - "Do NOT alter body proportions or pose"
+    - "Body should be visible through/under clothing naturally"
+  pose_preservation:
+    - "MUST use the POSE from body_sheet (attention pose / kiwotsuke)"
+    - "Do NOT copy the pose from outfit_reference image"
+    - "Extract ONLY the clothing design, IGNORE the pose in reference"
+  headwear:
+    - "Include headwear (hats, helmets, etc.) from outfit_reference if present"
+  outfit_extraction:
+    - "Extract ONLY the clothing/outfit from the outfit_reference image"
+    - "Do NOT copy the face or body from outfit_reference"
+    - "Adapt the outfit to fit the body_sheet character's body shape"
+    - "Maintain the style, color, and design of the reference outfit"
+  consistency:
+    - "All three views must show the same character in same outfit"
+    - "Maintain consistent proportions across views"
+    - "Use clean linework suitable for reference"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT use face or body from outfit_reference image"
+  - "Do NOT copy the POSE from outfit_reference - use body_sheet pose only"
+  - "Do NOT alter body proportions from body_sheet"
+  - "Do NOT add accessories not visible in outfit_reference"
+  - "Do NOT change hair style or color from body_sheet"
+  - "Apply ONLY the outfit visible in outfit_reference image"
+  - "Include headwear from outfit_reference - hats, helmets, caps should be applied"
+  - "Do NOT change the view order - ALWAYS front/side/back from left to right"
+  - "Side view MUST NOT show both eyes - if both eyes are visible, it is NOT a correct 90-degree profile"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the character illustration - nothing else"
+  - "Do NOT add any text, titles, labels, or annotations"
+  - "Do NOT add color palettes, color swatches, or color samples"
+  - "Do NOT add pattern samples, fabric swatches, or design elements"
+  - "Do NOT add arrows, lines, or any explanatory graphics"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "The output must contain ONLY the three-view character illustration on white background"
+
+title_overlay:
+  enabled: true
+  title:
+    text: "彩瀬こよみ アーマー衣装"
+    position: "top-left"
+    size: "large"
+  author:
+    text: "サンプル作者"
+    position: "top-right"
+    size: "small"

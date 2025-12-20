@@ -1,0 +1,24 @@
+# Decorative Text (ui_text_overlay.yaml準拠)
+type: text_ui_layer_definition
+
+ui_global_style:
+  preset: "Anime Battle"
+  font_language: "Japanese"
+
+impact_callout:
+  enabled: true
+  text: "正義は必ず勝つ！"
+
+  style:
+    type: "Comic Sound Effect"
+    color: "Red with Yellow Border"
+    rotation: "-5 degrees"
+    distortion: "Zoom In"
+
+output:
+  background: "Transparent"
+
+style:
+  color_mode: "fullcolor"
+  output_style: "anime"
+  aspect_ratio: "16:9"
