@@ -1,10 +1,42 @@
-# Decorative Text (ui_text_overlay.yaml準拠)
-type: text_ui_layer_definition
+# ====================================================
+# Decorative Text - Skill (装飾テキスト - 技名)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
 
+# ====================================================
+# Style
+# ====================================================
+style:
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
+
+# ====================================================
+# Title Overlay
+# ====================================================
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
+
+# ====================================================
+# UI Global Style
+# ====================================================
 ui_global_style:
   preset: "Anime Battle"
   font_language: "Japanese"
 
+# ====================================================
+# Special Move Title
+# ====================================================
 special_move_title:
   enabled: true
   text: "必殺・桜吹雪斬り"
@@ -20,10 +52,8 @@ special_move_title:
     glow_effect: "Blue Lightning"
     drop_shadow: "Hard Drop"
 
+# ====================================================
+# Output
+# ====================================================
 output:
   background: "Transparent"
-
-style:
-  color_mode: "fullcolor"
-  output_style: "anime"
-  aspect_ratio: "16:9"

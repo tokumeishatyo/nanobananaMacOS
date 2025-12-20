@@ -1,10 +1,42 @@
-# Decorative Text (ui_text_overlay.yaml準拠)
-type: text_ui_layer_definition
+# ====================================================
+# Decorative Text - Nameplate (装飾テキスト - キャラ名)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
 
+# ====================================================
+# Style
+# ====================================================
+style:
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
+
+# ====================================================
+# Title Overlay
+# ====================================================
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
+
+# ====================================================
+# UI Global Style
+# ====================================================
 ui_global_style:
   preset: "Character Name Plate"
   font_language: "Japanese"
 
+# ====================================================
+# Name Tag
+# ====================================================
 name_tag:
   enabled: true
   text: "彩瀬こよみ"
@@ -13,15 +45,16 @@ name_tag:
     type: "Jagged Sticker"
     rotation: "5 degrees"
 
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
 constraints:
   - "Generate ONLY the name plate/tag element"
   - "Do NOT add any game UI elements (health bars, meters, VS logos)"
   - "Do NOT add any fighting game or battle interface elements"
 
+# ====================================================
+# Output
+# ====================================================
 output:
   background: "Transparent"
-
-style:
-  color_mode: "fullcolor"
-  output_style: "anime"
-  aspect_ratio: "16:9"

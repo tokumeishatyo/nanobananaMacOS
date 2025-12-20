@@ -1,10 +1,42 @@
-# Decorative Text (ui_text_overlay.yaml準拠)
-type: text_ui_layer_definition
+# ====================================================
+# Decorative Text - Catchphrase (装飾テキスト - 決め台詞)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
 
+# ====================================================
+# Style
+# ====================================================
+style:
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
+
+# ====================================================
+# Title Overlay
+# ====================================================
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
+
+# ====================================================
+# UI Global Style
+# ====================================================
 ui_global_style:
   preset: "Anime Battle"
   font_language: "Japanese"
 
+# ====================================================
+# Impact Callout
+# ====================================================
 impact_callout:
   enabled: true
   text: "正義は必ず勝つ！"
@@ -15,10 +47,8 @@ impact_callout:
     rotation: "-5 degrees"
     distortion: "Zoom In"
 
+# ====================================================
+# Output
+# ====================================================
 output:
   background: "Transparent"
-
-style:
-  color_mode: "fullcolor"
-  output_style: "anime"
-  aspect_ratio: "16:9"
