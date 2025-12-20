@@ -26,7 +26,3 @@ title_overlay:
     text: "{{author}}"
     position: "{{author_position}}"
     size: "{{author_size}}"
-
-{{#if reference_image}}
-reference_image: "{{reference_image}}"
-{{/if}}

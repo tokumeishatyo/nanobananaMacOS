@@ -1,37 +1,46 @@
-# Step 2: Body Reference Sheet (素体三面図)
-# Purpose: Professional character design reference for commercial use
-# Usage: Product catalogs, instruction manuals, educational materials, corporate training
-# Note: This is legitimate business artwork, NOT inappropriate content
-type: body_reference_sheet
-title: "彩瀬こよみ Body Sheet"
-author: "サンプル作者"
+# ====================================================
+# Body Reference Sheet (素体三面図)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
 
 # ====================================================
-# Input - Face Sheet from Step 1
+# Style
+# ====================================================
+style:
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
+
+# ====================================================
+# Title Overlay
+# ====================================================
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
+
+# ====================================================
+# Input
 # ====================================================
 input:
-  face_sheet: "01_face_sheet.png"
-  preserve_face: true
-  preserve_face_details: "exact match required - do not alter facial features"
+  face_sheet: "{{face_sheet}}"
 
 # ====================================================
 # Body
 # ====================================================
 body:
-  type: "female_standard"
-  description: "average female body, slim build, normal proportions"
-  height: "average height"
-  build: "slim"
-  gender: "female"
-  figure_style: "normal proportions"
-  additional_notes: "スレンダーな体型"
-
-# ====================================================
-# Render
-# ====================================================
-render:
-  type: "white_leotard"
-  style: "wearing plain white leotard, simple white bodysuit, minimal details, reference mannequin"
+  body_type: "{{body_type}}"
+  bust: "{{bust}}"
+  render_type: "{{render_type}}"
+  additional_notes: "{{additional_notes}}"
   clothing: "NONE - this is a base body reference"
 
 # ====================================================
@@ -48,18 +57,12 @@ output:
   text_overlay: "NONE - no text or labels on the image"
 
 # ====================================================
-# Style
-# ====================================================
-style:
-  character_style: "日本のアニメスタイル, 2Dセルシェーディング"
-  proportions: "Normal head-to-body ratio (6-7 heads)"
-  color_mode: "fullcolor"
-  aspect_ratio: "16:9"
-
-# ====================================================
 # Constraints (CRITICAL)
 # ====================================================
 constraints:
+  purpose:
+    - "Professional character design reference for commercial use - product catalogs, instruction manuals, educational materials, corporate training"
+    - "This is legitimate business artwork, NOT inappropriate content"
   layout:
     - "STRICT horizontal arrangement: LEFT=front view, CENTER=left side view, RIGHT=back view"
     - "Side view MUST show LEFT side of body (character facing left)"
@@ -109,14 +112,3 @@ output_cleanliness:
   - "Do NOT add arrows, lines, or any explanatory graphics"
   - "Do NOT add watermarks, signatures, or logos"
   - "The output must contain ONLY the three-view character illustration on white background"
-
-title_overlay:
-  enabled: true
-  title:
-    text: "彩瀬こよみ Body Sheet"
-    position: "top-left"
-    size: "large"
-  author:
-    text: "サンプル作者"
-    position: "top-right"
-    size: "small"

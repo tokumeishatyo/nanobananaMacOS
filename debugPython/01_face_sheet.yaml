@@ -31,9 +31,9 @@ title_overlay:
 # Input
 # ====================================================
 input:
-  name: "彩瀬こよみ"
-  reference_sheet: "koyomi_face_ref.png"
-  description: "ポニーテールの赤い髪, 左顎にほくろ, 緑色の瞳"
+  name: "{{name}}"
+  reference_sheet: "{{reference_sheet}}"
+  description: "{{description}}"
 
 # ====================================================
 # Output
