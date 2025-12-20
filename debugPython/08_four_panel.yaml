@@ -1,86 +1,110 @@
-【画像生成指示 / Image Generation Instructions】
-以下のYAML指示に従って、4コマ漫画を1枚の画像として生成してください。
-添付したキャラクター設定画を参考に、キャラクターの外見を一貫させてください。
+# ====================================================
+# Four Panel Manga (4コマ漫画)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
 
-Generate a 4-panel manga as a single image following the YAML instructions below.
-Use the attached character reference sheets to maintain consistent character appearances.
+# ====================================================
+# Style
+# ====================================================
+style:
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
 
----
+# ====================================================
+# Title Overlay
+# ====================================================
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
 
-# 4コマ漫画生成 (four_panel_manga.yaml準拠)
-title: "放課後の出来事"
-author: "サンプル作者"
-color_mode: "fullcolor"
-output_style: "manga"
+# ====================================================
+# Main Prompt and Layout (メインプロンプトとレイアウト)
+# ====================================================
+main_prompt:
+  - "以下のYAML指示に従って、4コマ漫画を1枚の画像として生成してください。"
+  - "添付したキャラクター設定画を参考に、キャラクターの外見を一貫させてください。"
+  - "Generate a 4-panel manga as a single image following the YAML instructions below."
+  - "Use the attached character reference sheets to maintain consistent character appearances."
 
-# 登場人物
+layout_instruction:
+  - "4コマ漫画を縦1列に配置してください。"
+  - "横並びにせず、上から下へ1コマずつ縦に4つ並べてください。"
+  - "出力画像は縦長（9:16または2:5の比率）で、4コマ漫画だけが画像全体を占めるようにしてください。"
+  - "余白は不要です。"
+  - "各キャラクターの外見は添付画像と説明を忠実に再現してください。"
+  - "セリフは吹き出しで表示し、指定された位置に配置してください。"
+  - "ナレーションがある場合は、コマの上部または下部にテキストボックスで表示してください。"
+
+# ====================================================
+# Characters (登場人物)
+# ====================================================
 characters:
-  - name: "彩瀬こよみ"
-    reference: "添付画像1（koyomi_ref.png）を参照してください"
-    description: "ポニーテールの赤い髪, 緑色の瞳, 元気な性格"
+  - name: "{{character_1_name}}"
+    reference: "{{character_1_reference}}"
+    description: "{{character_1_description}}"
 
-  - name: "桜井さくら"
-    reference: "添付画像2（sakura_ref.png）を参照してください"
-    description: "黒髪ショート, 青い瞳, おっとりした性格"
+  - name: "{{character_2_name}}"
+    reference: "{{character_2_reference}}"
+    description: "{{character_2_description}}"
 
-# 4コマの内容
+# ====================================================
+# Panels (4コマの内容)
+# ====================================================
 panels:
   # --- 1コマ目（起）---
   - panel_number: 1
-    prompt: "教室で机に座っている二人, 窓から夕日が差し込む"
+    prompt: "{{panel_1_prompt}}"
     speeches:
-      - character: "彩瀬こよみ"
-        content: "ねえねえ、今日の放課後さ..."
-        position: "left"
-    narration: "放課後の教室"
+      - character: "{{panel_1_speech1_character}}"
+        content: "{{panel_1_speech1_content}}"
+        position: "{{panel_1_speech1_position}}"
+      - character: "{{panel_1_speech2_character}}"
+        content: "{{panel_1_speech2_content}}"
+        position: "{{panel_1_speech2_position}}"
+    narration: "{{panel_1_narration}}"
 
   # --- 2コマ目（承）---
   - panel_number: 2
-    prompt: "こよみが立ち上がって提案している, さくらは座ったまま聞いている"
+    prompt: "{{panel_2_prompt}}"
     speeches:
-      - character: "彩瀬こよみ"
-        content: "新しくできたカフェに行かない？"
-        position: "left"
-      - character: "桜井さくら"
-        content: "カフェ...？"
-        position: "right"
+      - character: "{{panel_2_speech1_character}}"
+        content: "{{panel_2_speech1_content}}"
+        position: "{{panel_2_speech1_position}}"
+      - character: "{{panel_2_speech2_character}}"
+        content: "{{panel_2_speech2_content}}"
+        position: "{{panel_2_speech2_position}}"
+    narration: "{{panel_2_narration}}"
 
   # --- 3コマ目（転）---
   - panel_number: 3
-    prompt: "さくらが目を輝かせている, 背景にキラキラエフェクト"
+    prompt: "{{panel_3_prompt}}"
     speeches:
-      - character: "桜井さくら"
-        content: "パンケーキが美味しいって噂の！？"
-        position: "right"
+      - character: "{{panel_3_speech1_character}}"
+        content: "{{panel_3_speech1_content}}"
+        position: "{{panel_3_speech1_position}}"
+      - character: "{{panel_3_speech2_character}}"
+        content: "{{panel_3_speech2_content}}"
+        position: "{{panel_3_speech2_position}}"
+    narration: "{{panel_3_narration}}"
 
   # --- 4コマ目（結）---
   - panel_number: 4
-    prompt: "二人で笑顔で手を取り合っている"
+    prompt: "{{panel_4_prompt}}"
     speeches:
-      - character: "彩瀬こよみ"
-        content: "さすがさくら、話が早い！"
-        position: "left"
-      - character: "桜井さくら"
-        content: "早く行こう！"
-        position: "right"
-
-# レイアウト指示
-layout_instruction: |
-  4コマ漫画を縦1列に配置してください。
-  横並びにせず、上から下へ1コマずつ縦に4つ並べてください。
-  出力画像は縦長（9:16または2:5の比率）で、4コマ漫画だけが画像全体を占めるようにしてください。
-  余白は不要です。
-  各キャラクターの外見は添付画像と説明を忠実に再現してください。
-  セリフは吹き出しで表示し、指定された位置に配置してください。
-  ナレーションがある場合は、コマの上部または下部にテキストボックスで表示してください。
-
-title_overlay:
-  enabled: true
-  title:
-    text: "放課後の出来事"
-    position: "top-left"
-    size: "large"
-  author:
-    text: "サンプル作者"
-    position: "top-right"
-    size: "small"
+      - character: "{{panel_4_speech1_character}}"
+        content: "{{panel_4_speech1_content}}"
+        position: "{{panel_4_speech1_position}}"
+      - character: "{{panel_4_speech2_character}}"
+        content: "{{panel_4_speech2_content}}"
+        position: "{{panel_4_speech2_position}}"
+    narration: "{{panel_4_narration}}"
