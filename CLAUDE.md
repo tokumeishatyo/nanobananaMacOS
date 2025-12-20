@@ -83,20 +83,10 @@ nanobananaMacOS/
 │   └── Components/   # 再利用可能なUIコンポーネント
 ├── Services/         # サービス層（機能実装）
 │   ├── ValidationService.swift    # バリデーション
-│   ├── YAMLGeneratorService.swift # YAML生成メイン + ユーティリティ
+│   ├── YAMLGeneratorService.swift # YAML生成（テンプレートエンジン使用）
+│   ├── TemplateEngine.swift       # テンプレートエンジン（実装予定）
 │   ├── ClipboardService.swift     # クリップボード操作
-│   ├── FileService.swift          # ファイル保存/読込
-│   └── Generators/                # 出力タイプ別YAML生成（全10種類）
-│       ├── FaceSheetYAMLGenerator.swift      # 顔三面図
-│       ├── BodySheetYAMLGenerator.swift      # 素体三面図
-│       ├── OutfitSheetYAMLGenerator.swift    # 衣装着用
-│       ├── PoseYAMLGenerator.swift           # ポーズ
-│       ├── StorySceneYAMLGenerator.swift     # シーンビルダー
-│       ├── BackgroundYAMLGenerator.swift     # 背景生成
-│       ├── DecorativeTextYAMLGenerator.swift # 装飾テキスト
-│       ├── FourPanelYAMLGenerator.swift      # 4コマ漫画
-│       ├── StyleTransformYAMLGenerator.swift # スタイル変換
-│       └── InfographicYAMLGenerator.swift    # インフォグラフィック
+│   └── FileService.swift          # ファイル保存/読込
 ├── Utilities/        # ユーティリティ
 │   └── WindowManager.swift    # 移動可能ウィンドウ管理
 └── ContentView.swift # エントリーポイント
@@ -269,8 +259,9 @@ Python版にあった「同一性保持」スライダーはUIから削除。
 - `/docs/操作マニュアル.md` - ユーザー向け操作説明
 - `/docs/ネイティブアプリ移植ガイド.md` - 移植手順の確認
 - `/docs/MacOSネイティブアプリ実装設計.md` - macOS版の全体設計
-- `/docs/実装設計_UI構造.md` - UI構造の詳細設計
-- `/docs/実装設計_状態管理.md` - 状態管理の詳細設計
+- `/docs/実装設計_template_design.md` - テンプレート設計
+- `/docs/実装設計_新顔三面図.md` - 新テンプレートエンジン方式の設計
+- `/docs/旧/` - 旧設計ドキュメント（アーカイブ）
 
 ### Python版ソースコード（/app/）
 - `/app/constants.py` - Python版定数定義
@@ -414,6 +405,8 @@ Python版にあった「同一性保持」スライダーはUIから削除。
 - [x] 旧TemplateEngine/フォルダ削除（5ファイル）
 - [x] 旧Resources/Templates/削除（2ファイル）
 - [x] YAMLGeneratorService.swiftシンプル化（プレースホルダー実装）
+- [x] 旧設計ドキュメント移動（docs/旧/フォルダへ14ファイル）
+- [x] 新設計ドキュメント作成（docs/実装設計_新顔三面図.md）
 
 **Phase 2: 新テンプレートエンジン実装（予定）**
 - [ ] TemplateEngine.swift新規作成
