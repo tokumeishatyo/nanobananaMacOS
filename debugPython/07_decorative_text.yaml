@@ -1,0 +1,109 @@
+# ====================================================
+# Decorative Text (装飾テキスト)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
+
+# ====================================================
+# Style
+# ====================================================
+style:
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
+
+# ====================================================
+# Title Overlay
+# ====================================================
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
+
+# ====================================================
+# Input
+# ====================================================
+input:
+  decorative_type: "{{decorative_type}}"  # skill / catchphrase / nameplate / message
+  transparent_background: {{transparent_background}}
+  text: "{{text}}"
+
+# ====================================================
+# Input - Skill (技名テロップ)
+# ====================================================
+input_skill:
+  font_type: "{{skill_font_type}}"
+  size: "{{skill_size}}"
+  fill_color: "{{skill_fill_color}}"
+  outline_enabled: {{skill_outline_enabled}}
+  outline_color: "{{skill_outline_color}}"
+  outline_thickness: "{{skill_outline_thickness}}"
+  glow_effect: "{{skill_glow_effect}}"
+
+# ====================================================
+# Input - Catchphrase (決め台詞)
+# ====================================================
+input_catchphrase:
+  type: "{{catchphrase_type}}"
+  color: "{{catchphrase_color}}"
+  rotation: "{{catchphrase_rotation}}"
+  distortion: "{{catchphrase_distortion}}"
+
+# ====================================================
+# Input - Nameplate (キャラ名プレート)
+# ====================================================
+input_nameplate:
+  design_type: "{{nameplate_design_type}}"
+  rotation: "{{nameplate_rotation}}"
+
+# ====================================================
+# Input - Message (メッセージウィンドウ)
+# ====================================================
+input_message:
+  mode: "{{message_mode}}"
+  speaker_name: "{{message_speaker_name}}"
+  style_preset: "{{message_style_preset}}"
+  position: "{{message_position}}"
+  width: "{{message_width}}"
+  frame_type: "{{message_frame_type}}"
+  background_opacity: {{message_background_opacity}}
+  face_icon_enabled: {{message_face_icon_enabled}}
+  face_icon_source: "{{message_face_icon_source}}"
+  face_icon_position: "{{message_face_icon_position}}"
+
+# ====================================================
+# UI Global Style
+# ====================================================
+ui_global_style:
+  preset: "{{ui_preset}}"  # Anime Battle / Character Name Plate / Message Window
+  font_language: "Japanese"
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  common:
+    - "Generate ONLY the decorative text element"
+    - "Do NOT add any unrelated UI elements"
+  nameplate:
+    - "Generate ONLY the name plate/tag element"
+    - "Do NOT add any game UI elements (health bars, meters, VS logos)"
+    - "Do NOT add any fighting game or battle interface elements"
+  message:
+    - "Generate ONLY the message window UI element"
+    - "Do NOT draw any full-body character in the scene"
+    - "Do NOT include any character outside the message window"
+    - "The reference image is ONLY for the face icon, not for adding a character to the scene"
+
+# ====================================================
+# Output
+# ====================================================
+output:
+  background: "{{background}}"  # Transparent or specified color
