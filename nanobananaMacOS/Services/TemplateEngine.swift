@@ -212,13 +212,12 @@ final class TemplateEngine {
         }
 
         // 3. 開発時: ソースファイルからの相対パス（#fileマクロ使用）
-        //    TemplateEngine.swift → Services/ → nanobananaMacOS/ → プロジェクトルート → yaml_templates
+        //    TemplateEngine.swift → Services/ → nanobananaMacOS/ → yaml_templates
         let sourceFileURL = URL(fileURLWithPath: #file)
-        let projectRoot = sourceFileURL
+        let nanobananaMacOSDir = sourceFileURL
             .deletingLastPathComponent()  // Services/
             .deletingLastPathComponent()  // nanobananaMacOS/
-            .deletingLastPathComponent()  // プロジェクトルート
-        let devTemplatesURL = projectRoot.appendingPathComponent("yaml_templates")
+        let devTemplatesURL = nanobananaMacOSDir.appendingPathComponent("yaml_templates")
         if FileManager.default.fileExists(atPath: devTemplatesURL.path) {
             return devTemplatesURL
         }
