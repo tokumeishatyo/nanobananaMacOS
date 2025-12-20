@@ -84,9 +84,8 @@ final class YAMLGeneratorService {
         mainViewModel: MainViewModel,
         settings: FaceSheetSettingsViewModel
     ) -> [String: String] {
-        // 作者名の処理（空欄の場合は"Unknown"）
+        // 作者名の処理（空欄の場合はそのまま空欄）
         let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let author = authorName.isEmpty ? "Unknown" : authorName
 
         // title_overlay設定
         let titleOverlayEnabled = mainViewModel.includeTitleInImage
@@ -100,7 +99,7 @@ final class YAMLGeneratorService {
             "header_comment": "Face Character Reference Sheet",
             "type": "character_design",
             "title": mainViewModel.title,
-            "author": author,
+            "author": authorName,
             "color_mode": mainViewModel.selectedColorMode.yamlValue,
             "output_style": mainViewModel.selectedOutputStyle.yamlValue,
             "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,

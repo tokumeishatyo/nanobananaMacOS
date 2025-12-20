@@ -55,7 +55,10 @@ final class TemplateEngine {
         let expanded = expandPartials(template, variables: variables)
 
         // 3. 変数を置換
-        let result = replaceVariables(expanded, variables: variables)
+        let replaced = replaceVariables(expanded, variables: variables)
+
+        // 4. 空白値フィールドを削除
+        let result = cleanupEmptyFields(replaced)
 
         return result
     }
@@ -191,6 +194,140 @@ final class TemplateEngine {
         }
 
         return result
+    }
+
+    /// 空白値フィールドを削除
+    /// - `key: ""` のような行を削除
+    /// - 子要素がすべて削除されたセクションも削除
+    private func cleanupEmptyFields(_ yaml: String) -> String {
+        var lines = yaml.components(separatedBy: "\n")
+        var result: [String] = []
+        var i = 0
+
+        while i < lines.count {
+            let line = lines[i]
+
+            // 空の値を持つ行をスキップ（key: "" または key: ''）
+            if isEmptyValueLine(line) {
+                i += 1
+                continue
+            }
+
+            // セクションヘッダー（子要素を持つ可能性がある行）をチェック
+            if isSectionHeader(line, nextLine: i + 1 < lines.count ? lines[i + 1] : nil) {
+                // このセクションに有効な子要素があるかチェック
+                let sectionIndent = getIndent(line)
+                var hasValidChildren = false
+                var j = i + 1
+
+                while j < lines.count {
+                    let childLine = lines[j]
+                    let childIndent = getIndent(childLine)
+
+                    // 空行やコメント行はスキップ
+                    if childLine.trimmingCharacters(in: .whitespaces).isEmpty ||
+                       childLine.trimmingCharacters(in: .whitespaces).hasPrefix("#") {
+                        j += 1
+                        continue
+                    }
+
+                    // インデントが戻ったらセクション終了
+                    if childIndent <= sectionIndent {
+                        break
+                    }
+
+                    // 空でない値を持つ子要素があるかチェック
+                    if !isEmptyValueLine(childLine) {
+                        hasValidChildren = true
+                        break
+                    }
+                    j += 1
+                }
+
+                // 有効な子要素がない場合、このセクションヘッダーをスキップ
+                if !hasValidChildren {
+                    i += 1
+                    continue
+                }
+            }
+
+            result.append(line)
+            i += 1
+        }
+
+        // 連続する空行を1つにまとめる
+        return consolidateEmptyLines(result.joined(separator: "\n"))
+    }
+
+    /// 空の値を持つ行かどうかをチェック
+    private func isEmptyValueLine(_ line: String) -> Bool {
+        let trimmed = line.trimmingCharacters(in: .whitespaces)
+        // key: "" または key: '' のパターン
+        return trimmed.hasSuffix(": \"\"") || trimmed.hasSuffix(": ''")
+    }
+
+    /// セクションヘッダー（子要素を持つ行）かどうかをチェック
+    private func isSectionHeader(_ line: String, nextLine: String?) -> Bool {
+        let trimmed = line.trimmingCharacters(in: .whitespaces)
+
+        // コメント行や空行はセクションヘッダーではない
+        if trimmed.isEmpty || trimmed.hasPrefix("#") {
+            return false
+        }
+
+        // "key:" で終わる行（値なし）はセクションヘッダー
+        if trimmed.hasSuffix(":") && !trimmed.contains(": ") {
+            return true
+        }
+
+        // 次の行がより深いインデントを持つ場合もセクションヘッダー
+        if let next = nextLine {
+            let currentIndent = getIndent(line)
+            let nextIndent = getIndent(next)
+            let nextTrimmed = next.trimmingCharacters(in: .whitespaces)
+            if nextIndent > currentIndent && !nextTrimmed.isEmpty && !nextTrimmed.hasPrefix("#") {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    /// 行のインデントレベルを取得
+    private func getIndent(_ line: String) -> Int {
+        var count = 0
+        for char in line {
+            if char == " " {
+                count += 1
+            } else if char == "\t" {
+                count += 2  // タブは2スペースとして扱う
+            } else {
+                break
+            }
+        }
+        return count
+    }
+
+    /// 連続する空行を1つにまとめる
+    private func consolidateEmptyLines(_ text: String) -> String {
+        let lines = text.components(separatedBy: "\n")
+        var result: [String] = []
+        var previousWasEmpty = false
+
+        for line in lines {
+            let isEmpty = line.trimmingCharacters(in: .whitespaces).isEmpty
+            if isEmpty {
+                if !previousWasEmpty {
+                    result.append(line)
+                }
+                previousWasEmpty = true
+            } else {
+                result.append(line)
+                previousWasEmpty = false
+            }
+        }
+
+        return result.joined(separator: "\n")
     }
 
     /// エラー用YAMLを生成
