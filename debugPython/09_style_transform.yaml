@@ -1,0 +1,122 @@
+# ====================================================
+# Style Transform (スタイル変換)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
+
+# ====================================================
+# Style
+# ====================================================
+style:
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
+
+# ====================================================
+# Title Overlay
+# ====================================================
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
+
+# ====================================================
+# Input
+# ====================================================
+input:
+  source_image: "{{source_image}}"
+  style_type: "{{style_type}}"  # chibi / pixel
+  transparent_background: {{transparent_background}}
+
+# ====================================================
+# Input - Chibi
+# ====================================================
+input_chibi:
+  style: "{{chibi_style}}"  # スタンダード / デフォルメ / ミニキャラ / プチキャラ
+
+# ====================================================
+# Input - Pixel Art
+# ====================================================
+input_pixel:
+  style: "{{pixel_style}}"
+  sprite_size: "{{pixel_sprite_size}}"
+
+# ====================================================
+# Output
+# ====================================================
+output:
+  aspect_ratio: "1:1"
+  background: "{{background}}"  # transparent or specified
+  quality: "clean illustration"
+
+# ====================================================
+# Constraints - Common (CRITICAL)
+# ====================================================
+constraints_common:
+  preservation_rules:
+    - "ALWAYS preserve the original outfit and clothing from source"
+    - "ALWAYS preserve the original pose and action from source"
+    - "ALWAYS preserve the original colors from source image"
+    - "Maintain character identity (face, hair, recognizable features)"
+
+# ====================================================
+# Constraints - Chibi Only (CRITICAL)
+# ====================================================
+constraints_chibi:
+  - "Transform to chibi style"
+  - "Large head, small body, simplified features"
+  - "Keep the cuteness and appeal of chibi style"
+  - "Use consistent chibi proportions throughout"
+  - "Clean, cute linework suitable for chibi style"
+
+# ====================================================
+# Constraints - Pixel Art Only (CRITICAL)
+# ====================================================
+constraints_pixel:
+  - "Convert to pixel art style"
+  - "Clean, sharp pixels with no anti-aliasing blur"
+  - "Limited color palette appropriate for pixel art"
+  - "Consistent pixel size throughout the sprite"
+  - "Game sprite aesthetic, suitable for game use"
+
+# ====================================================
+# Anti-Hallucination - Common (MUST FOLLOW)
+# ====================================================
+anti_hallucination_common:
+  - "Do NOT change character's identity (face, hair color)"
+  - "Do NOT add new accessories not in source"
+  - "Do NOT change outfit design significantly"
+  - "Do NOT change character's recognizable features"
+
+# ====================================================
+# Anti-Hallucination - Chibi Only (MUST FOLLOW)
+# ====================================================
+anti_hallucination_chibi:
+  - "MAINTAIN chibi proportions consistently"
+
+# ====================================================
+# Anti-Hallucination - Pixel Art Only (MUST FOLLOW)
+# ====================================================
+anti_hallucination_pixel:
+  - "Do NOT add pixel art artifacts or noise"
+  - "Do NOT blur or anti-alias the pixels"
+  - "MAINTAIN consistent pixel grid"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the transformed character illustration - nothing else"
+  - "Do NOT add any text, titles, labels, or annotations"
+  - "Do NOT add color palettes, color swatches, or color samples"
+  - "Do NOT add size comparison charts or reference guides"
+  - "Do NOT add arrows, lines, or any explanatory graphics"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "The output must contain ONLY the character on the specified background"
