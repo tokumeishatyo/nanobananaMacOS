@@ -293,7 +293,7 @@ final class MainViewModel: ObservableObject {
         }
 
         // 3. color_modeを個別に更新（styleセクション内のどこにあっても対応）
-        let colorModeValue = YAMLUtilities.getColorModeValue(selectedColorMode)
+        let colorModeValue = selectedColorMode.yamlValue
         let colorModePattern = #"(color_mode:\s*)"[^"]*""#
         if let colorModeRegex = try? NSRegularExpression(pattern: colorModePattern, options: []) {
             let range = NSRange(yaml.startIndex..., in: yaml)
