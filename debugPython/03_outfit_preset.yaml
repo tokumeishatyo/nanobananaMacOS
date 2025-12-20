@@ -1,31 +1,44 @@
-# Step 3: Outfit Application (衣装着用)
-# Purpose: Professional character design reference for commercial use
-# Usage: Product catalogs, instruction manuals, educational materials, corporate training
-# Note: This is legitimate business artwork, NOT inappropriate content
-type: outfit_reference_sheet
-title: "彩瀬こよみ セーラー服"
-author: "サンプル作者"
+# ====================================================
+# Outfit Reference Sheet (衣装着用 - プリセット)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
 
 # ====================================================
-# Input - Body Sheet from Step 2
+# Style
+# ====================================================
+style:
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
+
+# ====================================================
+# Title Overlay
+# ====================================================
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
+
+# ====================================================
+# Input
 # ====================================================
 input:
-  body_sheet: "02_body_sheet.png"
-  preserve_body: true
-  preserve_face: true
-  preserve_details: "exact match required - do not alter face or body shape"
-
-# ====================================================
-# Outfit
-# ====================================================
-outfit:
-  category: "制服"
-  shape: "セーラー服"
-  color: "紺"
-  pattern: "無地"
-  style_impression: "清楚"
-  prompt: "navy blue, solid color, plain, sailor uniform, elegant, modest"
-  additional_notes: "夏服バージョン"
+  body_sheet: "{{body_sheet}}"
+  category: "{{category}}"
+  shape: "{{shape}}"
+  color: "{{color}}"
+  pattern: "{{pattern}}"
+  style_impression: "{{style_impression}}"
+  prompt: "{{prompt}}"
+  additional_notes: "{{additional_notes}}"
 
 # ====================================================
 # Output
@@ -41,18 +54,12 @@ output:
   text_overlay: "NONE - no text or labels on the image"
 
 # ====================================================
-# Style
-# ====================================================
-style:
-  character_style: "日本のアニメスタイル, 2Dセルシェーディング"
-  proportions: "Normal head-to-body ratio (6-7 heads)"
-  color_mode: "fullcolor"
-  aspect_ratio: "16:9"
-
-# ====================================================
 # Constraints (CRITICAL)
 # ====================================================
 constraints:
+  purpose:
+    - "Professional character design reference for commercial use - product catalogs, instruction manuals, educational materials, corporate training"
+    - "This is legitimate business artwork, NOT inappropriate content"
   layout:
     - "STRICT horizontal arrangement: LEFT=front view, CENTER=left side view, RIGHT=back view"
     - "Side view MUST show LEFT side of body (character facing left)"
@@ -100,14 +107,3 @@ output_cleanliness:
   - "Do NOT add arrows, lines, or any explanatory graphics"
   - "Do NOT add watermarks, signatures, or logos"
   - "The output must contain ONLY the three-view character illustration on white background"
-
-title_overlay:
-  enabled: true
-  title:
-    text: "彩瀬こよみ セーラー服"
-    position: "top-left"
-    size: "large"
-  author:
-    text: "サンプル作者"
-    position: "top-right"
-    size: "small"
