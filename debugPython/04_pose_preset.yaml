@@ -45,7 +45,7 @@ input:
 # ====================================================
 output:
   format: "single_image"
-  background: "transparent, fully clear alpha channel"
+  view: "front view, facing camera"
 
 # ====================================================
 # Constraints (CRITICAL)
