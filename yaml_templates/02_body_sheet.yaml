@@ -65,13 +65,10 @@ constraints:
 # Anti-Hallucination (MUST FOLLOW)
 # ====================================================
 anti_hallucination:
-  - "Do NOT add clothing that was not specified"
   - "Do NOT change the face from the reference"
-  - "Do NOT add accessories or decorations"
   - "Do NOT change body proportions from specified type"
-  - "Do NOT add any text or labels to the image"
-  - "Do NOT use T-pose or A-pose - use attention pose only"
-  - "Do NOT change the view order - ALWAYS front/side/back from left to right"
+  - "Do NOT mix features from different characters"
+  - "Do NOT distort anatomical structure"
   - "Side view MUST NOT show both eyes - if both eyes are visible, it is NOT a correct 90-degree profile"
 
 # ====================================================

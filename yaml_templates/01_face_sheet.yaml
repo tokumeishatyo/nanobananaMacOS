@@ -52,13 +52,10 @@ constraints:
 # Anti-Hallucination (MUST FOLLOW)
 # ====================================================
 anti_hallucination:
-  - "Do NOT add any text or labels to the image"
-  - "Do NOT include character names on the image"
-  - "Do NOT add view labels like 'FRONT VIEW' or 'SIDE VIEW'"
-  - "Do NOT add borders or frames around views"
-  - "Do NOT add any decorative elements"
-  - "Output ONLY the character views on white background"
   - "Profile view MUST NOT show both eyes - if both eyes are visible, it is NOT a correct profile"
+  - "3/4 view must show the face turned exactly 45 degrees, not more or less"
+  - "Do NOT mix features from different characters"
+  - "Do NOT distort facial proportions"
 
 # ====================================================
 # Output Cleanliness (CRITICAL)
@@ -66,6 +63,10 @@ anti_hallucination:
 output_cleanliness:
   - "Output ONLY the character illustration - nothing else"
   - "Do NOT add any text, titles, labels, or annotations"
+  - "Do NOT include character names on the image"
+  - "Do NOT add view labels like 'FRONT VIEW' or 'SIDE VIEW'"
+  - "Do NOT add borders or frames around views"
+  - "Do NOT add any decorative elements"
   - "Do NOT add color palettes, color swatches, or color samples"
   - "Do NOT add pattern samples, fabric swatches, or design elements"
   - "Do NOT add arrows, lines, or any explanatory graphics"
