@@ -1,0 +1,57 @@
+# ====================================================
+# Background Generation (背景生成)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
+
+# ====================================================
+# Style
+# ====================================================
+style:
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
+
+# ====================================================
+# Title Overlay
+# ====================================================
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
+
+# ====================================================
+# Input
+# ====================================================
+input:
+  use_reference_image: {{use_reference_image}}
+  reference_image: "{{reference_image}}"
+  remove_people: {{remove_people}}
+  description: "{{description}}"
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  - "Use the reference image as the base for the background (if provided)"
+  - "Apply the description/transformation instruction to modify the style/atmosphere"
+  - "Do NOT include any characters or people in the output"
+  - "Maintain the general composition and layout from the reference (if provided)"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the background illustration - nothing else"
+  - "Do NOT add any text, titles, labels, or annotations"
+  - "Do NOT add color palettes or color samples"
+  - "Do NOT add location markers, arrows, or explanatory graphics"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "The output must contain ONLY the background scene"
