@@ -180,6 +180,47 @@ enum YAMLUtilities {
         guard !path.isEmpty else { return "" }
         return URL(fileURLWithPath: path).lastPathComponent
     }
+
+    /// title_overlayセクションを生成
+    static func generateTitleOverlay(
+        title: String,
+        author: String,
+        includeTitleInImage: Bool
+    ) -> String {
+        guard includeTitleInImage else { return "" }
+
+        let escapedTitle = escapeYAMLString(title)
+        let trimmedAuthor = author.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmedAuthor.isEmpty {
+            // 作者名なし: タイトルのみtop-center
+            return """
+
+            title_overlay:
+              enabled: true
+              title:
+                text: "\(escapedTitle)"
+                position: "top-center"
+                size: "medium"
+            """
+        } else {
+            // 作者名あり: タイトル左(large)、作者名右(small)
+            let escapedAuthor = escapeYAMLString(trimmedAuthor)
+            return """
+
+            title_overlay:
+              enabled: true
+              title:
+                text: "\(escapedTitle)"
+                position: "top-left"
+                size: "large"
+              author:
+                text: "\(escapedAuthor)"
+                position: "top-right"
+                size: "small"
+            """
+        }
+    }
 }
 
 // MARK: - Enum Extensions for YAML Values
