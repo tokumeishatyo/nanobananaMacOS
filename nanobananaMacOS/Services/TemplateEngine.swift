@@ -211,8 +211,19 @@ final class TemplateEngine {
             }
         }
 
-        // 3. 開発時: プロジェクトルートからの相対パス
-        //    実行ファイルの場所から上位ディレクトリを探索
+        // 3. 開発時: ソースファイルからの相対パス（#fileマクロ使用）
+        //    TemplateEngine.swift → Services/ → nanobananaMacOS/ → プロジェクトルート → yaml_templates
+        let sourceFileURL = URL(fileURLWithPath: #file)
+        let projectRoot = sourceFileURL
+            .deletingLastPathComponent()  // Services/
+            .deletingLastPathComponent()  // nanobananaMacOS/
+            .deletingLastPathComponent()  // プロジェクトルート
+        let devTemplatesURL = projectRoot.appendingPathComponent("yaml_templates")
+        if FileManager.default.fileExists(atPath: devTemplatesURL.path) {
+            return devTemplatesURL
+        }
+
+        // 4. 開発時: 実行ファイルの場所から上位ディレクトリを探索
         let executableURL = Bundle.main.executableURL
         var searchURL = executableURL?.deletingLastPathComponent()
 
@@ -225,7 +236,7 @@ final class TemplateEngine {
             searchURL = currentURL.deletingLastPathComponent()
         }
 
-        // 4. カレントディレクトリからの検索（CLIテスト用）
+        // 5. カレントディレクトリからの検索（CLIテスト用）
         let currentDir = FileManager.default.currentDirectoryPath
         let currentTemplatesURL = URL(fileURLWithPath: currentDir).appendingPathComponent("yaml_templates")
         if FileManager.default.fileExists(atPath: currentTemplatesURL.path) {
