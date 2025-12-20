@@ -410,19 +410,22 @@ Python版にあった「同一性保持」スライダーはUIから削除。
 
 **Phase 2: 新テンプレートエンジン実装（進行中）**
 - [x] TemplateEngine.swift新規作成
-  - テンプレートファイル読み込み（バンドル/開発環境両対応）
+  - テンプレートファイル読み込み（バンドルリソース優先）
   - パーシャル展開（`{{> header param="value"}}`）
   - 変数置換（`{{variable}}`）
-- [x] 顔三面図（01_face_sheet.yaml）実装完了
+- [x] yaml_templatesフォルダをnanobananaMacOS/内に移動
+- [x] Xcodeプロジェクト設定（Copy Bundle Resources）
+- [x] 顔三面図（01_face_sheet.yaml）実装・動作確認完了
 - [ ] 素体三面図（02_body_sheet.yaml）
 - [ ] 衣装着用（03_outfit_preset/reference.yaml）
 - [ ] 他の出力タイプを順次対応
 
 ### テンプレートファイル
 
-`yaml_templates/` フォルダに整理済み：
-- `header.yaml` - 共通ヘッダー
+`nanobananaMacOS/yaml_templates/` フォルダに配置：
+- `header.yaml` - 共通ヘッダーパーシャル
 - `01_face_sheet.yaml` 〜 `10_infographic.yaml`
+- Xcodeの「Copy Bundle Resources」に追加必須
 
 ### 設計方針
 
