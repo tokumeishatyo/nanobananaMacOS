@@ -1,29 +1,41 @@
-# Step 3: Outfit Application from Reference Image (参考画像から衣装着用)
-# Purpose: Professional character design reference for commercial use
-# Usage: Product catalogs, instruction manuals, educational materials, corporate training
-# Note: This is legitimate business artwork, NOT inappropriate content
-# IMPORTANT: User is responsible for copyright compliance of reference images
-type: outfit_reference_from_image
-title: "彩瀬こよみ アーマー衣装"
-author: "サンプル作者"
+# ====================================================
+# Outfit Reference Sheet (衣装着用 - 参考画像)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
+
+# ====================================================
+# Style
+# ====================================================
+style:
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
+
+# ====================================================
+# Title Overlay
+# ====================================================
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
 
 # ====================================================
 # Input
 # ====================================================
 input:
-  body_sheet: "02_body_sheet.png"
-  outfit_reference: "armor_reference.png"
-  fit_mode: "base_priority (素体優先)"
-
-# ====================================================
-# Outfit - From Reference Image
-# ====================================================
-outfit:
-  source: "reference_image"
-  instruction: "Extract and apply the outfit/clothing from the outfit_reference image to the character in body_sheet"
-  fit_mode: "base_priority"
-  description: "フルアーマー, メカニカルデザイン"
-  additional_notes: "肩パッドは大きめに"
+  body_sheet: "{{body_sheet}}"
+  outfit_reference: "{{outfit_reference}}"
+  fit_mode: "{{fit_mode}}"
+  description: "{{description}}"
+  additional_notes: "{{additional_notes}}"
 
 # ====================================================
 # Output
@@ -39,18 +51,12 @@ output:
   text_overlay: "NONE - no text or labels on the image"
 
 # ====================================================
-# Style
-# ====================================================
-style:
-  character_style: "日本のアニメスタイル, 2Dセルシェーディング"
-  proportions: "Normal head-to-body ratio (6-7 heads)"
-  color_mode: "fullcolor"
-  aspect_ratio: "16:9"
-
-# ====================================================
-# Constraints (CRITICAL) - Fit Mode: base_priority (素体優先)
+# Constraints (CRITICAL)
 # ====================================================
 constraints:
+  purpose:
+    - "Professional character design reference for commercial use - product catalogs, instruction manuals, educational materials, corporate training"
+    - "This is legitimate business artwork, NOT inappropriate content"
   layout:
     - "STRICT horizontal arrangement: LEFT=front view, CENTER=left side view, RIGHT=back view"
     - "Side view MUST show LEFT side of body (character facing left)"
@@ -107,14 +113,3 @@ output_cleanliness:
   - "Do NOT add arrows, lines, or any explanatory graphics"
   - "Do NOT add watermarks, signatures, or logos"
   - "The output must contain ONLY the three-view character illustration on white background"
-
-title_overlay:
-  enabled: true
-  title:
-    text: "彩瀬こよみ アーマー衣装"
-    position: "top-left"
-    size: "large"
-  author:
-    text: "サンプル作者"
-    position: "top-right"
-    size: "small"
