@@ -33,8 +33,9 @@ title_overlay:
 input:
   body_sheet: "{{body_sheet}}"
   outfit_reference: "{{outfit_reference}}"
-  fit_mode: "{{fit_mode}}"
   description: "{{description}}"
+  fit_mode: "{{fit_mode}}"
+  include_headwear: {{include_headwear}}
   additional_notes: "{{additional_notes}}"
 
 # ====================================================
