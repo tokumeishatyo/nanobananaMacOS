@@ -73,6 +73,7 @@ final class TemplateEngine {
                 .map { $0.lastPathComponent }
                 .sorted()
         } catch {
+            print("[TemplateEngine] Error listing templates: \(error)")
             return []
         }
     }
@@ -182,6 +183,20 @@ final class TemplateEngine {
 
     /// エラー用YAMLを生成
     private func generateErrorYAML(message: String) -> String {
+        var debugInfo = ""
+        if let dir = templatesDirectory {
+            // ディレクトリ内容を直接確認
+            if let contents = try? FileManager.default.contentsOfDirectory(atPath: dir.path) {
+                debugInfo = "ディレクトリ内容: \(contents.joined(separator: ", "))"
+            } else {
+                debugInfo = "ディレクトリ内容の取得に失敗"
+            }
+            // ディレクトリの存在確認
+            var isDir: ObjCBool = false
+            let exists = FileManager.default.fileExists(atPath: dir.path, isDirectory: &isDir)
+            debugInfo += "\n# ディレクトリ存在: \(exists), isDirectory: \(isDir.boolValue)"
+        }
+
         return """
         # ====================================================
         # Error
@@ -190,6 +205,7 @@ final class TemplateEngine {
         #
         # テンプレートディレクトリ: \(templatesDirectory?.path ?? "not found")
         # 利用可能なテンプレート: \(listTemplates().joined(separator: ", "))
+        # \(debugInfo)
         # ====================================================
         """
     }
