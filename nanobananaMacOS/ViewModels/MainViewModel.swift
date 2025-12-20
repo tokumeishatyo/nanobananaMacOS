@@ -147,13 +147,6 @@ final class MainViewModel: ObservableObject {
     /// アラートタイトル
     @Published var alertTitle: String = ""
 
-    // MARK: - Debug Settings
-
-    /// テンプレートエンジン使用フラグ（デバッグ用）
-    /// true: 外部テンプレートファイルを使用
-    /// false: 従来のハードコードジェネレーターを使用
-    @Published var useTemplateEngine: Bool = false
-
     /// 設定シート表示フラグ
     @Published var showSettingsSheet: Bool = false
 
@@ -369,8 +362,7 @@ final class MainViewModel: ObservableObject {
         // 統合YAML生成メソッドを使用
         yamlPreviewText = yamlGeneratorService.generateYAML(
             outputType: selectedOutputType,
-            mainViewModel: self,
-            useTemplateEngine: useTemplateEngine
+            mainViewModel: self
         )
     }
 

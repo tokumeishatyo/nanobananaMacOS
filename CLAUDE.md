@@ -394,22 +394,54 @@ Python版にあった「同一性保持」スライダーはUIから削除。
 - [ ] 漫画コンポーザー
 - [ ] 背景透過ツール
 
-## 次のステップ：Gemini API呼び出し実装
+## 現在進行中：テンプレートエンジン リファクタリング
 
-### YAML生成機能 ✅ 完了
+### 背景
 
-全10種類のYAML生成機能が完了：
+従来のYAML生成は各ジェネレーター（10ファイル、約680行のOutfitSheetYAMLGeneratorなど）にYAML構造がハードコーディングされていた。Windows移植も見据え、テンプレートファイルとコードを分離するリファクタリングを実施中。
 
-1. ✅ 顔三面図
-2. ✅ 素体三面図
-3. ✅ 衣装着用
-4. ✅ ポーズ
-5. ✅ シーンビルダー（ストーリーシーン）
-6. ✅ 背景生成
-7. ✅ 装飾テキスト
-8. ✅ 4コマ漫画
-9. ✅ スタイル変換
-10. ✅ インフォグラフィック
+### ブランチ構成
+
+- `main` - 最新として前進（リファクタリング作業）
+- `feature/template-engine-refactor` - 旧コード保険用（凍結）
+
+### 進捗
+
+**Phase 1: 旧コード削除 ✅ 完了**
+- [x] デバッグUI削除（LeftColumnView.swift）
+- [x] useTemplateEngineプロパティ削除（MainViewModel.swift）
+- [x] 旧Generators/フォルダ削除（10ファイル）
+- [x] 旧TemplateEngine/フォルダ削除（5ファイル）
+- [x] 旧Resources/Templates/削除（2ファイル）
+- [x] YAMLGeneratorService.swiftシンプル化（プレースホルダー実装）
+
+**Phase 2: 新テンプレートエンジン実装（予定）**
+- [ ] TemplateEngine.swift新規作成
+  - テンプレートファイル読み込み
+  - パーシャル展開（`{{> header}}`）
+  - 変数置換（`{{variable}}`）
+- [ ] 顔三面図から実装開始
+- [ ] 他の出力タイプを順次対応
+
+### テンプレートファイル
+
+`yaml_templates/` フォルダに整理済み：
+- `header.yaml` - 共通ヘッダー
+- `01_face_sheet.yaml` 〜 `10_infographic.yaml`
+
+### 設計方針
+
+- テンプレートはHandlebars風の変数構文（`{{variable}}`）
+- パーシャル展開（`{{> header header_comment="..."}}`）
+- constraints/anti_hallucination/output_cleanlinessは共通化しない（各出力タイプで固有）
+
+---
+
+## 旧情報（参考）
+
+### YAML生成機能 ✅ 旧実装完了（削除済み）
+
+全10種類のYAML生成機能の旧実装は削除済み。テンプレートエンジン方式で再実装中。
 
 ### 残りの実装タスク
 
