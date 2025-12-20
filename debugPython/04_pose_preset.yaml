@@ -28,25 +28,17 @@ title_overlay:
     size: "{{author_size}}"
 
 # ====================================================
-# Input Image
+# Input
 # ====================================================
 input:
-  character_sheet: "03_outfit_sheet.png"
-  identity_preservation: 1.0
-  purpose: "Generate posed character from outfit sheet"
-
-# ====================================================
-# Pose
-# ====================================================
-pose:
-  description: "Natural standing pose, relaxed shoulders, one hand on hip"
-  expression: "happy, smiling"
-  eye_line: "カメラ目線"
-  include_effects: true
-  wind_effect: "gentle breeze, hair slightly flowing"
-
-additional_details:
-  - "Confident posture, approachable expression"
+  character_sheet: "{{character_sheet}}"
+  eye_line: "{{eye_line}}"
+  expression: "{{expression}}"
+  expression_detail: "{{expression_detail}}"
+  action_description: "{{action_description}}"
+  include_effects: {{include_effects}}
+  wind_effect: "{{wind_effect}}"
+  transparent_background: {{transparent_background}}
 
 # ====================================================
 # Output
