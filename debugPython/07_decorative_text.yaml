@@ -1,31 +1,4 @@
-# ====================================================
-# Decorative Text (装飾テキスト)
-# ====================================================
-type: {{type}}
-title: "{{title}}"
-author: "{{author}}"
-
-# ====================================================
-# Style
-# ====================================================
-style:
-  color_mode: "{{color_mode}}"
-  output_style: "{{output_style}}"
-  aspect_ratio: "{{aspect_ratio}}"
-
-# ====================================================
-# Title Overlay
-# ====================================================
-title_overlay:
-  enabled: {{title_overlay_enabled}}
-  title:
-    text: "{{title}}"
-    position: "{{title_position}}"
-    size: "{{title_size}}"
-  author:
-    text: "{{author}}"
-    position: "{{author_position}}"
-    size: "{{author_size}}"
+{{> header header_comment="Decorative Text (装飾テキスト)"}}
 
 # ====================================================
 # Input
