@@ -1,10 +1,31 @@
-# Step 4: Pose Image (ポーズ画像)
-# Purpose: Generate character in specified pose based on outfit sheet
-# Output: Single character image
-# Preset: 立ちポーズ（自然）
-type: pose_single
-title: "彩瀬こよみ 立ちポーズ"
-author: "サンプル作者"
+# ====================================================
+# Pose Image (ポーズ画像 - プリセット)
+# ====================================================
+type: {{type}}
+title: "{{title}}"
+author: "{{author}}"
+
+# ====================================================
+# Style
+# ====================================================
+style:
+  color_mode: "{{color_mode}}"
+  output_style: "{{output_style}}"
+  aspect_ratio: "{{aspect_ratio}}"
+
+# ====================================================
+# Title Overlay
+# ====================================================
+title_overlay:
+  enabled: {{title_overlay_enabled}}
+  title:
+    text: "{{title}}"
+    position: "{{title_position}}"
+    size: "{{title_size}}"
+  author:
+    text: "{{author}}"
+    position: "{{author_position}}"
+    size: "{{author_size}}"
 
 # ====================================================
 # Input Image
@@ -62,19 +83,3 @@ output_cleanliness:
   - "Do NOT add arrows, lines, or any explanatory graphics"
   - "Do NOT add watermarks, signatures, or logos"
   - "The output must contain ONLY the single character on the specified background"
-
-style:
-  color_mode: "fullcolor"
-  output_style: "anime"
-  aspect_ratio: "9:16"
-
-title_overlay:
-  enabled: true
-  title:
-    text: "彩瀬こよみ 立ちポーズ"
-    position: "top-left"
-    size: "large"
-  author:
-    text: "サンプル作者"
-    position: "top-right"
-    size: "small"
