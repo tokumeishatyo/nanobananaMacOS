@@ -220,22 +220,4 @@ extension OutputStyle {
     }
 }
 
-extension AspectRatio {
-    /// YAML出力用の値
-    var yamlValue: String {
-        switch self {
-        case .square:
-            return "1:1"
-        case .wide16_9:
-            return "16:9"
-        case .tall9_16:
-            return "9:16"
-        case .standard4_3:
-            return "4:3"
-        case .portrait3_4:
-            return "3:4"
-        case .ultraWide3_1:
-            return "3:1"
-        }
-    }
-}
+// Note: AspectRatio.yamlValue is defined in DropdownOptions.swift
