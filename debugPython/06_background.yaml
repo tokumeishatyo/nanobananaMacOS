@@ -15,8 +15,14 @@ input:
 constraints:
   - "Use the reference image as the base for the background (if provided)"
   - "Apply the description/transformation instruction to modify the style/atmosphere"
-  - "Do NOT include any characters or people in the output"
   - "Maintain the general composition and layout from the reference (if provided)"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT include any characters or people in the output"
+  - "Do NOT add elements not present in the reference or description"
 
 # ====================================================
 # Output Cleanliness (CRITICAL)

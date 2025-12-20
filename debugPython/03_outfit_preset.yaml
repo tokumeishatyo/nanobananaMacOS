@@ -56,6 +56,9 @@ constraints:
     - "All three views must show the same character in same outfit"
     - "Maintain consistent proportions across views"
     - "Use clean linework suitable for reference"
+  view_order:
+    - "Do NOT change the view order - ALWAYS front/side/back from left to right"
+    - "Apply ONLY the specified outfit"
 
 # ====================================================
 # Anti-Hallucination (MUST FOLLOW)
@@ -65,8 +68,7 @@ anti_hallucination:
   - "Do NOT alter body proportions"
   - "Do NOT add accessories not specified in outfit"
   - "Do NOT change hair style or color"
-  - "Apply ONLY the specified outfit"
-  - "Do NOT change the view order - ALWAYS front/side/back from left to right"
+  - "Do NOT mix features from different characters"
   - "Side view MUST NOT show both eyes - if both eyes are visible, it is NOT a correct 90-degree profile"
 
 # ====================================================

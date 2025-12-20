@@ -80,3 +80,14 @@ constraints:
 # ====================================================
 output:
   background: "{{background}}"  # Transparent or specified color
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the decorative text element - nothing else"
+  - "Do NOT add any unrelated illustrations or characters"
+  - "Do NOT add color palettes, color swatches, or color samples"
+  - "Do NOT add arrows, lines, or any explanatory graphics"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "The output must contain ONLY the specified decorative text on the specified background"
