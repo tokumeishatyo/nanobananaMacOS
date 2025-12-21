@@ -47,7 +47,7 @@ final class YAMLGeneratorService {
             return generateDecorativeTextYAML(mainViewModel: mainViewModel)
 
         case .fourPanelManga:
-            return generatePlaceholderYAML(outputType: outputType, templateName: "08_four_panel.yaml")
+            return generateFourPanelYAML(mainViewModel: mainViewModel)
 
         case .styleTransform:
             return generatePlaceholderYAML(outputType: outputType, templateName: "09_style_transform.yaml")
@@ -738,6 +738,74 @@ decorative_text_overlays:
         return variables
     }
 
+    // MARK: - Four Panel Manga YAML Generation
+
+    /// 4コマ漫画YAML生成
+    @MainActor
+    private func generateFourPanelYAML(mainViewModel: MainViewModel) -> String {
+        guard let settings = mainViewModel.fourPanelSettings else {
+            return "# Error: 4コマ漫画の設定がありません"
+        }
+
+        let variables = buildFourPanelVariables(mainViewModel: mainViewModel, settings: settings)
+        return templateEngine.render(templateName: "08_four_panel.yaml", variables: variables)
+    }
+
+    /// 4コマ漫画用の変数辞書を構築
+    @MainActor
+    private func buildFourPanelVariables(
+        mainViewModel: MainViewModel,
+        settings: FourPanelSettingsViewModel
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        var variables: [String: String] = [
+            // ヘッダーパーシャル用
+            "header_comment": "Four Panel Manga (4コマ漫画)",
+            "type": "four_panel_manga",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // キャラクター1
+            "character_1_name": settings.character1Name,
+            "character_1_reference": YAMLUtilities.getFileName(from: settings.character1ImagePath),
+            "character_1_description": YAMLUtilities.convertNewlinesToComma(settings.character1Description),
+
+            // キャラクター2
+            "character_2_name": settings.character2Name,
+            "character_2_reference": YAMLUtilities.getFileName(from: settings.character2ImagePath),
+            "character_2_description": YAMLUtilities.convertNewlinesToComma(settings.character2Description)
+        ]
+
+        // 各パネルの変数を追加（1〜4）
+        for (index, panel) in settings.panels.enumerated() {
+            let panelNum = index + 1
+            variables["panel_\(panelNum)_prompt"] = panel.scene
+            variables["panel_\(panelNum)_speech1_character"] = panel.speech1Char.yamlValue(settings: settings)
+            variables["panel_\(panelNum)_speech1_content"] = panel.speech1Text
+            variables["panel_\(panelNum)_speech1_position"] = panel.speech1Position.rawValue
+            variables["panel_\(panelNum)_speech2_character"] = panel.speech2Char.yamlValue(settings: settings)
+            variables["panel_\(panelNum)_speech2_content"] = panel.speech2Text
+            variables["panel_\(panelNum)_speech2_position"] = panel.speech2Position.rawValue
+            variables["panel_\(panelNum)_narration"] = panel.narration
+        }
+
+        return variables
+    }
+
     // MARK: - Placeholder
 
     /// 未実装の出力タイプ用プレースホルダー
@@ -1100,6 +1168,22 @@ extension DecorativeTextType {
             return "Character Name Plate"
         case .messageWindow:
             return "Message Window"
+        }
+    }
+}
+
+// MARK: - Four Panel Manga Enum Extensions
+
+extension SpeechCharacter {
+    /// YAML出力用の値（キャラクター名を返す）
+    func yamlValue(settings: FourPanelSettingsViewModel) -> String {
+        switch self {
+        case .character1:
+            return settings.character1Name.isEmpty ? "キャラ1" : settings.character1Name
+        case .character2:
+            return settings.character2Name.isEmpty ? "キャラ2" : settings.character2Name
+        case .none:
+            return ""
         }
     }
 }
