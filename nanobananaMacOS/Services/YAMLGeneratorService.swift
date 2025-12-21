@@ -53,7 +53,7 @@ final class YAMLGeneratorService {
             return generateStyleTransformYAML(mainViewModel: mainViewModel)
 
         case .infographic:
-            return generatePlaceholderYAML(outputType: outputType, templateName: "10_infographic.yaml")
+            return generateInfographicYAML(mainViewModel: mainViewModel)
         }
     }
 
@@ -865,20 +865,77 @@ decorative_text_overlays:
         ]
     }
 
-    // MARK: - Placeholder
+    // MARK: - Infographic YAML Generation
 
-    /// 未実装の出力タイプ用プレースホルダー
-    private func generatePlaceholderYAML(outputType: OutputType, templateName: String) -> String {
-        return """
-        # ====================================================
-        # \(outputType.rawValue) - 実装予定
-        # ====================================================
-        # テンプレート: \(templateName)
-        #
-        # この出力タイプは実装予定です。
-        # yaml_templates/\(templateName) を使用します。
-        # ====================================================
-        """
+    /// インフォグラフィックYAML生成
+    @MainActor
+    private func generateInfographicYAML(mainViewModel: MainViewModel) -> String {
+        guard let settings = mainViewModel.infographicSettings else {
+            return "# Error: インフォグラフィックの設定がありません"
+        }
+
+        let variables = buildInfographicVariables(mainViewModel: mainViewModel, settings: settings)
+        return templateEngine.render(templateName: "10_infographic.yaml", variables: variables)
+    }
+
+    /// インフォグラフィック用の変数辞書を構築
+    @MainActor
+    private func buildInfographicVariables(
+        mainViewModel: MainViewModel,
+        settings: InfographicSettingsViewModel
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        // 出力言語の決定（「その他」の場合はカスタム言語を使用）
+        let outputLanguage: String
+        if settings.outputLanguage == .other {
+            outputLanguage = settings.customLanguage.isEmpty ? "Custom" : settings.customLanguage
+        } else {
+            outputLanguage = settings.outputLanguage.languageValue
+        }
+
+        // ボーナスキャラクター有効判定
+        let bonusCharacterEnabled = !settings.subCharacterImagePath.isEmpty
+
+        var variables: [String: String] = [
+            // ヘッダーパーシャル用
+            "header_comment": "Infographic (インフォグラフィック)",
+            "type": "infographic",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // インフォグラフィック固有
+            "infographic_style": settings.infographicStyle.key,
+            "infographic_style_prompt": settings.infographicStyle.prompt,
+            "output_language": outputLanguage,
+            "main_title": settings.mainTitle,
+            "subtitle": settings.subtitle,
+            "main_character_image": YAMLUtilities.getFileName(from: settings.mainCharacterImagePath),
+            "bonus_character_image": YAMLUtilities.getFileName(from: settings.subCharacterImagePath),
+            "bonus_character_enabled": bonusCharacterEnabled ? "true" : "false"
+        ]
+
+        // セクション変数を追加（1〜8）
+        for (index, section) in settings.sections.enumerated() {
+            let sectionNum = index + 1
+            variables["section_\(sectionNum)_title"] = section.title
+            variables["section_\(sectionNum)_content"] = YAMLUtilities.convertNewlinesToComma(section.content)
+        }
+
+        return variables
     }
 }
 
