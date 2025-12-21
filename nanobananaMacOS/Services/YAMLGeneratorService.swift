@@ -41,7 +41,7 @@ final class YAMLGeneratorService {
             return generateSceneBuilderYAML(mainViewModel: mainViewModel)
 
         case .background:
-            return generatePlaceholderYAML(outputType: outputType, templateName: "06_background.yaml")
+            return generateBackgroundYAML(mainViewModel: mainViewModel)
 
         case .decorativeText:
             return generatePlaceholderYAML(outputType: outputType, templateName: "07_decorative_text.yaml")
@@ -589,6 +589,61 @@ decorative_text_overlays:
   items:\(itemsYaml)
 
 """
+    }
+
+    // MARK: - Background YAML Generation
+
+    /// 背景生成YAML生成
+    @MainActor
+    private func generateBackgroundYAML(mainViewModel: MainViewModel) -> String {
+        guard let settings = mainViewModel.backgroundSettings else {
+            return "# Error: 背景生成の設定がありません"
+        }
+
+        let variables = buildBackgroundVariables(mainViewModel: mainViewModel, settings: settings)
+        return templateEngine.render(templateName: "06_background.yaml", variables: variables)
+    }
+
+    /// 背景生成用の変数辞書を構築
+    @MainActor
+    private func buildBackgroundVariables(
+        mainViewModel: MainViewModel,
+        settings: BackgroundSettingsViewModel
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        // 説明文の処理（参考画像モードで空の場合はデフォルト値）
+        var description = settings.description.trimmingCharacters(in: .whitespacesAndNewlines)
+        if settings.useReferenceImage && description.isEmpty {
+            description = "Convert to anime/illustration style, clean lines, vibrant colors"
+        }
+
+        return [
+            // ヘッダーパーシャル用
+            "header_comment": "Background Generation (背景生成)",
+            "type": "background",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // 背景生成固有
+            "use_reference_image": settings.useReferenceImage ? "true" : "false",
+            "reference_image": YAMLUtilities.getFileName(from: settings.referenceImagePath),
+            "remove_people": settings.removeCharacters ? "true" : "false",
+            "description": description
+        ]
     }
 
     // MARK: - Placeholder
