@@ -38,7 +38,7 @@ final class YAMLGeneratorService {
             return generatePoseYAML(mainViewModel: mainViewModel)
 
         case .sceneBuilder:
-            return generatePlaceholderYAML(outputType: outputType, templateName: "05_scene_story.yaml")
+            return generateSceneBuilderYAML(mainViewModel: mainViewModel)
 
         case .background:
             return generatePlaceholderYAML(outputType: outputType, templateName: "06_background.yaml")
@@ -437,6 +437,158 @@ final class YAMLGeneratorService {
             "wind_effect": settings.windEffect.prompt,
             "transparent_background": settings.transparentBackground ? "true" : "false"
         ]
+    }
+
+    // MARK: - Scene Builder YAML Generation
+
+    /// シーンビルダーYAML生成（シーンタイプ分岐）
+    @MainActor
+    private func generateSceneBuilderYAML(mainViewModel: MainViewModel) -> String {
+        guard let settings = mainViewModel.sceneBuilderSettings else {
+            return "# Error: シーンビルダーの設定がありません"
+        }
+
+        switch settings.sceneType {
+        case .story:
+            return generateStorySceneYAML(mainViewModel: mainViewModel, settings: settings)
+        case .battle:
+            // バトルシーンは将来実装予定（UIで無効化中）
+            return generatePlaceholderYAML(outputType: .sceneBuilder, templateName: "05_scene_battle.yaml")
+        case .bossRaid:
+            // ボスレイドは将来実装予定（UIで無効化中）
+            return generatePlaceholderYAML(outputType: .sceneBuilder, templateName: "05_scene_bossraid.yaml")
+        }
+    }
+
+    /// ストーリーシーンYAML生成
+    @MainActor
+    private func generateStorySceneYAML(
+        mainViewModel: MainViewModel,
+        settings: SceneBuilderSettingsViewModel
+    ) -> String {
+        let variables = buildStorySceneVariables(mainViewModel: mainViewModel, settings: settings)
+        return templateEngine.render(templateName: "05_scene_story.yaml", variables: variables)
+    }
+
+    /// ストーリーシーン用の変数辞書を構築
+    @MainActor
+    private func buildStorySceneVariables(
+        mainViewModel: MainViewModel,
+        settings: SceneBuilderSettingsViewModel
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        // 雰囲気の値を取得（カスタムの場合は入力値を使用）
+        let lightingMood: String
+        if settings.storyLightingMood == .custom {
+            lightingMood = settings.storyCustomMood
+        } else {
+            lightingMood = settings.storyLightingMood.englishValue
+        }
+
+        // レイアウトの値を取得（カスタムの場合は入力値を使用）
+        let layoutType: String
+        if settings.storyLayout == .custom {
+            layoutType = settings.storyCustomLayout
+        } else {
+            layoutType = settings.storyLayout.englishValue
+        }
+
+        var variables: [String: String] = [
+            // ヘッダーパーシャル用
+            "header_comment": "Story Scene Composition (シーンビルダー - ストーリー)",
+            "type": "scene_composition",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // 背景設定
+            "background_source_type": settings.backgroundSourceType.rawValue,
+            "background_image": YAMLUtilities.getFileName(from: settings.backgroundImagePath),
+            "background_description": settings.backgroundDescription,
+            "blur_amount": String(Int(settings.storyBlurAmount)),
+            "lighting_mood": lightingMood,
+
+            // 配置設定
+            "layout_type": layoutType,
+            "distance": settings.storyDistance.englishValue,
+
+            // キャラクター数
+            "character_count": String(settings.storyCharacterCount.intValue),
+
+            // ナレーション
+            "narration": settings.storyNarration
+        ]
+
+        // キャラクター別の変数を追加（1〜5人分）
+        let characterCount = settings.storyCharacterCount.intValue
+        for i in 0..<5 {
+            let charIndex = i + 1
+            if i < characterCount && i < settings.storyCharacters.count {
+                let character = settings.storyCharacters[i]
+                variables["character_\(charIndex)_image"] = YAMLUtilities.getFileName(from: character.imagePath)
+                variables["character_\(charIndex)_expression"] = character.expression
+                variables["character_\(charIndex)_traits"] = character.traits
+                // セリフ
+                if i < settings.storyDialogues.count {
+                    variables["character_\(charIndex)_dialogue"] = settings.storyDialogues[i]
+                } else {
+                    variables["character_\(charIndex)_dialogue"] = ""
+                }
+            } else {
+                // 使用しないキャラクターは空文字列
+                variables["character_\(charIndex)_image"] = ""
+                variables["character_\(charIndex)_expression"] = ""
+                variables["character_\(charIndex)_traits"] = ""
+                variables["character_\(charIndex)_dialogue"] = ""
+            }
+        }
+
+        // 装飾テキストオーバーレイセクションを動的生成
+        variables["text_overlay_section"] = generateTextOverlaySection(items: settings.textOverlayItems)
+
+        return variables
+    }
+
+    /// 装飾テキストオーバーレイセクションを動的生成
+    private func generateTextOverlaySection(items: [TextOverlayItem]) -> String {
+        guard !items.isEmpty else {
+            return ""  // アイテムがない場合はセクション自体を出力しない
+        }
+
+        var itemsYaml = ""
+        for item in items {
+            let imageName = YAMLUtilities.getFileName(from: item.imagePath)
+            itemsYaml += """
+
+    - source_image: "\(imageName)"
+      position: "\(item.position)"
+      scale: "\(item.size)"
+      layer: "\(item.layer.englishValue)"
+"""
+        }
+
+        return """
+# ====================================================
+# Decorative Text Overlays
+# ====================================================
+decorative_text_overlays:
+  enabled: true
+  items:\(itemsYaml)
+
+"""
     }
 
     // MARK: - Placeholder

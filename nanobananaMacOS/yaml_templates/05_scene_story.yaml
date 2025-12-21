@@ -17,8 +17,78 @@ input:
 
   # キャラクター設定
   character_count: {{character_count}}
-  # ※キャラクター詳細（character_1〜5）は生成時に動的追加
+
+  character_1:
+    image: "{{character_1_image}}"
+    expression: "{{character_1_expression}}"
+    traits: "{{character_1_traits}}"
+    dialogue: "{{character_1_dialogue}}"
+
+  character_2:
+    image: "{{character_2_image}}"
+    expression: "{{character_2_expression}}"
+    traits: "{{character_2_traits}}"
+    dialogue: "{{character_2_dialogue}}"
+
+  character_3:
+    image: "{{character_3_image}}"
+    expression: "{{character_3_expression}}"
+    traits: "{{character_3_traits}}"
+    dialogue: "{{character_3_dialogue}}"
+
+  character_4:
+    image: "{{character_4_image}}"
+    expression: "{{character_4_expression}}"
+    traits: "{{character_4_traits}}"
+    dialogue: "{{character_4_dialogue}}"
+
+  character_5:
+    image: "{{character_5_image}}"
+    expression: "{{character_5_expression}}"
+    traits: "{{character_5_traits}}"
+    dialogue: "{{character_5_dialogue}}"
 
   # テキスト
   narration: "{{narration}}"
-  # ※セリフ（character_1_dialogue〜）は生成時に動的追加
+
+{{text_overlay_section}}
+# ====================================================
+# Output
+# ====================================================
+output:
+  format: "scene_illustration"
+  background: "as specified in input"
+  characters: "positioned according to layout_type"
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  character_preservation:
+    - "Preserve exact character design from each character image"
+    - "Maintain clothing and accessories from character images"
+    - "Apply specified expressions to each character"
+  layout:
+    - "Position characters according to layout_type specification"
+    - "Maintain distance relationship as specified"
+  background:
+    - "Use background image or generate from description"
+    - "Apply blur effect as specified"
+    - "Apply lighting mood to entire scene"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT alter character designs from input images"
+  - "Do NOT add characters not specified in input"
+  - "Do NOT change background if image is provided"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the scene illustration - nothing else"
+  - "Do NOT add any text, titles, labels, or annotations unless specified in narration/dialogue"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "The output must contain ONLY the composed scene"
