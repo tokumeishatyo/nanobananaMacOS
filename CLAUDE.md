@@ -385,11 +385,11 @@ Python版にあった「同一性保持」スライダーはUIから削除。
 - [ ] 漫画コンポーザー
 - [ ] 背景透過ツール
 
-## 現在進行中：テンプレートエンジン リファクタリング
+## テンプレートエンジン リファクタリング ✅ 完了
 
 ### 背景
 
-従来のYAML生成は各ジェネレーター（10ファイル、約680行のOutfitSheetYAMLGeneratorなど）にYAML構造がハードコーディングされていた。Windows移植も見据え、テンプレートファイルとコードを分離するリファクタリングを実施中。
+従来のYAML生成は各ジェネレーター（10ファイル、約680行のOutfitSheetYAMLGeneratorなど）にYAML構造がハードコーディングされていた。Windows移植も見据え、テンプレートファイルとコードを分離するリファクタリングを実施。
 
 ### ブランチ構成
 
@@ -408,7 +408,7 @@ Python版にあった「同一性保持」スライダーはUIから削除。
 - [x] 旧設計ドキュメント移動（docs/旧/フォルダへ14ファイル）
 - [x] 新設計ドキュメント作成（docs/実装設計_新顔三面図.md）
 
-**Phase 2: 新テンプレートエンジン実装（進行中）**
+**Phase 2: 新テンプレートエンジン実装 ✅ 完了**
 - [x] TemplateEngine.swift新規作成
   - テンプレートファイル読み込み（バンドルリソース優先）
   - パーシャル展開（`{{> header param="value"}}`）
@@ -416,11 +416,18 @@ Python版にあった「同一性保持」スライダーはUIから削除。
   - 空白値フィールド削除（`key: ""` → 行削除、空セクション削除）
 - [x] yaml_templatesフォルダをnanobananaMacOS/内に移動
 - [x] Xcodeプロジェクト設定（Copy Bundle Resources）
-- [x] 顔三面図（01_face_sheet.yaml）実装・動作確認完了
 - [x] authorデフォルト値を空欄に変更（"Unknown" → ""）
-- [ ] 素体三面図（02_body_sheet.yaml）
-- [ ] 衣装着用（03_outfit_preset/reference.yaml）
-- [ ] 他の出力タイプを順次対応
+- [x] 顔三面図（01_face_sheet.yaml）
+- [x] 素体三面図（02_body_sheet.yaml）
+- [x] 衣装着用（03_outfit_preset.yaml / 03_outfit_reference.yaml）
+- [x] ポーズ（04_pose_preset.yaml / 04_pose_capture.yaml）
+- [x] シーンビルダー - ストーリー（05_scene_story.yaml）※バトル・ボスレイドは後日
+- [x] 背景生成（06_background.yaml）
+- [x] 装飾テキスト（07_decorative_text.yaml）
+- [x] 4コマ漫画（08_four_panel.yaml）
+- [x] スタイル変換（09_style_transform.yaml）
+- [x] インフォグラフィック（10_infographic.yaml）
+- **✅ 全10種類のテンプレートエンジン実装完了**
 
 ### テンプレートファイル
 
@@ -439,9 +446,9 @@ Python版にあった「同一性保持」スライダーはUIから削除。
 
 ## 旧情報（参考）
 
-### YAML生成機能 ✅ 旧実装完了（削除済み）
+### YAML生成機能 ✅ テンプレートエンジン方式で再実装完了
 
-全10種類のYAML生成機能の旧実装は削除済み。テンプレートエンジン方式で再実装中。
+全10種類のYAML生成機能をテンプレートエンジン方式で再実装完了。
 
 ### 残りの実装タスク
 
