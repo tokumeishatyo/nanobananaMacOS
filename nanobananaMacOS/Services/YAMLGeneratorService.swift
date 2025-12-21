@@ -50,7 +50,7 @@ final class YAMLGeneratorService {
             return generateFourPanelYAML(mainViewModel: mainViewModel)
 
         case .styleTransform:
-            return generatePlaceholderYAML(outputType: outputType, templateName: "09_style_transform.yaml")
+            return generateStyleTransformYAML(mainViewModel: mainViewModel)
 
         case .infographic:
             return generatePlaceholderYAML(outputType: outputType, templateName: "10_infographic.yaml")
@@ -806,6 +806,65 @@ decorative_text_overlays:
         return variables
     }
 
+    // MARK: - Style Transform YAML Generation
+
+    /// スタイル変換YAML生成
+    @MainActor
+    private func generateStyleTransformYAML(mainViewModel: MainViewModel) -> String {
+        guard let settings = mainViewModel.styleTransformSettings else {
+            return "# Error: スタイル変換の設定がありません"
+        }
+
+        let variables = buildStyleTransformVariables(mainViewModel: mainViewModel, settings: settings)
+        return templateEngine.render(templateName: "09_style_transform.yaml", variables: variables)
+    }
+
+    /// スタイル変換用の変数辞書を構築
+    @MainActor
+    private func buildStyleTransformVariables(
+        mainViewModel: MainViewModel,
+        settings: StyleTransformSettingsViewModel
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        // 背景設定
+        let background = settings.transparentBackground ? "transparent" : "white"
+
+        return [
+            // ヘッダーパーシャル用
+            "header_comment": "Style Transform (スタイル変換)",
+            "type": "style_transform",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // 共通
+            "source_image": YAMLUtilities.getFileName(from: settings.sourceImagePath),
+            "style_type": settings.transformType.yamlValue,
+            "transparent_background": settings.transparentBackground ? "true" : "false",
+            "background": background,
+
+            // ちびキャラ化用
+            "chibi_style": settings.chibiStyle.prompt,
+
+            // ドットキャラ化用
+            "pixel_style": settings.pixelStyle.prompt,
+            "pixel_sprite_size": settings.spriteSize.prompt
+        ]
+    }
+
     // MARK: - Placeholder
 
     /// 未実装の出力タイプ用プレースホルダー
@@ -1184,6 +1243,20 @@ extension SpeechCharacter {
             return settings.character2Name.isEmpty ? "キャラ2" : settings.character2Name
         case .none:
             return ""
+        }
+    }
+}
+
+// MARK: - Style Transform Enum Extensions
+
+extension StyleTransformType {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .chibi:
+            return "chibi"
+        case .pixel:
+            return "pixel"
         }
     }
 }
