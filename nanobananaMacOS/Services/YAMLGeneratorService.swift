@@ -35,10 +35,7 @@ final class YAMLGeneratorService {
             return generateOutfitYAML(mainViewModel: mainViewModel)
 
         case .pose:
-            // ポーズは2種類のテンプレートがある
-            let useCapture = mainViewModel.poseSettings?.usePoseCapture ?? false
-            let templateName = useCapture ? "04_pose_capture.yaml" : "04_pose_preset.yaml"
-            return generatePlaceholderYAML(outputType: outputType, templateName: templateName)
+            return generatePoseYAML(mainViewModel: mainViewModel)
 
         case .sceneBuilder:
             return generatePlaceholderYAML(outputType: outputType, templateName: "05_scene_story.yaml")
@@ -309,6 +306,136 @@ final class YAMLGeneratorService {
             "fit_mode": settings.fitMode,
             "include_headwear": settings.includeHeadwear ? "true" : "false",
             "additional_notes": YAMLUtilities.convertNewlinesToComma(settings.additionalDescription)
+        ]
+    }
+
+    // MARK: - Pose YAML Generation
+
+    /// ポーズYAML生成（モード分岐）
+    @MainActor
+    private func generatePoseYAML(mainViewModel: MainViewModel) -> String {
+        guard let settings = mainViewModel.poseSettings else {
+            return "# Error: ポーズの設定がありません"
+        }
+
+        if settings.usePoseCapture {
+            return generatePoseCaptureYAML(mainViewModel: mainViewModel, settings: settings)
+        } else {
+            return generatePosePresetYAML(mainViewModel: mainViewModel, settings: settings)
+        }
+    }
+
+    /// ポーズYAML生成（プリセットモード）
+    @MainActor
+    private func generatePosePresetYAML(
+        mainViewModel: MainViewModel,
+        settings: PoseSettingsViewModel
+    ) -> String {
+        let variables = buildPosePresetVariables(mainViewModel: mainViewModel, settings: settings)
+        return templateEngine.render(templateName: "04_pose_preset.yaml", variables: variables)
+    }
+
+    /// ポーズYAML生成（キャプチャモード）
+    @MainActor
+    private func generatePoseCaptureYAML(
+        mainViewModel: MainViewModel,
+        settings: PoseSettingsViewModel
+    ) -> String {
+        let variables = buildPoseCaptureVariables(mainViewModel: mainViewModel, settings: settings)
+        return templateEngine.render(templateName: "04_pose_capture.yaml", variables: variables)
+    }
+
+    /// プリセットモード用の変数辞書を構築
+    @MainActor
+    private func buildPosePresetVariables(
+        mainViewModel: MainViewModel,
+        settings: PoseSettingsViewModel
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        // 表情プロンプト生成（補足があれば追加）
+        var expressionPrompt = settings.expression.prompt
+        let expressionDetail = settings.expressionDetail.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !expressionDetail.isEmpty {
+            expressionPrompt = "\(expressionPrompt), \(expressionDetail)"
+        }
+
+        return [
+            // ヘッダーパーシャル用
+            "header_comment": "Pose Image (ポーズ画像 - プリセット)",
+            "type": "pose_single",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // ポーズ固有（プリセット）
+            "character_sheet": YAMLUtilities.getFileName(from: settings.outfitSheetImagePath),
+            "eye_line": settings.eyeLine.yamlValue,
+            "expression": expressionPrompt,
+            "expression_detail": expressionDetail,
+            "action_description": settings.actionDescription,
+            "include_effects": settings.includeEffects ? "true" : "false",
+            "wind_effect": settings.windEffect.prompt,
+            "transparent_background": settings.transparentBackground ? "true" : "false"
+        ]
+    }
+
+    /// キャプチャモード用の変数辞書を構築
+    @MainActor
+    private func buildPoseCaptureVariables(
+        mainViewModel: MainViewModel,
+        settings: PoseSettingsViewModel
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        // 表情プロンプト生成（補足があれば追加）
+        var expressionPrompt = settings.expression.prompt
+        let expressionDetail = settings.expressionDetail.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !expressionDetail.isEmpty {
+            expressionPrompt = "\(expressionPrompt), \(expressionDetail)"
+        }
+
+        return [
+            // ヘッダーパーシャル用
+            "header_comment": "Pose Image (ポーズ画像 - キャプチャ)",
+            "type": "pose_single",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // ポーズ固有（キャプチャ）
+            "pose_reference": YAMLUtilities.getFileName(from: settings.poseReferenceImagePath),
+            "character_sheet": YAMLUtilities.getFileName(from: settings.outfitSheetImagePath),
+            "eye_line": settings.eyeLine.yamlValue,
+            "expression": expressionPrompt,
+            "expression_detail": expressionDetail,
+            "include_effects": settings.includeEffects ? "true" : "false",
+            "wind_effect": settings.windEffect.prompt,
+            "transparent_background": settings.transparentBackground ? "true" : "false"
         ]
     }
 
@@ -626,6 +753,22 @@ extension OutfitFashionStyle {
             return "dandy"
         case .casual:
             return "casual"
+        }
+    }
+}
+
+// MARK: - Pose Enum Extensions
+
+extension EyeLine {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .front:
+            return "looking straight ahead"
+        case .up:
+            return "looking up"
+        case .down:
+            return "looking down"
         }
     }
 }
