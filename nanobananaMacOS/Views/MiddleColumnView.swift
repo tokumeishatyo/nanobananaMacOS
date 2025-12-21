@@ -128,13 +128,23 @@ struct MiddleColumnView: View {
 
                         // 画像生成ボタン
                         Button(action: viewModel.generateImageWithAPI) {
-                            Text("画像生成（API）")
-                                .frame(maxWidth: .infinity)
+                            HStack {
+                                if viewModel.isGenerating {
+                                    ProgressView()
+                                        .progressViewStyle(.circular)
+                                        .scaleEffect(0.8)
+                                        .padding(.trailing, 4)
+                                    Text("生成中...")
+                                } else {
+                                    Text("画像生成（API）")
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.green)
                         .controlSize(.large)
-                        .disabled(!viewModel.isAPIGenerateButtonEnabled)
+                        .disabled(!viewModel.isAPIGenerateButtonEnabled || viewModel.isGenerating)
                         .padding(.horizontal, 10)
                         .padding(.top, 10)
                     }

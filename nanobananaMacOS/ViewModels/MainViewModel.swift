@@ -2,6 +2,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import UniformTypeIdentifiers
 
 /// メイン画面のViewModel
 @MainActor
@@ -523,14 +524,102 @@ final class MainViewModel: ObservableObject {
 
     /// 参考画像を選択
     func browseReferenceImage() {
-        // TODO: 機能実装時に追加
-        print("参考画像選択")
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        panel.allowedContentTypes = [.image]
+        panel.message = "参考画像を選択してください"
+
+        if panel.runModal() == .OK, let url = panel.url {
+            referenceImagePath = url.path
+            // プレビュー用に画像を読み込み
+            if let image = NSImage(contentsOf: url) {
+                referenceImagePreview = image
+            }
+        }
     }
 
     /// 画像生成（API）
     func generateImageWithAPI() {
-        // TODO: 機能実装時に追加
-        print("画像生成（API）")
+        // 生成中なら何もしない
+        guard !isGenerating else { return }
+
+        // バリデーション
+        guard !apiKey.isEmpty else {
+            showErrorAlert(message: "APIキーを入力してください")
+            return
+        }
+
+        // モードに応じたバリデーション
+        let prompt: String
+        switch selectedAPISubMode {
+        case .simple:
+            guard !simplePrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                showErrorAlert(message: "プロンプトを入力してください")
+                return
+            }
+            prompt = simplePrompt
+        case .redraw:
+            guard !yamlPreviewText.isEmpty else {
+                showErrorAlert(message: "YAMLを生成または読み込んでください")
+                return
+            }
+            guard !referenceImagePath.isEmpty else {
+                showErrorAlert(message: "参考画像を選択してください")
+                return
+            }
+            prompt = yamlPreviewText
+        case .normal:
+            guard !yamlPreviewText.isEmpty else {
+                showErrorAlert(message: "YAMLを生成または読み込んでください")
+                return
+            }
+            prompt = yamlPreviewText
+        }
+
+        // 生成開始
+        isGenerating = true
+        generationStartTime = Date()
+        errorMessage = nil
+
+        Task {
+            // 参考画像の読み込み
+            var compositionImage: NSImage? = nil
+            if !referenceImagePath.isEmpty,
+               (selectedAPISubMode == .redraw || selectedAPISubMode == .simple) {
+                compositionImage = NSImage(contentsOfFile: referenceImagePath)
+            }
+
+            // API呼び出し
+            let result = await GeminiAPIService.shared.generateImage(
+                apiKey: apiKey,
+                prompt: prompt,
+                characterImages: [],  // TODO: キャラクター参照画像の対応
+                compositionImage: compositionImage,
+                resolution: selectedResolution,
+                aspectRatio: selectedAspectRatio.yamlValue,
+                mode: selectedAPISubMode.toAPIMode
+            )
+
+            // 結果の処理
+            isGenerating = false
+            generationStartTime = nil
+
+            if result.success, let image = result.image {
+                generatedImage = image
+                incrementUsageCount()
+                showSuccessAlert(message: "画像を生成しました")
+            } else if let error = result.error {
+                showErrorAlert(message: error.errorDescription ?? "不明なエラー")
+            }
+        }
+    }
+
+    /// 使用回数をインクリメント
+    private func incrementUsageCount() {
+        todayUsageCount += 1
+        monthlyUsageCount += 1
     }
 
     /// YAMLをコピー
