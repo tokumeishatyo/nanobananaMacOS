@@ -44,7 +44,7 @@ final class YAMLGeneratorService {
             return generateBackgroundYAML(mainViewModel: mainViewModel)
 
         case .decorativeText:
-            return generatePlaceholderYAML(outputType: outputType, templateName: "07_decorative_text.yaml")
+            return generateDecorativeTextYAML(mainViewModel: mainViewModel)
 
         case .fourPanelManga:
             return generatePlaceholderYAML(outputType: outputType, templateName: "08_four_panel.yaml")
@@ -646,6 +646,98 @@ decorative_text_overlays:
         ]
     }
 
+    // MARK: - Decorative Text YAML Generation
+
+    /// 装飾テキストYAML生成
+    @MainActor
+    private func generateDecorativeTextYAML(mainViewModel: MainViewModel) -> String {
+        guard let settings = mainViewModel.decorativeTextSettings else {
+            return "# Error: 装飾テキストの設定がありません"
+        }
+
+        let variables = buildDecorativeTextVariables(mainViewModel: mainViewModel, settings: settings)
+        return templateEngine.render(templateName: "07_decorative_text.yaml", variables: variables)
+    }
+
+    /// 装飾テキスト用の変数辞書を構築
+    @MainActor
+    private func buildDecorativeTextVariables(
+        mainViewModel: MainViewModel,
+        settings: DecorativeTextSettingsViewModel
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        // 背景設定
+        let background = settings.transparentBackground ? "transparent" : "white"
+
+        // 縁取り有効判定
+        let outlineEnabled = settings.titleOutline != .none
+
+        // 顔アイコン有効判定
+        let faceIconEnabled = settings.faceIconPosition != .none
+
+        var variables: [String: String] = [
+            // ヘッダーパーシャル用
+            "header_comment": "Decorative Text (装飾テキスト)",
+            "type": "decorative_text",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // 共通
+            "decorative_type": settings.textType.yamlValue,
+            "transparent_background": settings.transparentBackground ? "true" : "false",
+            "text": settings.text,
+            "background": background,
+            "ui_preset": settings.textType.uiPreset,
+
+            // 技名テロップ用
+            "skill_font_type": settings.titleFont.rawValue,
+            "skill_size": settings.titleSize.rawValue,
+            "skill_fill_color": settings.titleColor.rawValue,
+            "skill_outline_enabled": outlineEnabled ? "true" : "false",
+            "skill_outline_color": settings.titleOutline.rawValue,
+            "skill_outline_thickness": "thick",
+            "skill_glow_effect": settings.titleGlow.rawValue,
+
+            // 決め台詞用
+            "catchphrase_type": settings.calloutType.rawValue,
+            "catchphrase_color": settings.calloutColor.rawValue,
+            "catchphrase_rotation": settings.calloutRotation.rawValue,
+            "catchphrase_distortion": settings.calloutDistortion.rawValue,
+
+            // キャラ名プレート用
+            "nameplate_design_type": settings.nameTagDesign.rawValue,
+            "nameplate_rotation": settings.nameTagRotation.rawValue,
+
+            // メッセージウィンドウ用
+            "message_mode": settings.messageMode.rawValue,
+            "message_speaker_name": settings.speakerName,
+            "message_style_preset": settings.messageStyle.rawValue,
+            "message_position": "bottom",
+            "message_width": "full",
+            "message_frame_type": settings.messageFrameType.rawValue,
+            "message_background_opacity": String(settings.messageOpacity),
+            "message_face_icon_enabled": faceIconEnabled ? "true" : "false",
+            "message_face_icon_source": YAMLUtilities.getFileName(from: settings.faceIconImagePath),
+            "message_face_icon_position": settings.faceIconPosition.rawValue
+        ]
+
+        return variables
+    }
+
     // MARK: - Placeholder
 
     /// 未実装の出力タイプ用プレースホルダー
@@ -976,6 +1068,38 @@ extension EyeLine {
             return "looking up"
         case .down:
             return "looking down"
+        }
+    }
+}
+
+// MARK: - Decorative Text Enum Extensions
+
+extension DecorativeTextType {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .skillName:
+            return "skill"
+        case .catchphrase:
+            return "catchphrase"
+        case .namePlate:
+            return "nameplate"
+        case .messageWindow:
+            return "message"
+        }
+    }
+
+    /// UIプリセット値
+    var uiPreset: String {
+        switch self {
+        case .skillName:
+            return "Anime Battle"
+        case .catchphrase:
+            return "Anime Battle"
+        case .namePlate:
+            return "Character Name Plate"
+        case .messageWindow:
+            return "Message Window"
         }
     }
 }
