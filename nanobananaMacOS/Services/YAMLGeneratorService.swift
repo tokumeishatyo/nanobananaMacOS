@@ -29,7 +29,7 @@ final class YAMLGeneratorService {
             return generateFaceSheetYAML(mainViewModel: mainViewModel)
 
         case .bodySheet:
-            return generatePlaceholderYAML(outputType: outputType, templateName: "02_body_sheet.yaml")
+            return generateBodySheetYAML(mainViewModel: mainViewModel)
 
         case .outfit:
             // 衣装着用は2種類のテンプレートがある
@@ -133,6 +133,62 @@ final class YAMLGeneratorService {
             // 作者名なし: タイトルのみtop-center
             return ("top-center", "medium", "", "")
         }
+    }
+
+    // MARK: - Body Sheet YAML Generation
+
+    /// 素体三面図YAML生成
+    @MainActor
+    private func generateBodySheetYAML(mainViewModel: MainViewModel) -> String {
+        guard let settings = mainViewModel.bodySheetSettings else {
+            return "# Error: 素体三面図の設定がありません"
+        }
+
+        // 変数辞書を構築
+        let variables = buildBodySheetVariables(mainViewModel: mainViewModel, settings: settings)
+
+        // テンプレートをレンダリング
+        return templateEngine.render(templateName: "02_body_sheet.yaml", variables: variables)
+    }
+
+    /// 素体三面図用の変数辞書を構築
+    @MainActor
+    private func buildBodySheetVariables(
+        mainViewModel: MainViewModel,
+        settings: BodySheetSettingsViewModel
+    ) -> [String: String] {
+        // 作者名の処理（空欄の場合はそのまま空欄）
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // title_overlay設定
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        return [
+            // ヘッダーパーシャル用
+            "header_comment": "Body Reference Sheet (素体三面図)",
+            "type": "character_design",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // 素体三面図固有
+            "face_sheet": YAMLUtilities.getFileName(from: settings.faceSheetImagePath),
+            "body_type": settings.bodyTypePreset.yamlValue,
+            "bust": settings.bustFeature.yamlValue,
+            "render_type": settings.bodyRenderType.yamlValue,
+            "additional_notes": YAMLUtilities.convertNewlinesToComma(settings.additionalDescription)
+        ]
     }
 
     // MARK: - Placeholder
@@ -262,3 +318,61 @@ extension OutputStyle {
 }
 
 // Note: AspectRatio.yamlValue is defined in DropdownOptions.swift
+
+// MARK: - Body Sheet Enum Extensions
+
+extension BodyTypePreset {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .femalStandard:
+            return "female_standard"
+        case .maleStandard:
+            return "male_standard"
+        case .slim:
+            return "slim"
+        case .muscular:
+            return "muscular"
+        case .chubby:
+            return "chubby"
+        case .petite:
+            return "petite"
+        case .tall:
+            return "tall"
+        case .short:
+            return "short"
+        }
+    }
+}
+
+extension BustFeature {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .auto:
+            return "auto"
+        case .small:
+            return "small"
+        case .normal:
+            return "normal"
+        case .large:
+            return "large"
+        }
+    }
+}
+
+extension BodyRenderType {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .silhouette:
+            return "silhouette"
+        case .whiteLeotard:
+            return "white_leotard"
+        case .whiteUnderwear:
+            return "white_underwear"
+        case .anatomical:
+            return "anatomical"
+        }
+    }
+}
