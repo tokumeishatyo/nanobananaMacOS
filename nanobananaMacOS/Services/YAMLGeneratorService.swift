@@ -32,10 +32,7 @@ final class YAMLGeneratorService {
             return generateBodySheetYAML(mainViewModel: mainViewModel)
 
         case .outfit:
-            // 衣装着用は2種類のテンプレートがある
-            let usePreset = mainViewModel.outfitSettings?.useOutfitBuilder ?? true
-            let templateName = usePreset ? "03_outfit_preset.yaml" : "03_outfit_reference.yaml"
-            return generatePlaceholderYAML(outputType: outputType, templateName: templateName)
+            return generateOutfitYAML(mainViewModel: mainViewModel)
 
         case .pose:
             // ポーズは2種類のテンプレートがある
@@ -187,6 +184,130 @@ final class YAMLGeneratorService {
             "body_type": settings.bodyTypePreset.yamlValue,
             "bust": settings.bustFeature.yamlValue,
             "render_type": settings.bodyRenderType.yamlValue,
+            "additional_notes": YAMLUtilities.convertNewlinesToComma(settings.additionalDescription)
+        ]
+    }
+
+    // MARK: - Outfit YAML Generation
+
+    /// 衣装着用YAML生成（モード分岐）
+    @MainActor
+    private func generateOutfitYAML(mainViewModel: MainViewModel) -> String {
+        guard let settings = mainViewModel.outfitSettings else {
+            return "# Error: 衣装着用の設定がありません"
+        }
+
+        if settings.useOutfitBuilder {
+            return generateOutfitPresetYAML(mainViewModel: mainViewModel, settings: settings)
+        } else {
+            return generateOutfitReferenceYAML(mainViewModel: mainViewModel, settings: settings)
+        }
+    }
+
+    /// 衣装着用YAML生成（プリセットモード）
+    @MainActor
+    private func generateOutfitPresetYAML(
+        mainViewModel: MainViewModel,
+        settings: OutfitSettingsViewModel
+    ) -> String {
+        let variables = buildOutfitPresetVariables(mainViewModel: mainViewModel, settings: settings)
+        return templateEngine.render(templateName: "03_outfit_preset.yaml", variables: variables)
+    }
+
+    /// 衣装着用YAML生成（参考画像モード）
+    @MainActor
+    private func generateOutfitReferenceYAML(
+        mainViewModel: MainViewModel,
+        settings: OutfitSettingsViewModel
+    ) -> String {
+        let variables = buildOutfitReferenceVariables(mainViewModel: mainViewModel, settings: settings)
+        return templateEngine.render(templateName: "03_outfit_reference.yaml", variables: variables)
+    }
+
+    /// プリセットモード用の変数辞書を構築
+    @MainActor
+    private func buildOutfitPresetVariables(
+        mainViewModel: MainViewModel,
+        settings: OutfitSettingsViewModel
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        // プロンプトを構築（カテゴリ+形状+色+柄+スタイルを結合）
+        let promptParts = [
+            settings.outfitCategory.yamlValue,
+            settings.outfitShape,
+            settings.outfitColor.yamlValue,
+            settings.outfitPattern.yamlValue,
+            settings.outfitStyle.yamlValue
+        ].filter { $0 != "auto" && $0 != "おまかせ" && !$0.isEmpty }
+        let prompt = promptParts.joined(separator: ", ")
+
+        return [
+            // ヘッダーパーシャル用
+            "header_comment": "Outfit Reference Sheet (衣装着用 - プリセット)",
+            "type": "character_design",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // 衣装着用固有（プリセット）
+            "body_sheet": YAMLUtilities.getFileName(from: settings.bodySheetImagePath),
+            "category": settings.outfitCategory.yamlValue,
+            "shape": settings.outfitShape,
+            "color": settings.outfitColor.yamlValue,
+            "pattern": settings.outfitPattern.yamlValue,
+            "style_impression": settings.outfitStyle.yamlValue,
+            "prompt": prompt,
+            "additional_notes": YAMLUtilities.convertNewlinesToComma(settings.additionalDescription)
+        ]
+    }
+
+    /// 参考画像モード用の変数辞書を構築
+    @MainActor
+    private func buildOutfitReferenceVariables(
+        mainViewModel: MainViewModel,
+        settings: OutfitSettingsViewModel
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        return [
+            // ヘッダーパーシャル用
+            "header_comment": "Outfit Reference Sheet (衣装着用 - 参考画像)",
+            "type": "character_design",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // 衣装着用固有（参考画像）
+            "body_sheet": YAMLUtilities.getFileName(from: settings.bodySheetImagePath),
+            "outfit_reference": YAMLUtilities.getFileName(from: settings.referenceOutfitImagePath),
+            "description": YAMLUtilities.convertNewlinesToComma(settings.referenceDescription),
+            "fit_mode": settings.fitMode,
+            "include_headwear": settings.includeHeadwear ? "true" : "false",
             "additional_notes": YAMLUtilities.convertNewlinesToComma(settings.additionalDescription)
         ]
     }
@@ -373,6 +494,138 @@ extension BodyRenderType {
             return "white_underwear"
         case .anatomical:
             return "anatomical"
+        }
+    }
+}
+
+// MARK: - Outfit Enum Extensions
+
+extension OutfitCategory {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .auto:
+            return "auto"
+        case .model:
+            return "model"
+        case .suit:
+            return "suit"
+        case .swimsuit:
+            return "swimsuit"
+        case .casual:
+            return "casual"
+        case .uniform:
+            return "uniform"
+        case .formal:
+            return "formal"
+        case .sports:
+            return "sports"
+        case .japanese:
+            return "japanese"
+        case .workwear:
+            return "workwear"
+        }
+    }
+}
+
+extension OutfitColor {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .auto:
+            return "auto"
+        case .black:
+            return "black"
+        case .white:
+            return "white"
+        case .navy:
+            return "navy"
+        case .red:
+            return "red"
+        case .pink:
+            return "pink"
+        case .blue:
+            return "blue"
+        case .lightBlue:
+            return "light_blue"
+        case .green:
+            return "green"
+        case .yellow:
+            return "yellow"
+        case .orange:
+            return "orange"
+        case .purple:
+            return "purple"
+        case .beige:
+            return "beige"
+        case .gray:
+            return "gray"
+        case .gold:
+            return "gold"
+        case .silver:
+            return "silver"
+        }
+    }
+}
+
+extension OutfitPattern {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .auto:
+            return "auto"
+        case .solid:
+            return "solid"
+        case .stripe:
+            return "stripe"
+        case .check:
+            return "check"
+        case .floral:
+            return "floral"
+        case .dot:
+            return "dot"
+        case .border:
+            return "border"
+        case .tropical:
+            return "tropical"
+        case .lace:
+            return "lace"
+        case .camouflage:
+            return "camouflage"
+        case .animal:
+            return "animal"
+        }
+    }
+}
+
+extension OutfitFashionStyle {
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .auto:
+            return "auto"
+        case .mature:
+            return "mature"
+        case .cute:
+            return "cute"
+        case .sexy:
+            return "sexy"
+        case .cool:
+            return "cool"
+        case .modest:
+            return "modest"
+        case .sporty:
+            return "sporty"
+        case .gorgeous:
+            return "gorgeous"
+        case .wild:
+            return "wild"
+        case .intellectual:
+            return "intellectual"
+        case .dandy:
+            return "dandy"
+        case .casual:
+            return "casual"
         }
     }
 }
