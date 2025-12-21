@@ -1,3 +1,4 @@
+// rule.mdを読むこと
 import SwiftUI
 
 /// 中央カラム: API設定

@@ -1,3 +1,4 @@
+// rule.mdを読むこと
 import SwiftUI
 
 /// 右カラム: YAMLプレビュー・画像プレビュー

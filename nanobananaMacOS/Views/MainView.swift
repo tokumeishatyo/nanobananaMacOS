@@ -1,3 +1,4 @@
+// rule.mdを読むこと
 import SwiftUI
 
 /// メイン画面: 3カラムレイアウト

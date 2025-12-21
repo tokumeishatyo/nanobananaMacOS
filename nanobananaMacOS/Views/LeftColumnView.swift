@@ -1,3 +1,4 @@
+// rule.mdを読むこと
 import SwiftUI
 
 /// 左カラム: 基本設定

@@ -1,3 +1,4 @@
+// rule.mdを読むこと
 import Foundation
 
 /// バリデーション結果

@@ -1,3 +1,4 @@
+// rule.mdを読むこと
 //
 //  nanobananaMacOSApp.swift
 //  nanobananaMacOS
