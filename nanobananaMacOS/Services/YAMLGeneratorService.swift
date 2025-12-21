@@ -529,7 +529,8 @@ final class YAMLGeneratorService {
             "character_count": String(settings.storyCharacterCount.intValue),
 
             // ナレーション
-            "narration": settings.storyNarration
+            "narration": settings.storyNarration,
+            "narration_position": settings.storyNarrationPosition.yamlValue
         ]
 
         // キャラクター別の変数を追加（1〜5人分）
@@ -681,7 +682,7 @@ decorative_text_overlays:
         // 顔アイコン有効判定
         let faceIconEnabled = settings.faceIconPosition != .none
 
-        var variables: [String: String] = [
+        let variables: [String: String] = [
             // ヘッダーパーシャル用
             "header_comment": "Decorative Text (装飾テキスト)",
             "type": "decorative_text",
@@ -936,6 +937,22 @@ decorative_text_overlays:
         }
 
         return variables
+    }
+
+    // MARK: - Placeholder
+
+    /// 未実装の出力タイプ用プレースホルダー
+    private func generatePlaceholderYAML(outputType: OutputType, templateName: String) -> String {
+        return """
+        # ====================================================
+        # \(outputType.rawValue) - 実装予定
+        # ====================================================
+        # テンプレート: \(templateName)
+        #
+        # この出力タイプは実装予定です。
+        # yaml_templates/\(templateName) を使用します。
+        # ====================================================
+        """
     }
 }
 

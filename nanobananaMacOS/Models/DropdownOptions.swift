@@ -676,6 +676,39 @@ enum CharacterCount: String, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - Narration Position
+/// ナレーション位置（ストーリーシーン用）
+enum NarrationPosition: String, CaseIterable, Identifiable {
+    case topHorizontal = "画面上部(横書き)"
+    case bottomHorizontal = "画面下部(横書き)"
+    case leftVertical = "画面左(縦書き)"
+    case rightVertical = "画面右(縦書き)"
+    case auto = "おまかせ"
+
+    var id: String { rawValue }
+
+    var yamlValue: String {
+        switch self {
+        case .topHorizontal: return "top_horizontal"
+        case .bottomHorizontal: return "bottom_horizontal"
+        case .leftVertical: return "left_vertical"
+        case .rightVertical: return "right_vertical"
+        case .auto: return "auto"
+        }
+    }
+
+    /// ボタン表示用のラベル（2行表示対応）
+    var buttonLabel: String {
+        switch self {
+        case .topHorizontal: return "画面上部\n(横書き)"
+        case .bottomHorizontal: return "画面下部\n(横書き)"
+        case .leftVertical: return "画面左\n(縦書き)"
+        case .rightVertical: return "画面右\n(縦書き)"
+        case .auto: return "おまかせ"
+        }
+    }
+}
+
 // MARK: - Text Overlay Layer
 /// 装飾テキストレイヤー
 enum TextOverlayLayer: String, CaseIterable, Identifiable {

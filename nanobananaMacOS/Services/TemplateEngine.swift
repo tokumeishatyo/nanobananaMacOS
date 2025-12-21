@@ -201,7 +201,7 @@ final class TemplateEngine {
     /// - `key: ""` のような行を削除
     /// - 子要素がすべて削除されたセクションも削除
     private func cleanupEmptyFields(_ yaml: String) -> String {
-        var lines = yaml.components(separatedBy: "\n")
+        let lines = yaml.components(separatedBy: "\n")
         var result: [String] = []
         var i = 0
 

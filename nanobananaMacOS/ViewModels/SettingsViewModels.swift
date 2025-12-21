@@ -170,6 +170,7 @@ final class SceneBuilderSettingsViewModel: ObservableObject {
 
     // ダイアログ設定
     @Published var storyNarration: String = ""
+    @Published var storyNarrationPosition: NarrationPosition = .auto
     @Published var storyDialogues: [String] = ["", "", "", "", ""]
 
     // === ボスレイド用 ===

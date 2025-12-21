@@ -50,6 +50,7 @@ input:
 
   # テキスト
   narration: "{{narration}}"
+  narration_position: "{{narration_position}}"
 
 {{text_overlay_section}}
 # ====================================================

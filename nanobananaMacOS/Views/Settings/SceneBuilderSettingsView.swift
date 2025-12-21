@@ -59,6 +59,7 @@ struct SceneBuilderSettingsView: View {
             vm.storyCharacterCount = settings.storyCharacterCount
             vm.storyCharacters = settings.storyCharacters
             vm.storyNarration = settings.storyNarration
+            vm.storyNarrationPosition = settings.storyNarrationPosition
             vm.storyDialogues = settings.storyDialogues
             // ボスレイド用
             vm.bossImagePath = settings.bossImagePath
@@ -395,6 +396,38 @@ struct SceneBuilderSettingsView: View {
                         .frame(width: 90, alignment: .leading)
                     TextField("今日から新学期が始まる", text: $viewModel.storyNarration)
                         .textFieldStyle(.roundedBorder)
+                }
+
+                // ナレーション位置選択
+                HStack {
+                    Text("位置:")
+                        .frame(width: 90, alignment: .leading)
+                    HStack(spacing: 4) {
+                        ForEach(NarrationPosition.allCases) { position in
+                            Button(action: {
+                                viewModel.storyNarrationPosition = position
+                            }) {
+                                Text(position.buttonLabel)
+                                    .font(.caption2)
+                                    .multilineTextAlignment(.center)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 2)
+                                    .background(
+                                        viewModel.storyNarrationPosition == position
+                                            ? Color.accentColor
+                                            : Color.gray.opacity(0.2)
+                                    )
+                                    .foregroundColor(
+                                        viewModel.storyNarrationPosition == position
+                                            ? .white
+                                            : .primary
+                                    )
+                                    .cornerRadius(4)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
                 }
 
                 // セリフ入力欄
