@@ -5,6 +5,7 @@ import AppKit
 // MARK: - Gemini API Service
 
 /// Gemini APIを使用した画像生成サービス
+/// 参考: 参考文献/重要_Gemini3Pro連携仕様.md
 final class GeminiAPIService {
 
     // MARK: - Constants
@@ -45,8 +46,14 @@ final class GeminiAPIService {
             return .failure(.invalidAPIKey)
         }
 
-        // リクエストの構築
-        let requestBody: ImageGenerationRequest
+        // URLの構築
+        let urlString = "\(baseURL)/\(model):generateContent?key=\(apiKey)"
+        guard let url = URL(string: urlString) else {
+            return .failure(.unknownError("無効なURL"))
+        }
+
+        // リクエストボディの構築
+        let requestBody: [String: Any]
         do {
             requestBody = try buildRequestBody(
                 prompt: prompt,
@@ -62,27 +69,21 @@ final class GeminiAPIService {
             return .failure(.unknownError(error.localizedDescription))
         }
 
-        // URLの構築（:generateContent エンドポイント）
-        let urlString = "\(baseURL)/\(model):generateContent?key=\(apiKey)"
-        guard let url = URL(string: urlString) else {
-            return .failure(.unknownError("無効なURL"))
-        }
-
         // HTTPリクエストの構築
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 180  // 画像生成は時間がかかるため3分に設定
 
         do {
-            let encoder = JSONEncoder()
-            request.httpBody = try encoder.encode(requestBody)
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
 
             // デバッグ用：リクエストボディを出力
             if let jsonString = String(data: request.httpBody!, encoding: .utf8) {
                 print("[GeminiAPIService] Request body (first 1000 chars): \(jsonString.prefix(1000))")
             }
         } catch {
-            return .failure(.unknownError("リクエストのエンコードに失敗: \(error.localizedDescription)"))
+            return .failure(.unknownError("リクエストのシリアライズに失敗: \(error.localizedDescription)"))
         }
 
         // API呼び出し
@@ -90,25 +91,29 @@ final class GeminiAPIService {
             let (data, response) = try await URLSession.shared.data(for: request)
 
             // HTTPステータスコードの確認
-            if let httpResponse = response as? HTTPURLResponse {
-                print("[GeminiAPIService] Status code: \(httpResponse.statusCode)")
+            guard let httpResponse = response as? HTTPURLResponse else {
+                return .failure(.invalidResponse)
+            }
+
+            print("[GeminiAPIService] Status code: \(httpResponse.statusCode)")
+
+            if !(200...299).contains(httpResponse.statusCode) {
+                // エラーレスポンスの解析
+                let errorJson = (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
+                let errorMessage = (errorJson["error"] as? [String: Any])?["message"] as? String ?? "Unknown error"
+                print("[GeminiAPIService] Error: Status \(httpResponse.statusCode), Message: \(errorMessage)")
 
                 switch httpResponse.statusCode {
-                case 200:
-                    break  // 成功
                 case 400:
-                    let errorDetail = String(data: data, encoding: .utf8) ?? ""
-                    print("[GeminiAPIService] 400 Error: \(errorDetail)")
-                    return .failure(.unknownError("リクエストが不正です (400): \(errorDetail.prefix(300))"))
+                    return .failure(.unknownError("リクエストが不正です (400): \(errorMessage)"))
                 case 401, 403:
                     return .failure(.invalidAPIKey)
                 case 429:
                     return .failure(.rateLimited)
                 case 500...599:
-                    return .failure(.unknownError("サーバーエラー (\(httpResponse.statusCode))"))
+                    return .failure(.unknownError("サーバーエラー (\(httpResponse.statusCode)): \(errorMessage)"))
                 default:
-                    let errorDetail = String(data: data, encoding: .utf8) ?? ""
-                    return .failure(.unknownError("HTTPエラー: \(httpResponse.statusCode) - \(errorDetail.prefix(300))"))
+                    return .failure(.unknownError("HTTPエラー \(httpResponse.statusCode): \(errorMessage)"))
                 }
             }
 
@@ -129,7 +134,7 @@ final class GeminiAPIService {
         return true
     }
 
-    /// リクエストボディの構築（:generateContent エンドポイント用）
+    /// リクエストボディの構築（JSONSerialization用）
     private func buildRequestBody(
         prompt: String,
         characterImages: [NSImage],
@@ -137,9 +142,9 @@ final class GeminiAPIService {
         resolution: Resolution,
         aspectRatio: String,
         mode: APIMode
-    ) throws -> ImageGenerationRequest {
+    ) throws -> [String: Any] {
 
-        var parts: [ImageGenerationRequest.Part] = []
+        var parts: [[String: Any]] = []
 
         // モードに応じたプロンプト構築
         let formattedPrompt = buildPrompt(
@@ -149,28 +154,54 @@ final class GeminiAPIService {
             mode: mode,
             hasCompositionImage: compositionImage != nil
         )
-        parts.append(ImageGenerationRequest.Part(text: formattedPrompt))
+        parts.append(["text": formattedPrompt])
 
         // 構図参照画像の追加（清書/シンプルモード）
         if let compositionImage = compositionImage {
-            guard let base64 = encodeImage(compositionImage) else {
+            guard let imageData = compositionImage.pngData else {
                 throw APIError.imageEncodingFailed
             }
-            parts.append(ImageGenerationRequest.Part(imageData: base64))
+            let base64Image = imageData.base64EncodedString()
+            parts.append([
+                "inlineData": [
+                    "mimeType": "image/png",
+                    "data": base64Image
+                ]
+            ])
         }
 
         // キャラクター参照画像の追加
         for characterImage in characterImages {
-            guard let base64 = encodeImage(characterImage) else {
+            guard let imageData = characterImage.pngData else {
                 throw APIError.imageEncodingFailed
             }
-            parts.append(ImageGenerationRequest.Part(imageData: base64))
+            let base64Image = imageData.base64EncodedString()
+            parts.append([
+                "inlineData": [
+                    "mimeType": "image/png",
+                    "data": base64Image
+                ]
+            ])
         }
 
-        let content = ImageGenerationRequest.Content(parts: parts)
-        let config = ImageGenerationRequest.GenerationConfig(aspectRatio: aspectRatio)
+        // リクエストボディの構築
+        // 重要: responseMimeType は指定しない（400エラーの原因）
+        // 重要: responseModalities は ["TEXT", "IMAGE"] の両方が必須
+        // 参考: https://ai.google.dev/gemini-api/docs/image-generation?hl=ja
+        let requestBody: [String: Any] = [
+            "contents": [
+                ["parts": parts]
+            ],
+            "generationConfig": [
+                "responseModalities": ["TEXT", "IMAGE"],
+                "imageConfig": [
+                    "aspectRatio": "16:9",  // TODO: UIから指定（現在は固定）
+                    "imageSize": "2K"       // TODO: UIから指定（現在は固定）
+                ]
+            ]
+        ]
 
-        return ImageGenerationRequest(contents: [content], generationConfig: config)
+        return requestBody
     }
 
     /// モードに応じたプロンプト構築
@@ -290,17 +321,7 @@ final class GeminiAPIService {
         }
     }
 
-    /// 画像をBase64エンコード
-    private func encodeImage(_ image: NSImage) -> String? {
-        guard let tiffData = image.tiffRepresentation,
-              let bitmap = NSBitmapImageRep(data: tiffData),
-              let pngData = bitmap.representation(using: .png, properties: [:]) else {
-            return nil
-        }
-        return pngData.base64EncodedString()
-    }
-
-    /// レスポンスの処理（:generateContent エンドポイント用）
+    /// レスポンスの処理（JSONSerialization版）
     private func processResponse(_ data: Data) -> ImageGenerationResult {
 
         // デバッグ用：レスポンスを出力
@@ -308,36 +329,32 @@ final class GeminiAPIService {
             print("[GeminiAPIService] Raw response (first 500 chars): \(rawString.prefix(500))")
         }
 
-        let decoder = JSONDecoder()
-        let response: ImageGenerationResponse
-
-        do {
-            response = try decoder.decode(ImageGenerationResponse.self, from: data)
-        } catch {
-            print("[GeminiAPIService] Decode error: \(error)")
+        // JSONパース
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            print("[GeminiAPIService] Failed to parse JSON")
             return .failure(.invalidResponse)
         }
 
-        // エラーレスポンスの確認
-        if let errorInfo = response.error {
-            let message = errorInfo.message ?? "Unknown error"
+        // エラーチェック
+        if let error = json["error"] as? [String: Any],
+           let message = error["message"] as? String {
             print("[GeminiAPIService] API Error: \(message)")
             return .failure(.unknownError(message))
         }
 
         // candidatesの確認
-        guard let candidates = response.candidates, !candidates.isEmpty else {
+        guard let candidates = json["candidates"] as? [[String: Any]],
+              let firstCandidate = candidates.first else {
             // ブロック理由の確認
-            if let blockReason = response.promptFeedback?.blockReason {
+            if let promptFeedback = json["promptFeedback"] as? [String: Any],
+               let blockReason = promptFeedback["blockReason"] as? String {
                 return .failure(.safetyBlock(blockReason))
             }
             return .failure(.noImageGenerated(nil))
         }
 
-        let candidate = candidates[0]
-
         // finish_reasonの確認
-        if let finishReason = candidate.finishReason?.uppercased() {
+        if let finishReason = (firstCandidate["finishReason"] as? String)?.uppercased() {
             if finishReason.contains("SAFETY") {
                 return .failure(.safetyBlock(nil))
             }
@@ -346,25 +363,23 @@ final class GeminiAPIService {
             }
         }
 
-        // パーツの確認
-        guard let parts = candidate.content?.parts, !parts.isEmpty else {
+        // contentの確認
+        guard let content = firstCandidate["content"] as? [String: Any],
+              let parts = content["parts"] as? [[String: Any]] else {
             return .failure(.noImageGenerated(nil))
         }
 
-        // 画像データの抽出
+        // 画像データの抽出（inlineData と inline_data の両方に対応）
         var textResponse: String?
         for part in parts {
-            if let inlineData = part.inlineData {
-                // Base64デコード
-                guard let imageData = Data(base64Encoded: inlineData.data) else {
-                    return .failure(.imageDecodingFailed)
-                }
-                guard let image = NSImage(data: imageData) else {
-                    return .failure(.imageDecodingFailed)
-                }
+            // inlineData (CamelCase) または inline_data (SnakeCase) を探す
+            if let inlineData = part["inlineData"] as? [String: Any] ?? part["inline_data"] as? [String: Any],
+               let base64Data = inlineData["data"] as? String,
+               let imageData = Data(base64Encoded: base64Data),
+               let image = NSImage(data: imageData) {
                 return .success(image)
             }
-            if let text = part.text {
+            if let text = part["text"] as? String {
                 textResponse = text
             }
         }
@@ -372,5 +387,16 @@ final class GeminiAPIService {
         // 画像が見つからない場合
         let preview = textResponse.map { String($0.prefix(200)) }
         return .failure(.noImageGenerated(preview))
+    }
+}
+
+// MARK: - NSImage Extension
+
+extension NSImage {
+    /// PNG形式のData
+    var pngData: Data? {
+        guard let tiffRepresentation = tiffRepresentation,
+              let bitmapImage = NSBitmapImageRep(data: tiffRepresentation) else { return nil }
+        return bitmapImage.representation(using: .png, properties: [:])
     }
 }
