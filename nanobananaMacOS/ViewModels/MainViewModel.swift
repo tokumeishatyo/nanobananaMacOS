@@ -563,43 +563,63 @@ final class MainViewModel: ObservableObject {
                 return
             }
             prompt = simplePrompt
-        case .redraw:
-            guard !yamlPreviewText.isEmpty else {
-                showErrorAlert(message: "YAMLを生成または読み込んでください")
-                return
-            }
-            guard !referenceImagePath.isEmpty else {
-                showErrorAlert(message: "参考画像を選択してください")
-                return
-            }
-            prompt = yamlPreviewText
-        case .normal:
-            guard !yamlPreviewText.isEmpty else {
-                showErrorAlert(message: "YAMLを生成または読み込んでください")
-                return
-            }
-            prompt = yamlPreviewText
-        }
 
+            // シンプルモード: 直接API呼び出し
+            executeAPICall(prompt: prompt, characterImages: [], compositionImage: nil)
+
+        case .redraw, .normal:
+            guard !yamlPreviewText.isEmpty else {
+                showErrorAlert(message: "YAMLを生成または読み込んでください")
+                return
+            }
+            prompt = yamlPreviewText
+
+            // YAMLから必要な画像ファイル名を抽出
+            let requiredFilenames = YAMLImageExtractor.extractImageFilenames(from: yamlPreviewText)
+
+            if requiredFilenames.isEmpty {
+                // 画像ファイルが不要な場合: 直接API呼び出し
+                executeAPICall(prompt: prompt, characterImages: [], compositionImage: nil)
+            } else {
+                // 画像ファイルが必要な場合: ファイル選択ダイアログを表示
+                WindowManager.shared.openImageFileSelectionDialog(
+                    requiredFilenames: requiredFilenames,
+                    onComplete: { [weak self] images in
+                        guard let self = self else { return }
+                        // 選択された画像をキャラクター画像として渡す
+                        let characterImages = Array(images.values)
+                        self.executeAPICall(prompt: prompt, characterImages: characterImages, compositionImage: nil)
+                    },
+                    onCancel: {
+                        // キャンセル時は何もしない
+                    }
+                )
+            }
+        }
+    }
+
+    /// 実際のAPI呼び出しを実行
+    private func executeAPICall(prompt: String, characterImages: [NSImage], compositionImage: NSImage?) {
         // 生成開始
         isGenerating = true
         generationStartTime = Date()
         errorMessage = nil
 
         Task {
-            // 参考画像の読み込み
-            var compositionImage: NSImage? = nil
-            if !referenceImagePath.isEmpty,
-               (selectedAPISubMode == .redraw || selectedAPISubMode == .simple) {
-                compositionImage = NSImage(contentsOfFile: referenceImagePath)
+            // 参考画像の読み込み（シンプルモードの場合）
+            var finalCompositionImage = compositionImage
+            if finalCompositionImage == nil,
+               !referenceImagePath.isEmpty,
+               selectedAPISubMode == .simple {
+                finalCompositionImage = NSImage(contentsOfFile: referenceImagePath)
             }
 
             // API呼び出し
             let result = await GeminiAPIService.shared.generateImage(
                 apiKey: apiKey,
                 prompt: prompt,
-                characterImages: [],  // TODO: キャラクター参照画像の対応
-                compositionImage: compositionImage,
+                characterImages: characterImages,
+                compositionImage: finalCompositionImage,
                 resolution: selectedResolution,
                 aspectRatio: selectedAspectRatio.yamlValue,
                 mode: selectedAPISubMode.toAPIMode

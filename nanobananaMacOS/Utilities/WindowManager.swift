@@ -84,6 +84,35 @@ final class WindowManager {
         }
         openWindows.removeAll()
     }
+
+    /// 画像ファイル選択ダイアログを開く
+    /// - Parameters:
+    ///   - requiredFilenames: 必要なファイル名のリスト
+    ///   - onComplete: 完了時のコールバック（ファイル名 -> NSImage のマップ）
+    ///   - onCancel: キャンセル時のコールバック
+    func openImageFileSelectionDialog(
+        requiredFilenames: [String],
+        onComplete: @escaping ([String: NSImage]) -> Void,
+        onCancel: @escaping () -> Void
+    ) {
+        let viewModel = ImageFileSelectionViewModel(requiredFilenames: requiredFilenames)
+        viewModel.onComplete = { [weak self] images in
+            onComplete(images)
+            self?.closeWindow(id: "imageFileSelection")
+        }
+        viewModel.onCancel = { [weak self] in
+            onCancel()
+            self?.closeWindow(id: "imageFileSelection")
+        }
+
+        openWindow(
+            id: "imageFileSelection",
+            title: "参考画像の選択",
+            size: NSSize(width: 480, height: 400)
+        ) {
+            ImageFileSelectionView(viewModel: viewModel)
+        }
+    }
 }
 
 // MARK: - Window Content Wrapper
