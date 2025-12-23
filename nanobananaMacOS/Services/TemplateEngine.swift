@@ -34,9 +34,11 @@ final class TemplateEngine {
 
     init() {
         self.templatesDirectory = Self.findTemplatesDirectory()
+        #if DEBUG
         if templatesDirectory == nil {
             print("[TemplateEngine] Warning: Templates directory not found")
         }
+        #endif
     }
 
     // MARK: - Public Methods
@@ -77,7 +79,9 @@ final class TemplateEngine {
                 .map { $0.lastPathComponent }
                 .sorted()
         } catch {
+            #if DEBUG
             print("[TemplateEngine] Error listing templates: \(error)")
+            #endif
             return []
         }
     }

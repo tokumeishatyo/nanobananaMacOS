@@ -163,6 +163,8 @@ struct MiddleColumnView: View {
                             if let image = viewModel.referenceImagePreview {
                                 Image(nsImage: image)
                                     .resizable()
+                                    .interpolation(.high)
+                                    .antialiased(true)
                                     .aspectRatio(contentMode: .fit)
                                     .frame(maxHeight: 200)
                                     .padding(5)

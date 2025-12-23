@@ -113,6 +113,18 @@ final class WindowManager {
             ImageFileSelectionView(viewModel: viewModel)
         }
     }
+
+    /// 背景透過ツールウィンドウを開く
+    @available(macOS 14.0, *)
+    func openBackgroundRemovalWindow() {
+        openWindow(
+            id: "backgroundRemoval",
+            title: "背景透過ツール",
+            size: NSSize(width: 480, height: 550)
+        ) {
+            BackgroundRemovalView()
+        }
+    }
 }
 
 // MARK: - Window Content Wrapper

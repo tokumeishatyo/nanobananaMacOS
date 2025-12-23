@@ -727,7 +727,6 @@ final class MainViewModel: ObservableObject {
     /// 画像を加工
     func refineImage() {
         // TODO: 機能実装時に追加
-        print("画像加工")
     }
 
     /// 詳細設定を開く
@@ -852,18 +851,19 @@ final class MainViewModel: ObservableObject {
     /// 漫画コンポーザーを開く
     func openMangaComposer() {
         // TODO: 機能実装時に追加
-        print("漫画コンポーザー")
     }
 
     /// 画像ツール（背景透過）を開く
     func openBackgroundRemover() {
-        // TODO: 機能実装時に追加
-        print("背景透過ツール")
+        if #available(macOS 14.0, *) {
+            WindowManager.shared.openBackgroundRemovalWindow()
+        } else {
+            showErrorAlert(message: "背景透過ツールはmacOS 14以降で利用可能です")
+        }
     }
 
     /// 使用量詳細を表示
     func showUsageDetails() {
         // TODO: 機能実装時に追加
-        print("使用量詳細")
     }
 }

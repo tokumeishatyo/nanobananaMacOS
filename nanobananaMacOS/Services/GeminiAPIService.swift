@@ -78,8 +78,10 @@ final class GeminiAPIService {
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
 
+            #if DEBUG
             // デバッグ用：リクエスト構造を出力（base64データは省略）
             debugPrintRequestStructure(requestBody)
+            #endif
         } catch {
             return .failure(.unknownError("リクエストのシリアライズに失敗: \(error.localizedDescription)"))
         }
@@ -93,13 +95,17 @@ final class GeminiAPIService {
                 return .failure(.invalidResponse)
             }
 
+            #if DEBUG
             print("[GeminiAPIService] Status code: \(httpResponse.statusCode)")
+            #endif
 
             if !(200...299).contains(httpResponse.statusCode) {
                 // エラーレスポンスの解析
                 let errorJson = (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
                 let errorMessage = (errorJson["error"] as? [String: Any])?["message"] as? String ?? "Unknown error"
+                #if DEBUG
                 print("[GeminiAPIService] Error: Status \(httpResponse.statusCode), Message: \(errorMessage)")
+                #endif
 
                 switch httpResponse.statusCode {
                 case 400:
@@ -331,21 +337,27 @@ final class GeminiAPIService {
     /// レスポンスの処理（JSONSerialization版）
     private func processResponse(_ data: Data) -> ImageGenerationResult {
 
+        #if DEBUG
         // デバッグ用：レスポンスを出力
         if let rawString = String(data: data, encoding: .utf8) {
             print("[GeminiAPIService] Raw response (first 500 chars): \(rawString.prefix(500))")
         }
+        #endif
 
         // JSONパース
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            #if DEBUG
             print("[GeminiAPIService] Failed to parse JSON")
+            #endif
             return .failure(.invalidResponse)
         }
 
         // エラーチェック
         if let error = json["error"] as? [String: Any],
            let message = error["message"] as? String {
+            #if DEBUG
             print("[GeminiAPIService] API Error: \(message)")
+            #endif
             return .failure(.unknownError(message))
         }
 
@@ -371,7 +383,9 @@ final class GeminiAPIService {
             if finishReason.contains("MALFORMED_FUNCTION_CALL") {
                 // finishMessageから詳細を取得
                 let finishMessage = firstCandidate["finishMessage"] as? String
+                #if DEBUG
                 print("[GeminiAPIService] MALFORMED_FUNCTION_CALL: \(finishMessage ?? "no details")")
+                #endif
                 return .failure(.malformedFunctionCall(finishMessage))
             }
         }
@@ -402,6 +416,7 @@ final class GeminiAPIService {
         return .failure(.noImageGenerated(preview))
     }
 
+    #if DEBUG
     /// デバッグ用：リクエスト構造を出力（base64データは省略）
     private func debugPrintRequestStructure(_ requestBody: [String: Any]) {
         print("[GeminiAPIService] ===== Request Structure =====")
@@ -449,6 +464,7 @@ final class GeminiAPIService {
 
         print("[GeminiAPIService] =============================")
     }
+    #endif
 }
 
 // MARK: - NSImage Extension

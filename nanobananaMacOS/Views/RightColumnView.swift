@@ -71,6 +71,8 @@ struct RightColumnView: View {
                     if let image = viewModel.generatedImage {
                         Image(nsImage: image)
                             .resizable()
+                            .interpolation(.high)
+                            .antialiased(true)
                             .aspectRatio(contentMode: .fit)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .padding(10)
