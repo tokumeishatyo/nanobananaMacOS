@@ -78,10 +78,8 @@ final class GeminiAPIService {
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
 
-            // デバッグ用：リクエストボディを出力
-            if let jsonString = String(data: request.httpBody!, encoding: .utf8) {
-                print("[GeminiAPIService] Request body (first 1000 chars): \(jsonString.prefix(1000))")
-            }
+            // デバッグ用：リクエスト構造を出力（base64データは省略）
+            debugPrintRequestStructure(requestBody)
         } catch {
             return .failure(.unknownError("リクエストのシリアライズに失敗: \(error.localizedDescription)"))
         }
@@ -195,8 +193,8 @@ final class GeminiAPIService {
             "generationConfig": [
                 "responseModalities": ["TEXT", "IMAGE"],
                 "imageConfig": [
-                    "aspectRatio": "16:9",  // TODO: UIから指定（現在は固定）
-                    "imageSize": "2K"       // TODO: UIから指定（現在は固定）
+                    "aspectRatio": aspectRatio,
+                    "imageSize": resolution.rawValue
                 ]
             ]
         ]
@@ -287,25 +285,34 @@ final class GeminiAPIService {
     ) -> String {
 
         if hasReference {
+            // 参照画像ありの場合: 画像編集モード
+            // Googleのアドバイス: Role + Task + Constraints の構造化プロンプト
             return """
-            ## IMAGE GENERATION REQUEST
+            # Role
+            You are an expert image editing AI.
 
-            Generate an image based on the following instructions.
+            # Task
+            Generate a NEW image based on the provided input image (Input Image), following the user's instruction (Instruction) to modify specific parts.
 
-            ## OUTPUT SPECIFICATIONS:
+            # Instruction
+            \(basePrompt)
+
+            # Constraints
+            - Strictly maintain the composition, poses, art style, lighting, and aspect ratio of the input image.
+            - Only modify the parts specified in the instruction.
+            - Do NOT change anything that is not explicitly mentioned.
+            - Output image only, no text explanation.
+
+            # Output Specifications
             - Resolution: \(resolution.promptDescription)
             - Aspect Ratio: \(aspectRatio)
 
-            ## REFERENCE IMAGE:
-            The attached image is a reference. Use it as inspiration for style, composition, or elements as appropriate to the prompt below.
-
-            ## IMPORTANT - WATERMARK REMOVAL:
-            If the reference image contains any watermarks, logos, or signatures (such as "Gemini" watermark in the corner), DO NOT reproduce them in the output. The output image must be clean without any watermarks.
-
-            ## PROMPT:
-            \(basePrompt)
+            # Important
+            - If the input image contains any watermarks, logos, or signatures (such as "Gemini" watermark), DO NOT reproduce them in the output.
+            - The output image must be clean without any watermarks.
             """
         } else {
+            // 参照画像なしの場合: 新規生成モード
             return """
             ## IMAGE GENERATION REQUEST
 
@@ -361,6 +368,12 @@ final class GeminiAPIService {
             if finishReason.contains("RECITATION") {
                 return .failure(.recitationBlock)
             }
+            if finishReason.contains("MALFORMED_FUNCTION_CALL") {
+                // finishMessageから詳細を取得
+                let finishMessage = firstCandidate["finishMessage"] as? String
+                print("[GeminiAPIService] MALFORMED_FUNCTION_CALL: \(finishMessage ?? "no details")")
+                return .failure(.malformedFunctionCall(finishMessage))
+            }
         }
 
         // contentの確認
@@ -387,6 +400,54 @@ final class GeminiAPIService {
         // 画像が見つからない場合
         let preview = textResponse.map { String($0.prefix(200)) }
         return .failure(.noImageGenerated(preview))
+    }
+
+    /// デバッグ用：リクエスト構造を出力（base64データは省略）
+    private func debugPrintRequestStructure(_ requestBody: [String: Any]) {
+        print("[GeminiAPIService] ===== Request Structure =====")
+
+        // generationConfigの確認
+        if let genConfig = requestBody["generationConfig"] as? [String: Any] {
+            print("[GeminiAPIService] generationConfig: \(genConfig)")
+        } else {
+            print("[GeminiAPIService] WARNING: generationConfig is missing!")
+        }
+
+        // contentsの確認
+        if let contents = requestBody["contents"] as? [[String: Any]] {
+            for (i, content) in contents.enumerated() {
+                if let parts = content["parts"] as? [[String: Any]] {
+                    print("[GeminiAPIService] contents[\(i)].parts count: \(parts.count)")
+                    for (j, part) in parts.enumerated() {
+                        if let text = part["text"] as? String {
+                            print("[GeminiAPIService]   part[\(j)]: text (length: \(text.count))")
+                        }
+                        if let inlineData = part["inlineData"] {
+                            // inlineDataの型と構造を詳細に出力
+                            print("[GeminiAPIService]   part[\(j)]: inlineData type: \(type(of: inlineData))")
+                            if let dataDict = inlineData as? [String: Any] {
+                                let keys = dataDict.keys.sorted()
+                                print("[GeminiAPIService]   part[\(j)]: inlineData keys: \(keys)")
+                                if let mimeType = dataDict["mimeType"] {
+                                    print("[GeminiAPIService]   part[\(j)]: mimeType = \(mimeType)")
+                                } else {
+                                    print("[GeminiAPIService]   part[\(j)]: WARNING: mimeType is MISSING!")
+                                }
+                                if let data = dataDict["data"] as? String {
+                                    print("[GeminiAPIService]   part[\(j)]: data length = \(data.count) chars")
+                                }
+                            } else {
+                                print("[GeminiAPIService]   part[\(j)]: WARNING: inlineData is not a dictionary!")
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            print("[GeminiAPIService] WARNING: contents is missing or invalid!")
+        }
+
+        print("[GeminiAPIService] =============================")
     }
 }
 

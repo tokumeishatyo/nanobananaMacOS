@@ -65,21 +65,21 @@ struct MiddleColumnView: View {
                         }
                         .padding(.horizontal, 10)
 
-                        // 参考画像
-                        HStack {
-                            Text("参考画像:")
-                                .frame(width: 100, alignment: .leading)
+                        // 参考画像（シンプルモードのみ表示）
+                        if viewModel.selectedAPISubMode == .simple && viewModel.isAPIModeEnabled {
+                            HStack {
+                                Text("参考画像:")
+                                    .frame(width: 100, alignment: .leading)
 
-                            TextField("下書き画像", text: $viewModel.referenceImagePath)
-                                .textFieldStyle(.roundedBorder)
-                                .disabled(!viewModel.isAPIModeEnabled)
+                                TextField("参考画像（任意）", text: $viewModel.referenceImagePath)
+                                    .textFieldStyle(.roundedBorder)
 
-                            Button("参照") {
-                                viewModel.browseReferenceImage()
+                                Button("参照") {
+                                    viewModel.browseReferenceImage()
+                                }
                             }
-                            .disabled(!viewModel.isAPIModeEnabled)
+                            .padding(.horizontal, 10)
                         }
-                        .padding(.horizontal, 10)
 
                         // 追加指示（清書モード）
                         if viewModel.selectedAPISubMode == .redraw && viewModel.isAPIModeEnabled {
@@ -151,28 +151,30 @@ struct MiddleColumnView: View {
                     .padding(.bottom, 10)
                 }
 
-                // MARK: - 参考画像プレビュー
-                GroupBox {
-                    VStack(spacing: 8) {
-                        Text("参考画像プレビュー")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                            .padding(.top, 5)
+                // MARK: - 参考画像プレビュー（シンプルモードのみ表示）
+                if viewModel.selectedAPISubMode == .simple && viewModel.isAPIModeEnabled {
+                    GroupBox {
+                        VStack(spacing: 8) {
+                            Text("参考画像プレビュー")
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .padding(.top, 5)
 
-                        if let image = viewModel.referenceImagePreview {
-                            Image(nsImage: image)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxHeight: 200)
-                                .padding(5)
-                        } else {
-                            Text("画像未読込")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .frame(height: 100)
+                            if let image = viewModel.referenceImagePreview {
+                                Image(nsImage: image)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(maxHeight: 200)
+                                    .padding(5)
+                            } else {
+                                Text("画像未読込")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                                    .frame(height: 100)
+                            }
                         }
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
                 }
 
                 // MARK: - API使用状況

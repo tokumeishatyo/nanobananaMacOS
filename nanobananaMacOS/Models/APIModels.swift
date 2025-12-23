@@ -174,6 +174,7 @@ enum APIError: LocalizedError {
     case invalidResponse
     case safetyBlock(String?)
     case recitationBlock
+    case malformedFunctionCall(String?)
     case rateLimited
     case noImageGenerated(String?)
     case imageEncodingFailed
@@ -195,6 +196,11 @@ enum APIError: LocalizedError {
             return "安全性フィルターによりブロックされました。プロンプトや参照画像を変更してお試しください。"
         case .recitationBlock:
             return "著作権関連の問題でコンテンツがブロックされました。"
+        case .malformedFunctionCall(let message):
+            if let message = message {
+                return "画像編集リクエストの処理に失敗しました。\n\n詳細: \(message)\n\nより単純なプロンプトでお試しください。"
+            }
+            return "画像編集リクエストの処理に失敗しました。プロンプトを変更してお試しください。\n\n（例: 「モノクロに変更」「セピア調に変換」など単純な指示が成功しやすいです）"
         case .rateLimited:
             return "API呼び出し制限に達しました。しばらく待ってから再試行してください。"
         case .noImageGenerated(let message):

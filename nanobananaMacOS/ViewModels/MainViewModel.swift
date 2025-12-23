@@ -207,10 +207,13 @@ final class MainViewModel: ObservableObject {
 
         switch selectedAPISubMode {
         case .simple:
-            return true
+            // シンプルモード: プロンプトが入力されていれば活性
+            return !simplePrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         case .redraw:
-            return !yamlPreviewText.isEmpty && !referenceImagePath.isEmpty
+            // 清書モード: YAMLがあれば活性（参考画像はAPI送信前にダイアログで指定）
+            return !yamlPreviewText.isEmpty
         case .normal:
+            // 通常モード: YAMLがあれば活性
             return !yamlPreviewText.isEmpty
         }
     }
