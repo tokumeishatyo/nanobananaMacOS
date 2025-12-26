@@ -97,7 +97,7 @@ final class MangaComposerViewModel: ObservableObject {
 
 // MARK: - YAML Generation Support
 extension MangaComposerViewModel {
-    /// YAML生成用の変数辞書を構築（登場人物シート用）
+    /// YAML生成用の変数辞書を構築（登場人物シート用 - カード画像ベース）
     func buildCharacterSheetVariables() -> [String: String] {
         let vm = characterSheetViewModel
         var variables: [String: String] = [:]
@@ -114,23 +114,17 @@ extension MangaComposerViewModel {
             ? vm.backgroundDescription
             : ""
 
-        // キャラクター数
-        let validCharacters = vm.characters.filter { $0.isValid }
-        variables["character_count"] = String(validCharacters.count)
+        // カード画像パス（有効なものだけ）
+        let validCardPaths = vm.cardImagePaths.filter { !$0.isEmpty }
+        variables["card_count"] = String(validCardPaths.count)
 
-        // 各キャラクター（1〜3）
-        for i in 1...CharacterEntry.maxCount {
+        // 各カード画像（1〜3）
+        for i in 1...CharacterSheetViewModel.maxCardCount {
             let index = i - 1
-            if index < validCharacters.count {
-                let char = validCharacters[index]
-                variables["character_\(i)_name"] = char.name
-                variables["character_\(i)_image"] = (char.imagePath as NSString).lastPathComponent
-                variables["character_\(i)_info"] = char.info
+            if index < validCardPaths.count {
+                variables["card_\(i)_image"] = (validCardPaths[index] as NSString).lastPathComponent
             } else {
-                // 空値
-                variables["character_\(i)_name"] = ""
-                variables["character_\(i)_image"] = ""
-                variables["character_\(i)_info"] = ""
+                variables["card_\(i)_image"] = ""
             }
         }
 

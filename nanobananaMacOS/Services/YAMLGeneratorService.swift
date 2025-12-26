@@ -998,7 +998,7 @@ decorative_text_overlays:
         return templateEngine.render(templateName: "11_character_sheet.yaml", variables: variables)
     }
 
-    /// 登場人物シート用の変数辞書を構築
+    /// 登場人物シート用の変数辞書を構築（カード画像ベース）
     @MainActor
     private func buildCharacterSheetVariables(
         mainViewModel: MainViewModel,
@@ -1011,13 +1011,13 @@ decorative_text_overlays:
             hasAuthor: !authorName.isEmpty
         )
 
-        // 有効なキャラクターのみを抽出
-        let validCharacters = settings.characters.filter { $0.isValid }
-        let characterCount = validCharacters.count
+        // 有効なカード画像パスのみを抽出
+        let validCardPaths = settings.cardImagePaths.filter { !$0.isEmpty }
+        let cardCount = validCardPaths.count
 
-        // キャラクター数に応じたレイアウト設定を生成
-        let (layoutType, compositionRules, characterIsolation, positionOrderRule) =
-            generateCharacterLayoutSettings(characters: validCharacters)
+        // カード数に応じたレイアウト設定を生成
+        let (layoutType, compositionRules, cardIsolation, positionOrderRule) =
+            generateCardLayoutSettings(cardCount: cardCount)
 
         var variables: [String: String] = [
             // ヘッダーパーシャル用
@@ -1039,28 +1039,22 @@ decorative_text_overlays:
             "background_source_type": settings.backgroundSourceType == .file ? "file" : "generate",
             "background_image": YAMLUtilities.getFileName(from: settings.backgroundImagePath),
             "background_description": settings.backgroundDescription,
-            "character_count": String(characterCount),
+            "card_count": String(cardCount),
 
             // 動的レイアウト設定
             "layout_type": layoutType,
             "composition_rules": compositionRules,
-            "character_isolation": characterIsolation,
+            "card_isolation": cardIsolation,
             "position_order_rule": positionOrderRule
         ]
 
-        // 各キャラクター（1〜3）
-        for i in 1...CharacterEntry.maxCount {
+        // 各カード画像（1〜3）
+        for i in 1...CharacterSheetViewModel.maxCardCount {
             let index = i - 1
-            if index < validCharacters.count {
-                let char = validCharacters[index]
-                variables["character_\(i)_name"] = char.name
-                variables["character_\(i)_image"] = YAMLUtilities.getFileName(from: char.imagePath)
-                variables["character_\(i)_info"] = YAMLUtilities.convertNewlinesToEscaped(char.info)
+            if index < validCardPaths.count {
+                variables["card_\(i)_image"] = YAMLUtilities.getFileName(from: validCardPaths[index])
             } else {
-                // 空値
-                variables["character_\(i)_name"] = ""
-                variables["character_\(i)_image"] = ""
-                variables["character_\(i)_info"] = ""
+                variables["card_\(i)_image"] = ""
             }
         }
 
@@ -1137,6 +1131,78 @@ decorative_text_overlays:
 """
             let positionOrderRule = ""
             return (layoutType, compositionRules, characterIsolation, positionOrderRule)
+        }
+    }
+
+    /// カード数に応じたレイアウト設定を生成（カード画像ベース）
+    private func generateCardLayoutSettings(
+        cardCount: Int
+    ) -> (layoutType: String, compositionRules: String, cardIsolation: String, positionOrderRule: String) {
+
+        switch cardCount {
+        case 1:
+            // 1枚用
+            let layoutType = "single_card_centered"
+            let compositionRules = """
+    - "Place the single card image at the center of the image."
+    - "The card should be prominently displayed."
+"""
+            let cardIsolation = """
+    - "Display only one card as specified in the input."
+"""
+            let positionOrderRule = """
+  - "Display only card_1 at the center."
+"""
+            return (layoutType, compositionRules, cardIsolation, positionOrderRule)
+
+        case 2:
+            // 2枚用
+            let layoutType = "invisible_diptych"
+            let compositionRules = """
+    - "Imagine the image is divided into 2 equal vertical columns."
+    - "Column 1 (Left): Place card_1."
+    - "Column 2 (Right): Place card_2."
+    - "Do NOT draw visible vertical lines or borders between columns."
+"""
+            let cardIsolation = """
+    - "Ensure strictly NO overlapping between cards."
+    - "Keep equal spacing between the two cards."
+"""
+            let positionOrderRule = """
+  - "Strictly maintain the order: card_1 (Left) -> card_2 (Right)."
+"""
+            return (layoutType, compositionRules, cardIsolation, positionOrderRule)
+
+        case 3:
+            // 3枚用
+            let layoutType = "invisible_triptych"
+            let compositionRules = """
+    - "Imagine the image is divided into 3 equal vertical columns."
+    - "Column 1 (Left): Place card_1."
+    - "Column 2 (Center): Place card_2."
+    - "Column 3 (Right): Place card_3."
+    - "Do NOT draw visible vertical lines or borders between columns."
+"""
+            let cardIsolation = """
+    - "Ensure strictly NO overlapping between cards."
+    - "Keep equal spacing between the three cards."
+"""
+            let positionOrderRule = """
+  - "Strictly maintain the order: card_1 (Left) -> card_2 (Center) -> card_3 (Right)."
+"""
+            return (layoutType, compositionRules, cardIsolation, positionOrderRule)
+
+        default:
+            // デフォルト（1枚扱い）
+            let layoutType = "single_card_centered"
+            let compositionRules = """
+    - "Place the card at the center of the image."
+"""
+            let cardIsolation = """
+    - "Display only the specified card."
+"""
+            let positionOrderRule = ""
+            return (layoutType, compositionRules, cardIsolation, positionOrderRule)
         }
     }
 

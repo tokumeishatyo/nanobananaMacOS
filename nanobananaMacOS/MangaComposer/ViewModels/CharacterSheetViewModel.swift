@@ -4,7 +4,7 @@ import SwiftUI
 import Combine
 
 // MARK: - Character Sheet ViewModel
-/// 登場人物生成シートのViewModel
+/// 登場人物生成シートのViewModel（カード画像ベース）
 @MainActor
 final class CharacterSheetViewModel: ObservableObject {
     // MARK: - Sheet Title
@@ -15,47 +15,29 @@ final class CharacterSheetViewModel: ObservableObject {
     @Published var backgroundImagePath: String = ""
     @Published var backgroundDescription: String = ""
 
-    // MARK: - Characters (1〜3名)
-    @Published var characters: [CharacterEntry] = [CharacterEntry()] {
-        didSet {
-            setupCharacterObservers()
-        }
-    }
+    // MARK: - Card Images (1〜3枚)
+    /// 生成済みキャラクターカードの画像パス
+    @Published var cardImagePaths: [String] = [""]
 
-    private var characterCancellables: [AnyCancellable] = []
-
-    init() {
-        setupCharacterObservers()
-    }
-
-    /// キャラクターの変更を監視してViewを更新
-    private func setupCharacterObservers() {
-        characterCancellables.removeAll()
-        for character in characters {
-            character.objectWillChange
-                .receive(on: RunLoop.main)
-                .sink { [weak self] _ in
-                    self?.objectWillChange.send()
-                }
-                .store(in: &characterCancellables)
-        }
-    }
+    // MARK: - Constants
+    static let minCardCount = 1
+    static let maxCardCount = 3
 
     // MARK: - Computed Properties
 
-    /// 有効なキャラクター数
-    var validCharacterCount: Int {
-        characters.filter { $0.isValid }.count
+    /// 有効なカード数（パスが空でないもの）
+    var validCardCount: Int {
+        cardImagePaths.filter { !$0.isEmpty }.count
     }
 
-    /// キャラクターを追加可能か
-    var canAddCharacter: Bool {
-        characters.count < CharacterEntry.maxCount
+    /// カードを追加可能か
+    var canAddCard: Bool {
+        cardImagePaths.count < Self.maxCardCount
     }
 
-    /// キャラクターを削除可能か
-    var canRemoveCharacter: Bool {
-        characters.count > CharacterEntry.minCount
+    /// カードを削除可能か
+    var canRemoveCard: Bool {
+        cardImagePaths.count > Self.minCardCount
     }
 
     /// 入力が有効かどうか（YAML生成可能か）
@@ -71,24 +53,30 @@ final class CharacterSheetViewModel: ObservableObject {
             guard !backgroundImagePath.isEmpty else { return false }
         }
 
-        // 最低1人のキャラクターが有効か
-        guard validCharacterCount >= 1 else { return false }
+        // 最低1枚のカード画像が有効か
+        guard validCardCount >= 1 else { return false }
 
         return true
     }
 
     // MARK: - Actions
 
-    /// キャラクターを追加
-    func addCharacter() {
-        guard canAddCharacter else { return }
-        characters.append(CharacterEntry())
+    /// カードスロットを追加
+    func addCard() {
+        guard canAddCard else { return }
+        cardImagePaths.append("")
     }
 
-    /// キャラクターを削除
-    func removeCharacter(at index: Int) {
-        guard canRemoveCharacter, characters.indices.contains(index) else { return }
-        characters.remove(at: index)
+    /// カードを削除
+    func removeCard(at index: Int) {
+        guard canRemoveCard, cardImagePaths.indices.contains(index) else { return }
+        cardImagePaths.remove(at: index)
+    }
+
+    /// カード画像パスを設定
+    func setCardImagePath(_ path: String, at index: Int) {
+        guard cardImagePaths.indices.contains(index) else { return }
+        cardImagePaths[index] = path
     }
 
     /// リセット
@@ -97,7 +85,7 @@ final class CharacterSheetViewModel: ObservableObject {
         backgroundSourceType = .prompt
         backgroundImagePath = ""
         backgroundDescription = ""
-        characters = [CharacterEntry()]
+        cardImagePaths = [""]
     }
 
     // MARK: - Placeholders

@@ -214,7 +214,7 @@ struct CharacterCardFormView: View {
 }
 
 // MARK: - Character Sheet Form View
-/// 登場人物生成シートの入力フォーム
+/// 登場人物生成シートの入力フォーム（カード画像ベース）
 struct CharacterSheetFormView: View {
     @ObservedObject var viewModel: CharacterSheetViewModel
 
@@ -248,21 +248,46 @@ struct CharacterSheetFormView: View {
                     .lineLimit(3...5)
             }
 
-            // MARK: - Characters
-            sectionHeader("キャラクター設定（\(viewModel.characters.count)名）")
+            // MARK: - Card Images
+            sectionHeader("カード画像（\(viewModel.cardImagePaths.count)枚）")
 
-            ForEach(Array(viewModel.characters.enumerated()), id: \.element.id) { index, character in
-                characterEntryView(index: index, character: character)
-            }
+            Text("生成済みのキャラクターカード画像をドラッグ＆ドロップ")
+                .font(.caption)
+                .foregroundColor(.secondary)
 
-            // Add/Remove buttons
-            HStack {
-                if viewModel.canAddCharacter {
-                    Button("キャラクターを追加") {
-                        viewModel.addCharacter()
-                    }
+            // 横並びのカードスロット
+            HStack(alignment: .top, spacing: 12) {
+                ForEach(Array(viewModel.cardImagePaths.enumerated()), id: \.offset) { index, path in
+                    CardSlotView(
+                        imagePath: path,
+                        index: index,
+                        canRemove: viewModel.canRemoveCard,
+                        onImageDropped: { newPath in
+                            viewModel.setCardImagePath(newPath, at: index)
+                        },
+                        onRemove: {
+                            viewModel.removeCard(at: index)
+                        }
+                    )
                 }
-                Spacer()
+
+                // 追加ボタン
+                if viewModel.canAddCard {
+                    Button(action: {
+                        viewModel.addCard()
+                    }) {
+                        VStack {
+                            Image(systemName: "plus.circle")
+                                .font(.system(size: 24))
+                            Text("追加")
+                                .font(.caption)
+                        }
+                        .frame(width: 100, height: 140)
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(8)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
     }
@@ -272,71 +297,6 @@ struct CharacterSheetFormView: View {
         Text(title)
             .font(.headline)
             .padding(.top, 8)
-    }
-
-    private func characterEntryView(index: Int, character: CharacterEntry) -> some View {
-        GroupBox {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("キャラクター \(index + 1)")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    Spacer()
-                    if viewModel.canRemoveCharacter {
-                        Button(action: {
-                            viewModel.removeCharacter(at: index)
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-
-                TextField("名前", text: Binding(
-                    get: { character.name },
-                    set: { character.name = $0 }
-                ))
-                .textFieldStyle(.roundedBorder)
-
-                HStack {
-                    TextField("キャラ画像", text: Binding(
-                        get: { character.imagePath },
-                        set: { character.imagePath = $0 }
-                    ))
-                    .textFieldStyle(.roundedBorder)
-                    Button("選択...") {
-                        selectCharacterImage(for: character)
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("キャラ情報（箇条書き推奨）")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    TextEditor(text: Binding(
-                        get: { character.info },
-                        set: { character.info = $0 }
-                    ))
-                    .font(.body)
-                    .frame(height: 80)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 5)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                    )
-                    .overlay(alignment: .topLeading) {
-                        if character.info.isEmpty {
-                            Text(CharacterEntry.infoPlaceholder)
-                                .foregroundColor(.gray.opacity(0.5))
-                                .padding(.horizontal, 4)
-                                .padding(.vertical, 8)
-                                .allowsHitTesting(false)
-                        }
-                    }
-                }
-            }
-            .padding(.vertical, 4)
-        }
     }
 
     // MARK: - File Selection
@@ -351,8 +311,122 @@ struct CharacterSheetFormView: View {
             viewModel.backgroundImagePath = url.path
         }
     }
+}
 
-    private func selectCharacterImage(for character: CharacterEntry) {
+// MARK: - Card Slot View
+/// カード画像スロット（ドラッグ＆ドロップ対応）
+struct CardSlotView: View {
+    let imagePath: String
+    let index: Int
+    let canRemove: Bool
+    let onImageDropped: (String) -> Void
+    let onRemove: () -> Void
+
+    @State private var isTargeted = false
+
+    var body: some View {
+        VStack(spacing: 4) {
+            // カード番号と削除ボタン
+            HStack {
+                Text("カード \(index + 1)")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                Spacer()
+                if canRemove {
+                    Button(action: onRemove) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .frame(width: 100)
+
+            // ドロップエリア / プレビュー
+            ZStack {
+                if imagePath.isEmpty {
+                    // 空のスロット
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(style: StrokeStyle(lineWidth: 2, dash: [5]))
+                        .foregroundColor(isTargeted ? .accentColor : .gray)
+                        .frame(width: 100, height: 120)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(isTargeted ? Color.accentColor.opacity(0.1) : Color.gray.opacity(0.05))
+                        )
+
+                    VStack(spacing: 4) {
+                        Image(systemName: "photo.on.rectangle.angled")
+                            .font(.title2)
+                            .foregroundColor(.gray)
+                        Text("ドロップ")
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                    }
+                } else {
+                    // 画像プレビュー
+                    if let nsImage = NSImage(contentsOfFile: imagePath) {
+                        Image(nsImage: nsImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 100, height: 120)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                            )
+                    } else {
+                        // 画像読み込み失敗
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.red.opacity(0.1))
+                            .frame(width: 100, height: 120)
+                            .overlay(
+                                VStack {
+                                    Image(systemName: "exclamationmark.triangle")
+                                        .foregroundColor(.red)
+                                    Text("読込失敗")
+                                        .font(.caption2)
+                                        .foregroundColor(.red)
+                                }
+                            )
+                    }
+                }
+            }
+            .onDrop(of: [.fileURL], isTargeted: $isTargeted) { providers in
+                handleDrop(providers: providers)
+            }
+            .onTapGesture {
+                selectImage()
+            }
+        }
+    }
+
+    // MARK: - Drop Handling
+    private func handleDrop(providers: [NSItemProvider]) -> Bool {
+        guard let provider = providers.first else { return false }
+
+        provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { item, error in
+            guard error == nil,
+                  let data = item as? Data,
+                  let url = URL(dataRepresentation: data, relativeTo: nil),
+                  isImageFile(url: url) else {
+                return
+            }
+
+            DispatchQueue.main.async {
+                onImageDropped(url.path)
+            }
+        }
+        return true
+    }
+
+    private func isImageFile(url: URL) -> Bool {
+        let ext = url.pathExtension.lowercased()
+        return ["png", "jpg", "jpeg"].contains(ext)
+    }
+
+    // MARK: - File Selection
+    private func selectImage() {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
@@ -360,7 +434,7 @@ struct CharacterSheetFormView: View {
         panel.allowedContentTypes = [.png, .jpeg]
 
         if panel.runModal() == .OK, let url = panel.url {
-            character.imagePath = url.path
+            onImageDropped(url.path)
         }
     }
 }

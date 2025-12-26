@@ -12,23 +12,12 @@ input:
   background_image: "{{background_image}}"
   background_description: "{{background_description}}"
 
-  # キャラクター設定
-  character_count: {{character_count}}
+  # カード画像設定（生成済みキャラクターカード）
+  card_count: {{card_count}}
 
-  character_1:
-    image: "{{character_1_image}}"
-    name: "{{character_1_name}}"
-    info: "{{character_1_info}}"
-
-  character_2:
-    image: "{{character_2_image}}"
-    name: "{{character_2_name}}"
-    info: "{{character_2_info}}"
-
-  character_3:
-    image: "{{character_3_image}}"
-    name: "{{character_3_name}}"
-    info: "{{character_3_info}}"
+  card_1: "{{card_1_image}}"
+  card_2: "{{card_2_image}}"
+  card_3: "{{card_3_image}}"
 
 # ====================================================
 # Output
@@ -36,7 +25,7 @@ input:
 output:
   format: "character_introduction_sheet"
   layout: "{{layout_type}}"
-  character_display: "full body or upper body with name and info below"
+  card_display: "Place pre-generated character cards as provided - do NOT modify card contents"
 
 # ====================================================
 # Constraints (CRITICAL)
@@ -46,29 +35,29 @@ constraints:
     - "Display sheet_title prominently at the top center"
   composition_rules:
 {{composition_rules}}
-  character_isolation:
-{{character_isolation}}
-  character_preservation:
-    - "Preserve exact character appearance from each character image"
-    - "Maintain clothing, accessories, and pose from character images"
-    - "Display character name clearly below or beside each character"
-  info_display:
-    - "Display character info text in a readable format"
-    - "Keep consistent text style across all characters"
-    - "Format info text as a vertical list with line breaks for each attribute"
+  card_isolation:
+{{card_isolation}}
+  card_preservation:
+    - "Place card images EXACTLY as provided - do NOT modify, resize disproportionately, or alter"
+    - "Each card already contains character name, image, and info - do NOT extract or re-render"
+    - "Maintain the original aspect ratio of each card image"
   background:
     - "Use background image or generate from description"
-    - "Background should complement the characters without overwhelming"
+    - "Background should complement the cards without overwhelming"
+  card_processing:
+    - "Recognize checkerboard patterns in card images as TRANSPARENT backgrounds, not actual patterns"
+    - "Remove/ignore the transparent background area of each card so only the character content is visible"
+    - "Composite each card's character content naturally onto the sheet background"
+    - "Apply this transparency handling to ALL card images (card_1, card_2, card_3)"
 
 # ====================================================
 # Anti-Hallucination (MUST FOLLOW)
 # ====================================================
 anti_hallucination:
-  - "Do NOT alter character designs from input images"
-  - "Do NOT add characters not specified in input"
-  - "Do NOT change or omit any character info text"
-  - "Do NOT mix features between different characters"
-  - "Do NOT swap character positions"
+  - "Do NOT alter or modify card image contents"
+  - "Do NOT add cards not specified in input"
+  - "Do NOT re-render or regenerate any element within the cards"
+  - "Do NOT swap card positions"
 {{position_order_rule}}
 
 # ====================================================
@@ -79,4 +68,4 @@ output_cleanliness:
   - "Do NOT add watermarks, signatures, or logos"
   - "Do NOT add extra decorative elements unless part of background"
   - "Do NOT draw visible vertical lines or borders between columns"
-  - "The output must contain ONLY the specified characters and their info"
+  - "The output must contain ONLY the specified cards arranged as instructed"
