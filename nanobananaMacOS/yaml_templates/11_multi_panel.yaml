@@ -1,0 +1,66 @@
+{{> header header_comment="Multi Panel Manga (漫画作成)"}}
+
+# ====================================================
+# Main Prompt and Layout (メインプロンプトとレイアウト)
+# ====================================================
+main_prompt:
+  - "以下のYAML指示に従って、{{panel_count}}コマ漫画を1枚の画像として生成してください。"
+  - "添付したキャラクター画像を参考に、キャラクターの外見を一貫させてください。"
+  - "Generate a {{panel_count}}-panel manga as a single image following the YAML instructions below."
+  - "Use the attached character images to maintain consistent character appearances."
+
+layout_instruction:
+  - "漫画を縦1列に配置してください。"
+  - "横並びにせず、上から下へ1コマずつ縦に並べてください。"
+  - "出力画像は縦長で、漫画だけが画像全体を占めるようにしてください。"
+  - "余白は不要です。"
+  - "各キャラクターの外見は添付画像を忠実に再現してください。"
+  - "セリフは吹き出しで表示してください。"
+  - "ナレーションがある場合は、コマの上部にテキストボックスで表示してください。"
+  - "各コマ内のキャラクターは順番に横に並べてください: 1番目(最初) → 2番目(1番目の右隣) → 3番目(2番目の右隣)"
+
+# ====================================================
+# Panel Count (コマ数)
+# ====================================================
+panel_count: {{panel_count}}
+
+# ====================================================
+# Panels (各コマの内容)
+# ====================================================
+{{panels_content}}
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  character_rendering:
+    - "Preserve exact character appearance from input images"
+    - "Apply the specified features (expression, pose) to each character"
+    - "Maintain character identity across all panels"
+  panel_layout:
+    - "Arrange panels vertically from top to bottom"
+    - "Each panel should have clear boundaries"
+    - "Characters within a panel are arranged sequentially: 1st → 2nd (right of 1st) → 3rd (right of 2nd)"
+  dialogue_rules:
+    - "Display dialogue in speech bubbles near the speaking character"
+    - "Position dialogue appropriately within the panel"
+  transparency_handling:
+    - "Recognize checkerboard patterns in character images as TRANSPARENT backgrounds"
+    - "Remove/ignore the transparent background area so only the character is visible"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT alter character designs from input images"
+  - "Do NOT add characters not specified in the panel"
+  - "Do NOT change dialogue text"
+  - "Do NOT swap character positions within a panel"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the manga panels - nothing else"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "Do NOT add extra decorative elements outside panels"

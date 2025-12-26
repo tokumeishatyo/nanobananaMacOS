@@ -262,6 +262,12 @@ final class MainViewModel: ObservableObject {
             return
         }
 
+        // 漫画作成モードの場合
+        if isMangaCreationMode {
+            generateMangaCreationYAML()
+            return
+        }
+
         // 既存YAMLがある場合は部分更新モード
         if !yamlPreviewText.isEmpty {
             updateExistingYAML()
@@ -326,6 +332,30 @@ final class MainViewModel: ObservableObject {
 
         // フラグをリセット
         isCharacterSheetMode = false
+    }
+
+    /// 漫画作成YAML生成
+    private func generateMangaCreationYAML() {
+        // タイトル必須チェック
+        if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            showErrorAlert(message: "タイトルを入力してください")
+            return
+        }
+
+        // 設定チェック
+        guard let settings = mangaCreationSettings else {
+            showErrorAlert(message: "漫画作成の設定がありません。漫画コンポーザーで設定を行ってください。")
+            return
+        }
+
+        // YAML生成
+        yamlPreviewText = yamlGeneratorService.generateMangaCreationYAML(
+            mainViewModel: self,
+            settings: settings
+        )
+
+        // フラグをリセット
+        isMangaCreationMode = false
     }
 
     /// 既存YAMLの部分更新（カラーモード、アスペクト比、タイトル、作者名、タイトルオーバーレイ）
@@ -521,6 +551,14 @@ final class MainViewModel: ObservableObject {
         fourPanelSettings = nil
         styleTransformSettings = nil
         infographicSettings = nil
+
+        // 漫画コンポーザー設定をクリア
+        characterCardEntry = nil
+        characterSheetSettings = nil
+        mangaCreationSettings = nil
+        isCharacterCardMode = false
+        isCharacterSheetMode = false
+        isMangaCreationMode = false
 
         // API設定（APIキーは保持）
         selectedOutputMode = .yaml

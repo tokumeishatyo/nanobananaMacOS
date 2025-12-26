@@ -1206,6 +1206,101 @@ decorative_text_overlays:
         }
     }
 
+    // MARK: - Manga Creation YAML Generation (漫画コンポーザー - 漫画作成)
+
+    /// 漫画作成YAML生成
+    @MainActor
+    func generateMangaCreationYAML(
+        mainViewModel: MainViewModel,
+        settings: MangaCreationViewModel
+    ) -> String {
+        let variables = buildMangaCreationVariables(mainViewModel: mainViewModel, settings: settings)
+        return templateEngine.render(templateName: "11_multi_panel.yaml", variables: variables)
+    }
+
+    /// 漫画作成用の変数辞書を構築
+    @MainActor
+    private func buildMangaCreationVariables(
+        mainViewModel: MainViewModel,
+        settings: MangaCreationViewModel
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        // panels_contentを動的生成
+        let panelsContent = generatePanelsContent(panels: settings.panels)
+
+        return [
+            // ヘッダーパーシャル用
+            "header_comment": "Multi Panel Manga (漫画作成)",
+            "type": "multi_panel_manga",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // 漫画作成固有
+            "panel_count": String(settings.panels.count),
+            "panels_content": panelsContent
+        ]
+    }
+
+    /// panelsセクションを動的生成
+    private func generatePanelsContent(panels: [MangaPanel]) -> String {
+        var content = "panels:\n"
+
+        for (panelIndex, panel) in panels.enumerated() {
+            let panelNum = panelIndex + 1
+
+            content += "  - panel_number: \(panelNum)\n"
+            content += "    scene: \"\(YAMLUtilities.escapeYAMLString(panel.scene))\"\n"
+
+            // ナレーションは任意
+            let trimmedNarration = panel.narration.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmedNarration.isEmpty {
+                content += "    narration: \"\(YAMLUtilities.escapeYAMLString(trimmedNarration))\"\n"
+            }
+
+            // キャラクター（有効なもののみ）
+            let validCharacters = panel.characters.filter { $0.isValid }
+            if !validCharacters.isEmpty {
+                content += "    characters:\n"
+
+                for (charIndex, character) in validCharacters.enumerated() {
+                    let order = charIndex + 1
+                    let imageName = YAMLUtilities.getFileName(from: character.imagePath)
+                    let dialogue = character.dialogue.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let features = character.features.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                    content += "      - order: \(order)\n"
+                    content += "        reference_image: \"\(imageName)\"\n"
+
+                    // セリフは任意
+                    if !dialogue.isEmpty {
+                        content += "        dialogue: \"\(YAMLUtilities.escapeYAMLString(dialogue))\"\n"
+                    }
+
+                    // 特徴（表情・ポーズ）は任意
+                    if !features.isEmpty {
+                        content += "        features: \"\(YAMLUtilities.escapeYAMLString(features))\"\n"
+                    }
+                }
+            }
+        }
+
+        return content
+    }
+
     // MARK: - Placeholder
 
     /// 未実装の出力タイプ用プレースホルダー
