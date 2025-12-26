@@ -75,6 +75,12 @@ final class MainViewModel: ObservableObject {
     /// インフォグラフィック設定
     @Published var infographicSettings: InfographicSettingsViewModel?
 
+    /// 登場人物シート設定（漫画コンポーザー）
+    @Published var characterSheetSettings: CharacterSheetViewModel?
+
+    /// 登場人物シートYAML生成モード（適用ボタンでtrueになる）
+    @Published var isCharacterSheetMode: Bool = false
+
     // MARK: - Middle Column (API設定)
 
     /// 出力モード
@@ -232,6 +238,12 @@ final class MainViewModel: ObservableObject {
 
     /// YAML生成
     func generateYAML() {
+        // 登場人物シートモードの場合
+        if isCharacterSheetMode {
+            generateCharacterSheetYAML()
+            return
+        }
+
         // 既存YAMLがある場合は部分更新モード
         if !yamlPreviewText.isEmpty {
             updateExistingYAML()
@@ -248,6 +260,30 @@ final class MainViewModel: ObservableObject {
         case .failure(let message):
             showErrorAlert(message: message)
         }
+    }
+
+    /// 登場人物シートYAML生成
+    private func generateCharacterSheetYAML() {
+        // タイトル必須チェック
+        if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            showErrorAlert(message: "タイトルを入力してください")
+            return
+        }
+
+        // 設定チェック
+        guard let settings = characterSheetSettings else {
+            showErrorAlert(message: "登場人物シートの設定がありません。漫画コンポーザーで設定を行ってください。")
+            return
+        }
+
+        // YAML生成
+        yamlPreviewText = yamlGeneratorService.generateCharacterSheetYAML(
+            mainViewModel: self,
+            settings: settings
+        )
+
+        // フラグをリセット
+        isCharacterSheetMode = false
     }
 
     /// 既存YAMLの部分更新（カラーモード、アスペクト比、タイトル、作者名、タイトルオーバーレイ）
@@ -850,7 +886,7 @@ final class MainViewModel: ObservableObject {
 
     /// 漫画コンポーザーを開く
     func openMangaComposer() {
-        WindowManager.shared.openMangaComposerWindow()
+        WindowManager.shared.openMangaComposerWindow(mainViewModel: self)
     }
 
     /// 画像ツール（背景透過）を開く

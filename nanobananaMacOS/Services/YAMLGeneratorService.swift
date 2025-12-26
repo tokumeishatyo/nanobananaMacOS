@@ -939,6 +939,160 @@ decorative_text_overlays:
         return variables
     }
 
+    // MARK: - Character Sheet YAML Generation (漫画コンポーザー)
+
+    /// 登場人物シートYAML生成
+    @MainActor
+    func generateCharacterSheetYAML(
+        mainViewModel: MainViewModel,
+        settings: CharacterSheetViewModel
+    ) -> String {
+        let variables = buildCharacterSheetVariables(mainViewModel: mainViewModel, settings: settings)
+        return templateEngine.render(templateName: "11_character_sheet.yaml", variables: variables)
+    }
+
+    /// 登場人物シート用の変数辞書を構築
+    @MainActor
+    private func buildCharacterSheetVariables(
+        mainViewModel: MainViewModel,
+        settings: CharacterSheetViewModel
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        // 有効なキャラクターのみを抽出
+        let validCharacters = settings.characters.filter { $0.isValid }
+        let characterCount = validCharacters.count
+
+        // キャラクター数に応じたレイアウト設定を生成
+        let (layoutType, compositionRules, characterIsolation, positionOrderRule) =
+            generateCharacterLayoutSettings(characters: validCharacters)
+
+        var variables: [String: String] = [
+            // ヘッダーパーシャル用
+            "header_comment": "Character Introduction Sheet (登場人物紹介シート)",
+            "type": "character_sheet",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // 登場人物シート固有
+            "sheet_title": settings.sheetTitle,
+            "background_source_type": settings.backgroundSourceType == .file ? "file" : "generate",
+            "background_image": YAMLUtilities.getFileName(from: settings.backgroundImagePath),
+            "background_description": settings.backgroundDescription,
+            "character_count": String(characterCount),
+
+            // 動的レイアウト設定
+            "layout_type": layoutType,
+            "composition_rules": compositionRules,
+            "character_isolation": characterIsolation,
+            "position_order_rule": positionOrderRule
+        ]
+
+        // 各キャラクター（1〜3）
+        for i in 1...CharacterEntry.maxCount {
+            let index = i - 1
+            if index < validCharacters.count {
+                let char = validCharacters[index]
+                variables["character_\(i)_name"] = char.name
+                variables["character_\(i)_image"] = YAMLUtilities.getFileName(from: char.imagePath)
+                variables["character_\(i)_info"] = YAMLUtilities.convertNewlinesToEscaped(char.info)
+            } else {
+                // 空値
+                variables["character_\(i)_name"] = ""
+                variables["character_\(i)_image"] = ""
+                variables["character_\(i)_info"] = ""
+            }
+        }
+
+        return variables
+    }
+
+    /// キャラクター数に応じたレイアウト設定を生成
+    private func generateCharacterLayoutSettings(
+        characters: [CharacterEntry]
+    ) -> (layoutType: String, compositionRules: String, characterIsolation: String, positionOrderRule: String) {
+        let count = characters.count
+
+        switch count {
+        case 1:
+            // 1人用
+            let layoutType = "single_character_centered"
+            let compositionRules = """
+    - "Place the single character at the center of the image."
+    - "The character should be prominently displayed."
+"""
+            let characterIsolation = """
+    - "Display only one character as specified in the input."
+"""
+            let positionOrderRule = """
+  - "Display only character_1 (\(characters[0].name)) at the center."
+"""
+            return (layoutType, compositionRules, characterIsolation, positionOrderRule)
+
+        case 2:
+            // 2人用
+            let layoutType = "invisible_diptych"
+            let compositionRules = """
+    - "Imagine the image is divided into 2 equal vertical columns."
+    - "Column 1 (Left): Place character_1."
+    - "Column 2 (Right): Place character_2."
+    - "Do NOT draw visible vertical lines or borders between columns."
+"""
+            let characterIsolation = """
+    - "Ensure strictly NO overlapping between characters."
+    - "Keep equal spacing between the two characters."
+"""
+            let positionOrderRule = """
+  - "Strictly maintain the order: \(characters[0].name) (Left) -> \(characters[1].name) (Right)."
+"""
+            return (layoutType, compositionRules, characterIsolation, positionOrderRule)
+
+        case 3:
+            // 3人用
+            let layoutType = "invisible_triptych"
+            let compositionRules = """
+    - "Imagine the image is divided into 3 equal vertical columns."
+    - "Column 1 (Left): Place character_1."
+    - "Column 2 (Center): Place character_2."
+    - "Column 3 (Right): Place character_3."
+    - "Do NOT draw visible vertical lines or borders between columns."
+"""
+            let characterIsolation = """
+    - "Ensure strictly NO overlapping between characters."
+    - "Keep equal spacing between the three characters."
+"""
+            let positionOrderRule = """
+  - "Strictly maintain the order: \(characters[0].name) (Left) -> \(characters[1].name) (Center) -> \(characters[2].name) (Right)."
+"""
+            return (layoutType, compositionRules, characterIsolation, positionOrderRule)
+
+        default:
+            // デフォルト（1人扱い）
+            let layoutType = "single_character_centered"
+            let compositionRules = """
+    - "Place the character at the center of the image."
+"""
+            let characterIsolation = """
+    - "Display only the specified character."
+"""
+            let positionOrderRule = ""
+            return (layoutType, compositionRules, characterIsolation, positionOrderRule)
+        }
+    }
+
     // MARK: - Placeholder
 
     /// 未実装の出力タイプ用プレースホルダー
@@ -976,6 +1130,17 @@ enum YAMLUtilities {
             .filter { !$0.isEmpty }
 
         let joined = lines.joined(separator: ", ")
+        return escapeYAMLString(joined)
+    }
+
+    /// 改行を\nリテラル文字列に変換（YAML内で改行として表示）
+    static func convertNewlinesToEscaped(_ string: String) -> String {
+        let lines = string
+            .split(separator: "\n", omittingEmptySubsequences: true)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+
+        let joined = lines.joined(separator: "\\n")
         return escapeYAMLString(joined)
     }
 

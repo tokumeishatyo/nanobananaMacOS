@@ -35,7 +35,7 @@ input:
 # ====================================================
 output:
   format: "character_introduction_sheet"
-  layout: "horizontal arrangement with equal spacing"
+  layout: "{{layout_type}}"
   character_display: "full body or upper body with name and info below"
 
 # ====================================================
@@ -44,8 +44,10 @@ output:
 constraints:
   sheet_layout:
     - "Display sheet_title prominently at the top center"
-    - "Arrange characters horizontally with equal spacing"
-    - "Each character should have their own background color or frame"
+  composition_rules:
+{{composition_rules}}
+  character_isolation:
+{{character_isolation}}
   character_preservation:
     - "Preserve exact character appearance from each character image"
     - "Maintain clothing, accessories, and pose from character images"
@@ -53,6 +55,7 @@ constraints:
   info_display:
     - "Display character info text in a readable format"
     - "Keep consistent text style across all characters"
+    - "Format info text as a vertical list with line breaks for each attribute"
   background:
     - "Use background image or generate from description"
     - "Background should complement the characters without overwhelming"
@@ -65,6 +68,8 @@ anti_hallucination:
   - "Do NOT add characters not specified in input"
   - "Do NOT change or omit any character info text"
   - "Do NOT mix features between different characters"
+  - "Do NOT swap character positions"
+{{position_order_rule}}
 
 # ====================================================
 # Output Cleanliness (CRITICAL)
@@ -73,4 +78,5 @@ output_cleanliness:
   - "Output ONLY the character introduction sheet - nothing else"
   - "Do NOT add watermarks, signatures, or logos"
   - "Do NOT add extra decorative elements unless part of background"
+  - "Do NOT draw visible vertical lines or borders between columns"
   - "The output must contain ONLY the specified characters and their info"

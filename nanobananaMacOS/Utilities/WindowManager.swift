@@ -127,13 +127,14 @@ final class WindowManager {
     }
 
     /// 漫画ページコンポーザーウィンドウを開く
-    func openMangaComposerWindow() {
+    /// - Parameter mainViewModel: メインViewModel（設定保存・YAML生成用）
+    func openMangaComposerWindow(mainViewModel: MainViewModel) {
         openWindow(
             id: "mangaComposer",
             title: "漫画ページコンポーザー",
             size: NSSize(width: 500, height: 600)
         ) {
-            MangaComposerView()
+            MangaComposerView(mainViewModel: mainViewModel)
         }
     }
 }

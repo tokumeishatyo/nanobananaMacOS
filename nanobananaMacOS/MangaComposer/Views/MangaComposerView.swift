@@ -6,7 +6,12 @@ import UniformTypeIdentifiers
 /// 漫画ページコンポーザーのメイン画面
 struct MangaComposerView: View {
     @StateObject private var viewModel = MangaComposerViewModel()
+    @ObservedObject var mainViewModel: MainViewModel
     @Environment(\.windowDismiss) private var windowDismiss
+
+    init(mainViewModel: MainViewModel) {
+        self.mainViewModel = mainViewModel
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -83,24 +88,33 @@ struct MangaComposerView: View {
             Button("適用") {
                 viewModel.apply()
             }
-            .keyboardShortcut(.defaultAction)
+            .buttonStyle(.borderedProminent)
+            .keyboardShortcut(.return, modifiers: .control)  // Ctrl+Enter で適用
             .disabled(!viewModel.canApply)
 
             Button("キャンセル") {
                 viewModel.cancel()
             }
-            .keyboardShortcut(.cancelAction)
+            .keyboardShortcut(.escape)
         }
         .padding()
     }
 
     // MARK: - Setup
     private func setupCallbacks() {
+        // クロージャ内で使用するためローカル変数にキャプチャ
+        let mainVM = mainViewModel
+        let charSheetVM = viewModel.characterSheetViewModel
+        let dismiss = windowDismiss
+
         viewModel.onApply = {
-            windowDismiss?()
+            // 設定をMainViewModelに保存（YAML生成はメイン画面の「YAML生成」ボタンで行う）
+            mainVM.characterSheetSettings = charSheetVM
+            mainVM.isCharacterSheetMode = true  // YAML生成ボタンで登場人物シートYAMLを生成するフラグ
+            dismiss?()
         }
         viewModel.onCancel = {
-            windowDismiss?()
+            dismiss?()
         }
     }
 }
@@ -202,12 +216,30 @@ struct CharacterSheetFormView: View {
                     }
                 }
 
-                TextField("キャラ情報（箇条書き推奨）", text: Binding(
-                    get: { character.info },
-                    set: { character.info = $0 }
-                ), prompt: Text(CharacterEntry.infoPlaceholder), axis: .vertical)
-                .textFieldStyle(.roundedBorder)
-                .lineLimit(4...6)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("キャラ情報（箇条書き推奨）")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    TextEditor(text: Binding(
+                        get: { character.info },
+                        set: { character.info = $0 }
+                    ))
+                    .font(.body)
+                    .frame(height: 80)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+                    .overlay(alignment: .topLeading) {
+                        if character.info.isEmpty {
+                            Text(CharacterEntry.infoPlaceholder)
+                                .foregroundColor(.gray.opacity(0.5))
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 8)
+                                .allowsHitTesting(false)
+                        }
+                    }
+                }
             }
             .padding(.vertical, 4)
         }
@@ -241,5 +273,5 @@ struct CharacterSheetFormView: View {
 
 // MARK: - Preview
 #Preview {
-    MangaComposerView()
+    MangaComposerView(mainViewModel: MainViewModel())
 }
