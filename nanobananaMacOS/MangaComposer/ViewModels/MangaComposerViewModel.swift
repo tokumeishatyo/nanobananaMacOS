@@ -12,6 +12,7 @@ final class MangaComposerViewModel: ObservableObject {
 
     // MARK: - Sub ViewModels
     @Published var characterSheetViewModel = CharacterSheetViewModel()
+    @Published var mangaCreationViewModel = MangaCreationViewModel()
 
     // MARK: - Character Card Mode
     /// キャラカード用の単一キャラクター
@@ -44,6 +45,14 @@ final class MangaComposerViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
+
+        // MangaCreationViewModelの変更を監視してViewを更新
+        mangaCreationViewModel.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Computed Properties
@@ -61,7 +70,7 @@ final class MangaComposerViewModel: ObservableObject {
         case .characterSheet:
             return characterSheetViewModel.isValid
         case .mangaCreation:
-            return false  // 後日実装
+            return mangaCreationViewModel.isValid
         }
     }
 
@@ -84,6 +93,7 @@ final class MangaComposerViewModel: ObservableObject {
         selectedMode = .characterCard  // デフォルトに戻す
         characterCardEntry = CharacterEntry()
         characterSheetViewModel.reset()
+        mangaCreationViewModel.reset()
         isApplied = false
     }
 

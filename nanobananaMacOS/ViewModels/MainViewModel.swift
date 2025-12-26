@@ -87,6 +87,12 @@ final class MainViewModel: ObservableObject {
     /// キャラクターカードYAML生成モード（適用ボタンでtrueになる）
     @Published var isCharacterCardMode: Bool = false
 
+    /// 漫画作成設定（漫画コンポーザー）
+    @Published var mangaCreationSettings: MangaCreationViewModel?
+
+    /// 漫画作成YAML生成モード（適用ボタンでtrueになる）
+    @Published var isMangaCreationMode: Bool = false
+
     // MARK: - Middle Column (API設定)
 
     /// 出力モード

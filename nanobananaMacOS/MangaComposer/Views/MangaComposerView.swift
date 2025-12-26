@@ -73,12 +73,7 @@ struct MangaComposerView: View {
         case .characterSheet:
             CharacterSheetFormView(viewModel: viewModel.characterSheetViewModel)
         case .mangaCreation:
-            // 後日実装
-            VStack {
-                Text("漫画作成機能は後日実装予定です")
-                    .foregroundColor(.secondary)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            MangaCreationFormView(viewModel: viewModel.mangaCreationViewModel)
         }
     }
 
@@ -121,7 +116,9 @@ struct MangaComposerView: View {
                 mainVM.characterSheetSettings = vm.characterSheetViewModel
                 mainVM.isCharacterSheetMode = true
             case .mangaCreation:
-                break  // 後日実装
+                // 漫画作成設定を保存
+                mainVM.mangaCreationSettings = vm.mangaCreationViewModel
+                mainVM.isMangaCreationMode = true
             }
             dismiss?()
         }

@@ -10,12 +10,12 @@ enum ComposerMode: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    /// モードが有効か（漫画作成は後日実装）
+    /// モードが有効か
     var isEnabled: Bool {
         switch self {
         case .characterCard: return true
         case .characterSheet: return true
-        case .mangaCreation: return false  // 後日実装
+        case .mangaCreation: return true
         }
     }
 
@@ -27,7 +27,7 @@ enum ComposerMode: String, CaseIterable, Identifiable {
         case .characterSheet:
             return "1〜3名のキャラクターを紹介する画像を生成"
         case .mangaCreation:
-            return "登場人物を使って漫画を生成（後日実装）"
+            return "1〜4コマの漫画を生成"
         }
     }
 }
