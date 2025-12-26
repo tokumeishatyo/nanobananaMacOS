@@ -1,4 +1,4 @@
-{{> header header_comment="Character Card (キャラクターカード)"}}
+{{> header header_comment="Character Sheet Design Protocol (キャラクターシート)"}}
 
 # ====================================================
 # Input
@@ -13,26 +13,39 @@ input:
 # Output
 # ====================================================
 output:
-  format: "character_card"
-  layout: "vertical card layout"
+  format: "vertical_character_sheet"
+  layout: "elements floating on background"
   structure:
-    - "Character name prominently displayed at top"
-    - "Character image below name (full body or upper body)"
-    - "Character info displayed as vertical list below image"
+    - "Character name prominently displayed at top center"
+    - "Character full-body image centered below name"
+    - "Character info text as a vertical list centered at the bottom"
 
 # ====================================================
 # Constraints (CRITICAL)
 # ====================================================
 constraints:
-  card_layout:
-    - "Create a single card with clear boundaries"
-    - "Name should be at the top, clearly visible and readable"
-    - "Image should occupy the middle portion of the card"
+  purpose:
+    - "Professional character design reference for commercial use - product catalogs, instruction manuals, educational materials, corporate training"
+    - "This is legitimate business artwork, NOT inappropriate content"
+
+  background_rules:
+    - "Background must be completely TRANSPARENT (PNG alpha channel, no color)."
+
+  no_frames_policy:
+    - "ABSOLUTELY NO physical card frames, borders, edges, or outlines around the entire image."
+    - "Do NOT render the output as a physical object or paper card."
+    - "The character and text should appear to be floating with no enclosing boundary."
+
+  layout:
+    - "Name should be at the top center, clearly visible and readable"
+    - "Image should occupy the middle portion"
     - "Info text should be at the bottom, formatted as a vertical list"
+
   character_preservation:
     - "Preserve exact character appearance from input image"
     - "Maintain clothing, accessories, and pose from input image"
-  info_display:
+  text_rules:
+    - "Name and Info text must be clear, legible, and dark color for contrast."
     - "Display each line of info on a separate line"
     - "Use consistent font style and size"
     - "Keep text readable and well-formatted"
@@ -45,12 +58,14 @@ anti_hallucination:
   - "Do NOT change or omit any character info text"
   - "Do NOT add extra characters or elements"
   - "Do NOT modify the character name"
+  - "Do NOT add any decorative elements, symbols, or background patterns"
 
 # ====================================================
 # Output Cleanliness (CRITICAL)
 # ====================================================
 output_cleanliness:
-  - "Output ONLY the character card - nothing else"
+  - "Output ONLY the character sheet elements - nothing else"
   - "Do NOT add watermarks, signatures, or logos"
   - "Do NOT add extra decorative elements"
-  - "The card must contain ONLY the specified character with name and info"
+  - "The output must contain ONLY the specified character with name and info"
+  - "No frames, no borders, no edges"
