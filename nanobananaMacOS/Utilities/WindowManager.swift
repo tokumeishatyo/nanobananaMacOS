@@ -125,6 +125,17 @@ final class WindowManager {
             BackgroundRemovalView()
         }
     }
+
+    /// 漫画ページコンポーザーウィンドウを開く
+    func openMangaComposerWindow() {
+        openWindow(
+            id: "mangaComposer",
+            title: "漫画ページコンポーザー",
+            size: NSSize(width: 500, height: 600)
+        ) {
+            MangaComposerView()
+        }
+    }
 }
 
 // MARK: - Window Content Wrapper

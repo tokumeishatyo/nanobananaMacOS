@@ -850,7 +850,7 @@ final class MainViewModel: ObservableObject {
 
     /// 漫画コンポーザーを開く
     func openMangaComposer() {
-        // TODO: 機能実装時に追加
+        WindowManager.shared.openMangaComposerWindow()
     }
 
     /// 画像ツール（背景透過）を開く

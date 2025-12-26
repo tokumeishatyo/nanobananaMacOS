@@ -1,0 +1,76 @@
+{{> header header_comment="Character Introduction Sheet (登場人物紹介シート)"}}
+
+# ====================================================
+# Input
+# ====================================================
+input:
+  # シートタイトル
+  sheet_title: "{{sheet_title}}"
+
+  # 背景設定
+  background_source_type: "{{background_source_type}}"
+  background_image: "{{background_image}}"
+  background_description: "{{background_description}}"
+
+  # キャラクター設定
+  character_count: {{character_count}}
+
+  character_1:
+    image: "{{character_1_image}}"
+    name: "{{character_1_name}}"
+    info: "{{character_1_info}}"
+
+  character_2:
+    image: "{{character_2_image}}"
+    name: "{{character_2_name}}"
+    info: "{{character_2_info}}"
+
+  character_3:
+    image: "{{character_3_image}}"
+    name: "{{character_3_name}}"
+    info: "{{character_3_info}}"
+
+# ====================================================
+# Output
+# ====================================================
+output:
+  format: "character_introduction_sheet"
+  layout: "horizontal arrangement with equal spacing"
+  character_display: "full body or upper body with name and info below"
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  sheet_layout:
+    - "Display sheet_title prominently at the top center"
+    - "Arrange characters horizontally with equal spacing"
+    - "Each character should have their own background color or frame"
+  character_preservation:
+    - "Preserve exact character appearance from each character image"
+    - "Maintain clothing, accessories, and pose from character images"
+    - "Display character name clearly below or beside each character"
+  info_display:
+    - "Display character info text in a readable format"
+    - "Keep consistent text style across all characters"
+  background:
+    - "Use background image or generate from description"
+    - "Background should complement the characters without overwhelming"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT alter character designs from input images"
+  - "Do NOT add characters not specified in input"
+  - "Do NOT change or omit any character info text"
+  - "Do NOT mix features between different characters"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the character introduction sheet - nothing else"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "Do NOT add extra decorative elements unless part of background"
+  - "The output must contain ONLY the specified characters and their info"
