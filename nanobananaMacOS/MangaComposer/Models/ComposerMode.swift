@@ -4,6 +4,7 @@ import Foundation
 // MARK: - Composer Mode
 /// 漫画ページコンポーザーのモード定義
 enum ComposerMode: String, CaseIterable, Identifiable {
+    case characterCard = "キャラクターカード作成"
     case characterSheet = "登場人物生成シート"
     case mangaCreation = "漫画作成"
 
@@ -12,6 +13,7 @@ enum ComposerMode: String, CaseIterable, Identifiable {
     /// モードが有効か（漫画作成は後日実装）
     var isEnabled: Bool {
         switch self {
+        case .characterCard: return true
         case .characterSheet: return true
         case .mangaCreation: return false  // 後日実装
         }
@@ -20,6 +22,8 @@ enum ComposerMode: String, CaseIterable, Identifiable {
     /// モードの説明
     var description: String {
         switch self {
+        case .characterCard:
+            return "キャラクター1名分のカードを生成"
         case .characterSheet:
             return "1〜3名のキャラクターを紹介する画像を生成"
         case .mangaCreation:

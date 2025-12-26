@@ -8,10 +8,14 @@ import Combine
 @MainActor
 final class MangaComposerViewModel: ObservableObject {
     // MARK: - Mode Selection
-    @Published var selectedMode: ComposerMode = .characterSheet
+    @Published var selectedMode: ComposerMode = .characterCard  // デフォルトはキャラカード
 
     // MARK: - Sub ViewModels
     @Published var characterSheetViewModel = CharacterSheetViewModel()
+
+    // MARK: - Character Card Mode
+    /// キャラカード用の単一キャラクター
+    @Published var characterCardEntry = CharacterEntry()
 
     // MARK: - State
     @Published var isApplied: Bool = false
@@ -32,6 +36,14 @@ final class MangaComposerViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
+
+        // CharacterCardEntryの変更を監視してViewを更新
+        characterCardEntry.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Computed Properties
@@ -44,6 +56,8 @@ final class MangaComposerViewModel: ObservableObject {
     /// 適用ボタンが有効か
     var canApply: Bool {
         switch selectedMode {
+        case .characterCard:
+            return characterCardEntry.isValid
         case .characterSheet:
             return characterSheetViewModel.isValid
         case .mangaCreation:
@@ -67,7 +81,8 @@ final class MangaComposerViewModel: ObservableObject {
 
     /// リセット
     func reset() {
-        selectedMode = .characterSheet
+        selectedMode = .characterCard  // デフォルトに戻す
+        characterCardEntry = CharacterEntry()
         characterSheetViewModel.reset()
         isApplied = false
     }

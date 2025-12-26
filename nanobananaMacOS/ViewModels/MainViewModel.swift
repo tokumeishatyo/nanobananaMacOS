@@ -81,6 +81,12 @@ final class MainViewModel: ObservableObject {
     /// 登場人物シートYAML生成モード（適用ボタンでtrueになる）
     @Published var isCharacterSheetMode: Bool = false
 
+    /// キャラクターカード設定（漫画コンポーザー）
+    @Published var characterCardEntry: CharacterEntry?
+
+    /// キャラクターカードYAML生成モード（適用ボタンでtrueになる）
+    @Published var isCharacterCardMode: Bool = false
+
     // MARK: - Middle Column (API設定)
 
     /// 出力モード
@@ -238,6 +244,12 @@ final class MainViewModel: ObservableObject {
 
     /// YAML生成
     func generateYAML() {
+        // キャラクターカードモードの場合
+        if isCharacterCardMode {
+            generateCharacterCardYAML()
+            return
+        }
+
         // 登場人物シートモードの場合
         if isCharacterSheetMode {
             generateCharacterSheetYAML()
@@ -260,6 +272,30 @@ final class MainViewModel: ObservableObject {
         case .failure(let message):
             showErrorAlert(message: message)
         }
+    }
+
+    /// キャラクターカードYAML生成
+    private func generateCharacterCardYAML() {
+        // タイトル必須チェック
+        if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            showErrorAlert(message: "タイトルを入力してください")
+            return
+        }
+
+        // 設定チェック
+        guard let character = characterCardEntry else {
+            showErrorAlert(message: "キャラクターカードの設定がありません。漫画コンポーザーで設定を行ってください。")
+            return
+        }
+
+        // YAML生成
+        yamlPreviewText = yamlGeneratorService.generateCharacterCardYAML(
+            mainViewModel: self,
+            character: character
+        )
+
+        // フラグをリセット
+        isCharacterCardMode = false
     }
 
     /// 登場人物シートYAML生成

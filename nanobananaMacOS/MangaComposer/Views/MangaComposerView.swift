@@ -68,6 +68,8 @@ struct MangaComposerView: View {
     @ViewBuilder
     private var contentSection: some View {
         switch viewModel.selectedMode {
+        case .characterCard:
+            CharacterCardFormView(character: viewModel.characterCardEntry)
         case .characterSheet:
             CharacterSheetFormView(viewModel: viewModel.characterSheetViewModel)
         case .mangaCreation:
@@ -104,17 +106,109 @@ struct MangaComposerView: View {
     private func setupCallbacks() {
         // クロージャ内で使用するためローカル変数にキャプチャ
         let mainVM = mainViewModel
-        let charSheetVM = viewModel.characterSheetViewModel
+        let vm = viewModel
         let dismiss = windowDismiss
 
         viewModel.onApply = {
-            // 設定をMainViewModelに保存（YAML生成はメイン画面の「YAML生成」ボタンで行う）
-            mainVM.characterSheetSettings = charSheetVM
-            mainVM.isCharacterSheetMode = true  // YAML生成ボタンで登場人物シートYAMLを生成するフラグ
+            // 選択モードに応じて設定を保存
+            switch vm.selectedMode {
+            case .characterCard:
+                // キャラクターカード設定を保存
+                mainVM.characterCardEntry = vm.characterCardEntry.copy()
+                mainVM.isCharacterCardMode = true
+            case .characterSheet:
+                // 登場人物シート設定を保存
+                mainVM.characterSheetSettings = vm.characterSheetViewModel
+                mainVM.isCharacterSheetMode = true
+            case .mangaCreation:
+                break  // 後日実装
+            }
             dismiss?()
         }
         viewModel.onCancel = {
             dismiss?()
+        }
+    }
+}
+
+// MARK: - Character Card Form View
+/// キャラクターカード作成の入力フォーム（1名分）
+struct CharacterCardFormView: View {
+    @ObservedObject var character: CharacterEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // MARK: - Header
+            Text("キャラクターカード")
+                .font(.headline)
+                .padding(.top, 8)
+
+            Text("1枚のカードに名前・画像・説明を一体化して生成します。")
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+            // MARK: - Character Entry
+            GroupBox {
+                VStack(alignment: .leading, spacing: 8) {
+                    // 名前
+                    Text("名前")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                    TextField("名前", text: $character.name, prompt: Text("キャラクター名"))
+                        .textFieldStyle(.roundedBorder)
+
+                    // 画像
+                    Text("キャラ画像")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .padding(.top, 4)
+                    HStack {
+                        TextField("キャラ画像", text: $character.imagePath)
+                            .textFieldStyle(.roundedBorder)
+                        Button("選択...") {
+                            selectCharacterImage()
+                        }
+                    }
+
+                    // 情報
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("キャラ情報（箇条書き推奨）")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .padding(.top, 4)
+                        TextEditor(text: $character.info)
+                            .font(.body)
+                            .frame(height: 120)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 5)
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                            )
+                            .overlay(alignment: .topLeading) {
+                                if character.info.isEmpty {
+                                    Text(CharacterEntry.infoPlaceholder)
+                                        .foregroundColor(.gray.opacity(0.5))
+                                        .padding(.horizontal, 4)
+                                        .padding(.vertical, 8)
+                                        .allowsHitTesting(false)
+                                }
+                            }
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+        }
+    }
+
+    // MARK: - File Selection
+    private func selectCharacterImage() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        panel.allowedContentTypes = [.png, .jpeg]
+
+        if panel.runModal() == .OK, let url = panel.url {
+            character.imagePath = url.path
         }
     }
 }

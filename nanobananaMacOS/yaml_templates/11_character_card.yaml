@@ -1,0 +1,56 @@
+{{> header header_comment="Character Card (キャラクターカード)"}}
+
+# ====================================================
+# Input
+# ====================================================
+input:
+  character:
+    name: "{{character_name}}"
+    image: "{{character_image}}"
+    info: "{{character_info}}"
+
+# ====================================================
+# Output
+# ====================================================
+output:
+  format: "character_card"
+  layout: "vertical card layout"
+  structure:
+    - "Character name prominently displayed at top"
+    - "Character image below name (full body or upper body)"
+    - "Character info displayed as vertical list below image"
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  card_layout:
+    - "Create a single card with clear boundaries"
+    - "Name should be at the top, clearly visible and readable"
+    - "Image should occupy the middle portion of the card"
+    - "Info text should be at the bottom, formatted as a vertical list"
+  character_preservation:
+    - "Preserve exact character appearance from input image"
+    - "Maintain clothing, accessories, and pose from input image"
+  info_display:
+    - "Display each line of info on a separate line"
+    - "Use consistent font style and size"
+    - "Keep text readable and well-formatted"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT alter character design from input image"
+  - "Do NOT change or omit any character info text"
+  - "Do NOT add extra characters or elements"
+  - "Do NOT modify the character name"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the character card - nothing else"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "Do NOT add extra decorative elements"
+  - "The card must contain ONLY the specified character with name and info"

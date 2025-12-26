@@ -939,6 +939,53 @@ decorative_text_overlays:
         return variables
     }
 
+    // MARK: - Character Card YAML Generation (漫画コンポーザー)
+
+    /// キャラクターカードYAML生成
+    @MainActor
+    func generateCharacterCardYAML(
+        mainViewModel: MainViewModel,
+        character: CharacterEntry
+    ) -> String {
+        let variables = buildCharacterCardVariables(mainViewModel: mainViewModel, character: character)
+        return templateEngine.render(templateName: "11_character_card.yaml", variables: variables)
+    }
+
+    /// キャラクターカード用の変数辞書を構築
+    @MainActor
+    private func buildCharacterCardVariables(
+        mainViewModel: MainViewModel,
+        character: CharacterEntry
+    ) -> [String: String] {
+        let authorName = mainViewModel.authorName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let titleOverlayEnabled = mainViewModel.includeTitleInImage
+        let (titlePosition, titleSize, authorPosition, authorSize) = getTitleOverlayPositions(
+            includeTitleInImage: titleOverlayEnabled,
+            hasAuthor: !authorName.isEmpty
+        )
+
+        return [
+            // ヘッダーパーシャル用
+            "header_comment": "Character Card (キャラクターカード)",
+            "type": "character_card",
+            "title": mainViewModel.title,
+            "author": authorName,
+            "color_mode": mainViewModel.selectedColorMode.yamlValue,
+            "output_style": mainViewModel.selectedOutputStyle.yamlValue,
+            "aspect_ratio": mainViewModel.selectedAspectRatio.yamlValue,
+            "title_overlay_enabled": titleOverlayEnabled ? "true" : "false",
+            "title_position": titlePosition,
+            "title_size": titleSize,
+            "author_position": authorPosition,
+            "author_size": authorSize,
+
+            // キャラクターカード固有
+            "character_name": character.name,
+            "character_image": YAMLUtilities.getFileName(from: character.imagePath),
+            "character_info": YAMLUtilities.convertNewlinesToEscaped(character.info)
+        ]
+    }
+
     // MARK: - Character Sheet YAML Generation (漫画コンポーザー)
 
     /// 登場人物シートYAML生成
