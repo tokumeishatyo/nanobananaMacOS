@@ -1273,16 +1273,33 @@ decorative_text_overlays:
 
             // キャラクター（有効なもののみ）
             let validCharacters = panel.characters.filter { $0.isValid }
+            let characterCount = validCharacters.count
+
+            // タグ生成（キャラクター数とモブ有無に応じて）
+            let tags = generateCharacterTags(characterCount: characterCount, hasMob: panel.hasMobCharacters)
+            content += "    tags: \"\(tags)\"\n"
+
             if !validCharacters.isEmpty {
                 content += "    characters:\n"
 
                 for (charIndex, character) in validCharacters.enumerated() {
                     let order = charIndex + 1
+                    let charName = character.name.trimmingCharacters(in: .whitespacesAndNewlines)
                     let imageName = YAMLUtilities.getFileName(from: character.imagePath)
                     let dialogue = character.dialogue.trimmingCharacters(in: .whitespacesAndNewlines)
                     let features = character.features.trimmingCharacters(in: .whitespacesAndNewlines)
 
+                    // 位置生成（キャラクター数とインデックスに応じて）
+                    let position = generateCharacterPosition(
+                        charIndex: charIndex,
+                        totalCount: characterCount,
+                        characterName: charName,
+                        previousCharacterName: charIndex > 0 ? validCharacters[charIndex - 1].name : nil
+                    )
+
                     content += "      - order: \(order)\n"
+                    content += "        name: \"\(YAMLUtilities.escapeYAMLString(charName))\"\n"
+                    content += "        position: \"\(position)\"\n"
                     content += "        reference_image: \"\(imageName)\"\n"
 
                     // セリフは任意
@@ -1299,6 +1316,68 @@ decorative_text_overlays:
         }
 
         return content
+    }
+
+    /// キャラクター位置を生成（Googleガイダンス準拠）
+    /// - solo: center
+    /// - duo: 1人目は左、2人目は1人目の右隣（相対位置）
+    /// - trio: 3点固定（left/center/right）
+    private func generateCharacterPosition(
+        charIndex: Int,
+        totalCount: Int,
+        characterName: String,
+        previousCharacterName: String?
+    ) -> String {
+        switch totalCount {
+        case 1:
+            // Solo: center
+            return "center"
+        case 2:
+            // Duo: 1人目は絶対位置（左）、2人目は相対位置
+            if charIndex == 0 {
+                return "on the left side"
+            } else {
+                let prevName = previousCharacterName ?? "character 1"
+                return "to the immediate right of \(prevName)"
+            }
+        case 3:
+            // Trio: 3点固定
+            switch charIndex {
+            case 0:
+                return "on the left side"
+            case 1:
+                return "center"
+            default:
+                return "on the right side"
+            }
+        default:
+            // 4人以上は未対応、左から順番に
+            return "position \(charIndex + 1)"
+        }
+    }
+
+    /// キャラクタータグを生成（Googleガイダンス準拠）
+    /// - solo: "solo, 1girl" / "solo, 1boy"
+    /// - duo: "duo, 2girls" / "duo, 2boys" / "duo, 1girl, 1boy"
+    /// - trio: "trio, 3girls" / etc.
+    /// - with_crowd: "crowd, many people, depth of field"
+    private func generateCharacterTags(characterCount: Int, hasMob: Bool) -> String {
+        if hasMob {
+            // モブあり: crowd系タグ（solo/duo/trioは使わない）
+            return "crowd, many people, depth of field"
+        }
+
+        // モブなし: 人数に応じたタグ
+        switch characterCount {
+        case 1:
+            return "solo, 1girl"
+        case 2:
+            return "duo, 2girls"
+        case 3:
+            return "trio, 3girls"
+        default:
+            return "multiple characters"
+        }
     }
 
     // MARK: - Placeholder

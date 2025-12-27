@@ -76,10 +76,15 @@ struct MangaPanelFormView: View {
 
                 // MARK: - Scene (Required)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("シーン")
-                        .font(.caption)
-                        .fontWeight(.medium)
-                    TextField("シーン", text: $panel.scene, prompt: Text("このコマの状況を説明（必須）"))
+                    HStack {
+                        Text("シーン")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                        Text("※位置情報を含めると精度向上")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    TextField("シーン", text: $panel.scene, prompt: Text("例: ビーチを走る二人。左側にこよみ、右隣にりん。"))
                         .textFieldStyle(.roundedBorder)
                 }
 
@@ -91,6 +96,14 @@ struct MangaPanelFormView: View {
                     TextField("ナレーション", text: $panel.narration, prompt: Text("コマ上部のナレーション（任意）"))
                         .textFieldStyle(.roundedBorder)
                 }
+
+                // MARK: - Mob Characters Toggle
+                Toggle(isOn: $panel.hasMobCharacters) {
+                    Text("モブキャラを含める")
+                        .font(.caption)
+                }
+                .toggleStyle(.checkbox)
+                .help("群衆・通行人など背景の人物を描画します")
 
                 Divider()
 
@@ -164,6 +177,17 @@ struct PanelCharacterSlotView: View {
                 }
             }
             .frame(width: 120)
+
+            // MARK: - Character Name (Required)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("名前")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                TextField("", text: $character.name, prompt: Text("キャラ名（必須）"))
+                    .textFieldStyle(.roundedBorder)
+                    .font(.caption)
+                    .frame(width: 120)
+            }
 
             // MARK: - Image Drop Zone
             ZStack {
@@ -244,6 +268,7 @@ struct PanelCharacterSlotView: View {
                     .frame(width: 120)
             }
         }
+        .frame(width: 120, alignment: .leading)  // 固定幅でずれ防止
     }
 
     // MARK: - Drop Handling

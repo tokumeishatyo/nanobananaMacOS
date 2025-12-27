@@ -17,7 +17,32 @@ layout_instruction:
   - "各キャラクターの外見は添付画像を忠実に再現してください。"
   - "セリフは吹き出しで表示してください。"
   - "ナレーションがある場合は、コマの上部にテキストボックスで表示してください。"
-  - "各コマ内のキャラクターは順番に横に並べてください: 1番目(最初) → 2番目(1番目の右隣) → 3番目(2番目の右隣)"
+
+# ====================================================
+# Character Positioning Rules (キャラ配置ルール)
+# ====================================================
+positioning_rules:
+  principle:
+    - "Each panel specifies character positions using 'position' field"
+    - "Position can be absolute (left/center/right) or relative (to the right of [name])"
+    - "Scene description also contains position information for reinforcement"
+  solo:
+    - "Single character uses 'center' position"
+    - "Use 'solo' tag to prevent additional characters"
+  duo:
+    - "First character: absolute position 'on the left side'"
+    - "Second character: relative position 'to the immediate right of [first character name]'"
+    - "Use 'duo' tag to enforce 2-person composition"
+  trio:
+    - "First character: 'on the left side'"
+    - "Second character: 'center' (NOT relative to first)"
+    - "Third character: 'on the right side'"
+    - "Use 'trio' tag to enforce 3-person composition"
+  with_crowd:
+    - "When has_mob_characters is true, draw background crowd/pedestrians"
+    - "Use 'crowd', 'many people', 'depth of field' tags"
+    - "Do NOT use solo/duo/trio tags when crowd is present"
+    - "Main characters remain in focus, crowd is blurred background"
 
 # ====================================================
 # Panel Count (コマ数)
@@ -37,10 +62,20 @@ constraints:
     - "Preserve exact character appearance from input images"
     - "Apply the specified features (expression, pose) to each character"
     - "Maintain character identity across all panels"
+  character_positioning:
+    - "Follow the 'position' field for each character strictly"
+    - "Absolute positions: 'on the left side', 'center', 'on the right side'"
+    - "Relative positions: 'to the immediate right of [name]'"
+    - "Scene description reinforces positioning - follow it"
+  person_count:
+    - "The 'tags' field specifies exact person count"
+    - "'solo' = exactly 1 person, no extras"
+    - "'duo' = exactly 2 people, no extras"
+    - "'trio' = exactly 3 people, no extras"
+    - "'crowd' = main characters + background people (blurred)"
   panel_layout:
     - "Arrange panels vertically from top to bottom"
     - "Each panel should have clear boundaries"
-    - "Characters within a panel are arranged sequentially: 1st → 2nd (right of 1st) → 3rd (right of 2nd)"
   dialogue_rules:
     - "Display dialogue in speech bubbles near the speaking character"
     - "Position dialogue appropriately within the panel"
@@ -53,9 +88,10 @@ constraints:
 # ====================================================
 anti_hallucination:
   - "Do NOT alter character designs from input images"
-  - "Do NOT add characters not specified in the panel"
+  - "Do NOT add characters not specified in the panel (unless 'crowd' tag is present)"
   - "Do NOT change dialogue text"
-  - "Do NOT swap character positions within a panel"
+  - "Do NOT swap character positions - follow 'position' field exactly"
+  - "Do NOT ignore 'tags' field - it controls person count"
 
 # ====================================================
 # Output Cleanliness (CRITICAL)

@@ -86,6 +86,7 @@ final class MangaPanel: ObservableObject, Identifiable {
     // MARK: - Panel Content
     @Published var scene: String = ""           // シーン説明（必須）
     @Published var narration: String = ""       // ナレーション（任意）
+    @Published var hasMobCharacters: Bool = false  // モブキャラを含める
 
     // MARK: - Characters (1〜3人)
     @Published var characters: [PanelCharacter] = []
@@ -166,12 +167,18 @@ final class MangaPanel: ObservableObject, Identifiable {
 final class PanelCharacter: ObservableObject, Identifiable {
     let id = UUID()
 
+    @Published var name: String = ""            // キャラクター名（相対位置参照用、必須）
     @Published var imagePath: String = ""       // キャラクター画像パス
     @Published var dialogue: String = ""        // セリフ
     @Published var features: String = ""        // 特徴（表情・ポーズ）
 
-    /// 有効か（画像パスが設定されているか）
+    /// 有効か（名前と画像パスが設定されているか）
     var isValid: Bool {
-        !imagePath.isEmpty
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !imagePath.isEmpty
+    }
+
+    /// 名前が入力されているか
+    var hasName: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
