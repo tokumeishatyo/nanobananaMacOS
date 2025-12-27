@@ -46,7 +46,9 @@ constraints:
     - "'solo' = exactly 1 person, no extras"
     - "'duo' = exactly 2 people, no extras"
     - "'trio' = exactly 3 people, no extras"
-    - "'crowd' = main characters + background people (blurred)"
+    - "'crowd' = main characters + background people"
+    - "'crowd' with 'depth of field' = background people are blurred"
+    - "'crowd' with 'sharp focus' = background people are clearly drawn"
   panel_layout:
     - "Arrange panels vertically from top to bottom"
     - "Each panel should have clear boundaries"

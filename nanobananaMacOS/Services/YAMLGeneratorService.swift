@@ -1280,11 +1280,19 @@ decorative_text_overlays:
             let characterCount = validCharacters.count
 
             // タグ生成（キャラクター数とモブ有無に応じて）
-            let tags = generateCharacterTags(characterCount: characterCount, hasMob: panel.hasMobCharacters)
+            let tags = generateCharacterTags(
+                characterCount: characterCount,
+                hasMob: panel.hasMobCharacters,
+                drawMobsClearly: panel.drawMobsClearly
+            )
             content += "    tags: \"\(tags)\"\n"
 
             // 配置ルール（このコマ専用）
-            let positioningRule = generatePositioningRule(characterCount: characterCount, hasMob: panel.hasMobCharacters)
+            let positioningRule = generatePositioningRule(
+                characterCount: characterCount,
+                hasMob: panel.hasMobCharacters,
+                drawMobsClearly: panel.drawMobsClearly
+            )
             content += "    positioning_rule: \"\(positioningRule)\"\n"
 
             if !validCharacters.isEmpty {
@@ -1302,7 +1310,8 @@ decorative_text_overlays:
                         charIndex: charIndex,
                         totalCount: characterCount,
                         characterName: charName,
-                        previousCharacterName: charIndex > 0 ? validCharacters[charIndex - 1].name : nil
+                        previousCharacterName: charIndex > 0 ? validCharacters[charIndex - 1].name : nil,
+                        addForeground: panel.hasMobCharacters && panel.drawMobsClearly
                     )
 
                     content += "      - order: \(order)\n"
@@ -1330,49 +1339,65 @@ decorative_text_overlays:
     /// - solo: center
     /// - duo: 1人目は左、2人目は1人目の右隣（相対位置）
     /// - trio: 3点固定（left/center/right）
+    /// - addForeground: trueの場合、位置に", foreground"を追加（モブはっきり描画時）
     private func generateCharacterPosition(
         charIndex: Int,
         totalCount: Int,
         characterName: String,
-        previousCharacterName: String?
+        previousCharacterName: String?,
+        addForeground: Bool = false
     ) -> String {
+        let basePosition: String
+
         switch totalCount {
         case 1:
             // Solo: center
-            return "center"
+            basePosition = "center"
         case 2:
             // Duo: 1人目は絶対位置（左）、2人目は相対位置
             if charIndex == 0 {
-                return "on the left side"
+                basePosition = "on the left side"
             } else {
                 let prevName = previousCharacterName ?? "character 1"
-                return "to the immediate right of \(prevName)"
+                basePosition = "to the immediate right of \(prevName)"
             }
         case 3:
             // Trio: 3点固定
             switch charIndex {
             case 0:
-                return "on the left side"
+                basePosition = "on the left side"
             case 1:
-                return "center"
+                basePosition = "center"
             default:
-                return "on the right side"
+                basePosition = "on the right side"
             }
         default:
             // 4人以上は未対応、左から順番に
-            return "position \(charIndex + 1)"
+            basePosition = "position \(charIndex + 1)"
         }
+
+        // モブをはっきり描く場合、主役を前面に配置
+        if addForeground {
+            return "\(basePosition), foreground"
+        }
+        return basePosition
     }
 
     /// キャラクタータグを生成（Googleガイダンス準拠）
     /// - solo: "solo, 1girl" / "solo, 1boy"
     /// - duo: "duo, 2girls" / "duo, 2boys" / "duo, 1girl, 1boy"
     /// - trio: "trio, 3girls" / etc.
-    /// - with_crowd: "crowd, many people, depth of field"
-    private func generateCharacterTags(characterCount: Int, hasMob: Bool) -> String {
+    /// - with_crowd (blurred): "crowd, many people, depth of field, blurred background"
+    /// - with_crowd (clear): "crowd, many people, sharp focus, all in focus, intricate details"
+    private func generateCharacterTags(characterCount: Int, hasMob: Bool, drawMobsClearly: Bool) -> String {
         if hasMob {
-            // モブあり: crowd系タグ（solo/duo/trioは使わない）
-            return "crowd, many people, depth of field"
+            if drawMobsClearly {
+                // モブもはっきり描く（sharp focus）
+                return "crowd, many people, sharp focus, all in focus, intricate details"
+            } else {
+                // モブはぼやける（被写界深度）
+                return "crowd, many people, depth of field, blurred background"
+            }
         }
 
         // モブなし: 人数に応じたタグ
@@ -1389,9 +1414,15 @@ decorative_text_overlays:
     }
 
     /// 配置ルールを生成（このコマ専用のルール）
-    private func generatePositioningRule(characterCount: Int, hasMob: Bool) -> String {
+    private func generatePositioningRule(characterCount: Int, hasMob: Bool, drawMobsClearly: Bool) -> String {
         if hasMob {
-            return "crowd: Draw background crowd/pedestrians with depth of field. Main characters in focus, crowd blurred."
+            if drawMobsClearly {
+                // モブもはっきり描く（sharp focus）
+                return "crowd: Draw background crowd/people with sharp focus. All characters clearly visible. Main characters in foreground."
+            } else {
+                // モブはぼやける（被写界深度）
+                return "crowd: Draw background crowd/pedestrians with depth of field. Main characters in focus, crowd blurred."
+            }
         }
 
         switch characterCount {
