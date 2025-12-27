@@ -119,12 +119,24 @@ struct MangaPanelFormView: View {
                 }
 
                 // MARK: - Mob Characters Toggle
-                Toggle(isOn: $panel.hasMobCharacters) {
-                    Text("モブキャラを含める")
-                        .font(.caption)
+                HStack(spacing: 16) {
+                    Toggle(isOn: $panel.hasMobCharacters) {
+                        Text("モブキャラを含める")
+                            .font(.caption)
+                    }
+                    .toggleStyle(.checkbox)
+                    .help("群衆・通行人など背景の人物を描画します")
+
+                    // 「モブもしっかり描く」は hasMobCharacters がオンの時のみ表示
+                    if panel.hasMobCharacters {
+                        Toggle(isOn: $panel.drawMobsClearly) {
+                            Text("モブもしっかり描く")
+                                .font(.caption)
+                        }
+                        .toggleStyle(.checkbox)
+                        .help("オフ: モブはぼやける（被写界深度）\nオン: モブもはっきり描く")
+                    }
                 }
-                .toggleStyle(.checkbox)
-                .help("群衆・通行人など背景の人物を描画します")
 
                 Divider()
 
