@@ -16,51 +16,7 @@ layout_instruction:
   - "余白は不要です。"
   - "各キャラクターの外見は添付画像を忠実に再現してください。"
   - "セリフは吹き出しで表示してください。"
-  - "ナレーションは各コマの指定位置に表示してください（narration_position参照）。"
-
-# ====================================================
-# Narration Positioning Rules (ナレーション配置ルール)
-# ====================================================
-narration_rules:
-  position_types:
-    auto: "AI judges the best position for the narration"
-    top: "Place narration at the TOP of the panel (horizontal text)"
-    bottom: "Place narration at the BOTTOM of the panel (horizontal text)"
-    right: "Place narration on the RIGHT side of the panel (VERTICAL text, Japanese style)"
-    left: "Place narration on the LEFT side of the panel (VERTICAL text, Japanese style)"
-  orientation:
-    horizontal: "Text flows left-to-right (for top/bottom positions)"
-    vertical: "Text flows top-to-bottom (for right/left positions, traditional Japanese manga style)"
-  styling:
-    - "Narration should be displayed in a text box or caption style"
-    - "Use a semi-transparent background for readability"
-    - "Vertical text should use proper Japanese vertical typography"
-
-# ====================================================
-# Character Positioning Rules (キャラ配置ルール)
-# ====================================================
-positioning_rules:
-  principle:
-    - "Each panel specifies character positions using 'position' field"
-    - "Position can be absolute (left/center/right) or relative (to the right of [name])"
-    - "Scene description also contains position information for reinforcement"
-  solo:
-    - "Single character uses 'center' position"
-    - "Use 'solo' tag to prevent additional characters"
-  duo:
-    - "First character: absolute position 'on the left side'"
-    - "Second character: relative position 'to the immediate right of [first character name]'"
-    - "Use 'duo' tag to enforce 2-person composition"
-  trio:
-    - "First character: 'on the left side'"
-    - "Second character: 'center' (NOT relative to first)"
-    - "Third character: 'on the right side'"
-    - "Use 'trio' tag to enforce 3-person composition"
-  with_crowd:
-    - "When has_mob_characters is true, draw background crowd/pedestrians"
-    - "Use 'crowd', 'many people', 'depth of field' tags"
-    - "Do NOT use solo/duo/trio tags when crowd is present"
-    - "Main characters remain in focus, crowd is blurred background"
+  - "各コマのpositioning_ruleとnarration_ruleに従ってください。"
 
 # ====================================================
 # Panel Count (コマ数)
@@ -98,11 +54,8 @@ constraints:
     - "Display dialogue in speech bubbles near the speaking character"
     - "Position dialogue appropriately within the panel"
   narration_rules:
-    - "Follow the 'narration_position' field for each panel"
-    - "If narration_position is 'auto' or not specified, AI chooses the best position"
-    - "If narration_position is 'top' or 'bottom', use horizontal text"
-    - "If narration_position is 'right' or 'left', use VERTICAL text (縦書き)"
-    - "Follow the 'narration_orientation' field for text direction"
+    - "Follow the 'narration_rule' field in each panel for narration placement"
+    - "Each panel specifies its own narration position and text orientation"
   transparency_handling:
     - "Recognize checkerboard patterns in character images as TRANSPARENT backgrounds"
     - "Remove/ignore the transparent background area so only the character is visible"

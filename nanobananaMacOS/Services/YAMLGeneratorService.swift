@@ -1270,11 +1270,9 @@ decorative_text_overlays:
             if !trimmedNarration.isEmpty {
                 content += "    narration: \"\(YAMLUtilities.escapeYAMLString(trimmedNarration))\"\n"
 
-                // ナレーション位置（autoでなければ出力）
-                if panel.narrationPosition != .auto {
-                    content += "    narration_position: \"\(panel.narrationPosition.yamlValue)\"\n"
-                    content += "    narration_orientation: \"\(panel.narrationPosition.orientationValue)\"\n"
-                }
+                // ナレーションルール（このコマ専用）
+                let narrationRule = generateNarrationRule(position: panel.narrationPosition)
+                content += "    narration_rule: \"\(narrationRule)\"\n"
             }
 
             // キャラクター（有効なもののみ）
@@ -1284,6 +1282,10 @@ decorative_text_overlays:
             // タグ生成（キャラクター数とモブ有無に応じて）
             let tags = generateCharacterTags(characterCount: characterCount, hasMob: panel.hasMobCharacters)
             content += "    tags: \"\(tags)\"\n"
+
+            // 配置ルール（このコマ専用）
+            let positioningRule = generatePositioningRule(characterCount: characterCount, hasMob: panel.hasMobCharacters)
+            content += "    positioning_rule: \"\(positioningRule)\"\n"
 
             if !validCharacters.isEmpty {
                 content += "    characters:\n"
@@ -1383,6 +1385,40 @@ decorative_text_overlays:
             return "trio, 3girls"
         default:
             return "multiple characters"
+        }
+    }
+
+    /// 配置ルールを生成（このコマ専用のルール）
+    private func generatePositioningRule(characterCount: Int, hasMob: Bool) -> String {
+        if hasMob {
+            return "crowd: Draw background crowd/pedestrians with depth of field. Main characters in focus, crowd blurred."
+        }
+
+        switch characterCount {
+        case 1:
+            return "solo: Single character at center. Do NOT add extra characters."
+        case 2:
+            return "duo: First character on the left, second to the immediate right. Exactly 2 people only."
+        case 3:
+            return "trio: Three-point fixed layout (left/center/right). Exactly 3 people only."
+        default:
+            return "Follow each character's position field strictly."
+        }
+    }
+
+    /// ナレーションルールを生成（このコマ専用のルール）
+    private func generateNarrationRule(position: NarrationPosition) -> String {
+        switch position {
+        case .auto:
+            return "AI chooses the best position for narration."
+        case .top:
+            return "Place narration at TOP of panel. Horizontal text (横書き)."
+        case .bottom:
+            return "Place narration at BOTTOM of panel. Horizontal text (横書き)."
+        case .right:
+            return "Place narration on RIGHT side of panel. VERTICAL text (縦書き, top-to-bottom)."
+        case .left:
+            return "Place narration on LEFT side of panel. VERTICAL text (縦書き, top-to-bottom)."
         }
     }
 
