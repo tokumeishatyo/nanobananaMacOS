@@ -16,7 +16,25 @@ layout_instruction:
   - "余白は不要です。"
   - "各キャラクターの外見は添付画像を忠実に再現してください。"
   - "セリフは吹き出しで表示してください。"
-  - "ナレーションがある場合は、コマの上部にテキストボックスで表示してください。"
+  - "ナレーションは各コマの指定位置に表示してください（narration_position参照）。"
+
+# ====================================================
+# Narration Positioning Rules (ナレーション配置ルール)
+# ====================================================
+narration_rules:
+  position_types:
+    auto: "AI judges the best position for the narration"
+    top: "Place narration at the TOP of the panel (horizontal text)"
+    bottom: "Place narration at the BOTTOM of the panel (horizontal text)"
+    right: "Place narration on the RIGHT side of the panel (VERTICAL text, Japanese style)"
+    left: "Place narration on the LEFT side of the panel (VERTICAL text, Japanese style)"
+  orientation:
+    horizontal: "Text flows left-to-right (for top/bottom positions)"
+    vertical: "Text flows top-to-bottom (for right/left positions, traditional Japanese manga style)"
+  styling:
+    - "Narration should be displayed in a text box or caption style"
+    - "Use a semi-transparent background for readability"
+    - "Vertical text should use proper Japanese vertical typography"
 
 # ====================================================
 # Character Positioning Rules (キャラ配置ルール)
@@ -79,6 +97,12 @@ constraints:
   dialogue_rules:
     - "Display dialogue in speech bubbles near the speaking character"
     - "Position dialogue appropriately within the panel"
+  narration_rules:
+    - "Follow the 'narration_position' field for each panel"
+    - "If narration_position is 'auto' or not specified, AI chooses the best position"
+    - "If narration_position is 'top' or 'bottom', use horizontal text"
+    - "If narration_position is 'right' or 'left', use VERTICAL text (縦書き)"
+    - "Follow the 'narration_orientation' field for text direction"
   transparency_handling:
     - "Recognize checkerboard patterns in character images as TRANSPARENT backgrounds"
     - "Remove/ignore the transparent background area so only the character is visible"
@@ -90,8 +114,11 @@ anti_hallucination:
   - "Do NOT alter character designs from input images"
   - "Do NOT add characters not specified in the panel (unless 'crowd' tag is present)"
   - "Do NOT change dialogue text"
+  - "Do NOT change narration text"
   - "Do NOT swap character positions - follow 'position' field exactly"
   - "Do NOT ignore 'tags' field - it controls person count"
+  - "Do NOT ignore 'narration_position' field - it controls narration placement"
+  - "Do NOT use horizontal text when 'narration_orientation' is 'vertical'"
 
 # ====================================================
 # Output Cleanliness (CRITICAL)

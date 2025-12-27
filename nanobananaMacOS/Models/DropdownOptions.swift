@@ -677,34 +677,47 @@ enum CharacterCount: String, CaseIterable, Identifiable {
 }
 
 // MARK: - Narration Position
-/// ナレーション位置（ストーリーシーン用）
+/// ナレーション位置（ストーリーシーン・漫画作成共通）
 enum NarrationPosition: String, CaseIterable, Identifiable {
-    case topHorizontal = "画面上部(横書き)"
-    case bottomHorizontal = "画面下部(横書き)"
-    case leftVertical = "画面左(縦書き)"
-    case rightVertical = "画面右(縦書き)"
-    case auto = "おまかせ"
+    case auto = "AIにお任せ"
+    case top = "上"
+    case bottom = "下"
+    case right = "右"
+    case left = "左"
 
     var id: String { rawValue }
 
     var yamlValue: String {
         switch self {
-        case .topHorizontal: return "top_horizontal"
-        case .bottomHorizontal: return "bottom_horizontal"
-        case .leftVertical: return "left_vertical"
-        case .rightVertical: return "right_vertical"
         case .auto: return "auto"
+        case .top: return "top"
+        case .bottom: return "bottom"
+        case .right: return "right"
+        case .left: return "left"
         }
     }
 
-    /// ボタン表示用のラベル（2行表示対応）
+    /// YAML出力用のテキスト向き（右・左は縦書き）
+    var orientationValue: String {
+        switch self {
+        case .right, .left: return "vertical"
+        default: return "horizontal"
+        }
+    }
+
+    /// 縦書きかどうか
+    var isVertical: Bool {
+        self == .right || self == .left
+    }
+
+    /// ボタン表示用のラベル（2行表示対応、ストーリーシーン用）
     var buttonLabel: String {
         switch self {
-        case .topHorizontal: return "画面上部\n(横書き)"
-        case .bottomHorizontal: return "画面下部\n(横書き)"
-        case .leftVertical: return "画面左\n(縦書き)"
-        case .rightVertical: return "画面右\n(縦書き)"
-        case .auto: return "おまかせ"
+        case .auto: return "AIに\nお任せ"
+        case .top: return "上\n(横書き)"
+        case .bottom: return "下\n(横書き)"
+        case .right: return "右\n(縦書き)"
+        case .left: return "左\n(縦書き)"
         }
     }
 }

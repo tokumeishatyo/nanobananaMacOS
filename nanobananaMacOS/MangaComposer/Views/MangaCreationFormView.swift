@@ -93,8 +93,29 @@ struct MangaPanelFormView: View {
                     Text("ナレーション")
                         .font(.caption)
                         .fontWeight(.medium)
-                    TextField("ナレーション", text: $panel.narration, prompt: Text("コマ上部のナレーション（任意）"))
+                    TextField("ナレーション", text: $panel.narration, prompt: Text("ナレーション（任意）"))
                         .textFieldStyle(.roundedBorder)
+                }
+
+                // MARK: - Narration Position
+                HStack {
+                    Text("ナレーション位置")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                    Picker("", selection: $panel.narrationPosition) {
+                        ForEach(NarrationPosition.allCases, id: \.self) { position in
+                            Text(position.rawValue).tag(position)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .frame(width: 120)
+
+                    // 縦書きインジケーター
+                    if panel.narrationPosition.isVertical {
+                        Text("（縦書き）")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
                 }
 
                 // MARK: - Mob Characters Toggle

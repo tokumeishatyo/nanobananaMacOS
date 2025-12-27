@@ -1269,6 +1269,12 @@ decorative_text_overlays:
             let trimmedNarration = panel.narration.trimmingCharacters(in: .whitespacesAndNewlines)
             if !trimmedNarration.isEmpty {
                 content += "    narration: \"\(YAMLUtilities.escapeYAMLString(trimmedNarration))\"\n"
+
+                // ナレーション位置（autoでなければ出力）
+                if panel.narrationPosition != .auto {
+                    content += "    narration_position: \"\(panel.narrationPosition.yamlValue)\"\n"
+                    content += "    narration_orientation: \"\(panel.narrationPosition.orientationValue)\"\n"
+                }
             }
 
             // キャラクター（有効なもののみ）

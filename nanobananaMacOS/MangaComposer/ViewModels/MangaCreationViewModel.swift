@@ -86,6 +86,7 @@ final class MangaPanel: ObservableObject, Identifiable {
     // MARK: - Panel Content
     @Published var scene: String = ""           // シーン説明（必須）
     @Published var narration: String = ""       // ナレーション（任意）
+    @Published var narrationPosition: NarrationPosition = .auto  // ナレーション位置
     @Published var hasMobCharacters: Bool = false  // モブキャラを含める
 
     // MARK: - Characters (1〜3人)
