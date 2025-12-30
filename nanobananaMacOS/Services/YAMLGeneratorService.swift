@@ -1454,8 +1454,7 @@ wardrobe:
                     content += "      - actor: \"\(actorId)\"\n"
                     content += "        name: \"\(YAMLUtilities.escapeYAMLString(charName))\"\n"
                     content += "        position: \"\(position)\"\n"
-                    // face_reference: コメントアウト（後で復活させるかもしれない）
-                    content += "        # face_reference: \"\(faceReference)\"\n"
+                    content += "        face_reference: \"\(faceReference)\"\n"
                     // wear: Component Registryで定義した衣装ID
                     content += "        wear: \"\(costumeId)\"\n"
 
