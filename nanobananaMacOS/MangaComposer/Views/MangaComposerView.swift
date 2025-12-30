@@ -31,7 +31,7 @@ struct MangaComposerView: View {
             // MARK: - Action Buttons
             actionButtonsSection
         }
-        .frame(width: 500, height: 600)
+        .frame(width: 600, height: 1000)
         .onAppear {
             setupCallbacks()
         }

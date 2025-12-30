@@ -1,0 +1,117 @@
+# ====================================================
+# 参考にしたファイル。実装では使わない。
+# 11_multi_panel.yaml に必要な部分を統合済み。
+# ====================================================
+
+{{> header header_comment="4-Panel Manga Generator: Component Assembly System"}}
+
+# ====================================================
+# 1. Global Settings (作品全体の設定)
+# ====================================================
+global_settings:
+  art_style: "Japanese 4-panel manga style, high-quality digital illustration"
+  line_work: "Clean, crisp black outlines, screen tones for shading"
+  coloring: "Full color" # 白黒の場合は "Monochrome manga style" に変更
+  layout: "Vertical 4-panel strip"
+
+# ====================================================
+# 2. Component Registry (部品倉庫)
+# ====================================================
+
+# 【A】Actor Registry (役者定義：顔と身体特徴)
+# ※ここには「服」の情報は一切書きません。顔画像を指定します。
+actors:
+  actor_A:
+    name: "Character A" # 具体的な名前に変更 (例: Shoko)
+    face_reference: "{{face_sheet_A}}"  # 顔の三面図ファイルを指定
+    hair_feature: "Specific hairstyle description" # 例: High ponytail, brown hair
+    body_feature: "Specific body type description" # 例: Athletic build
+    personality: "Energetic and cheerful"
+
+  actor_B:
+    name: "Character B" # (例: Friend)
+    face_reference: "{{face_sheet_B}}"
+    hair_feature: "Short bob cut, black hair"
+    body_feature: "Slim build"
+    personality: "Calm and gentle"
+
+# 【B】Wardrobe Registry (衣装定義：透明人間三面図)
+# ※ここで「先ほど作った衣装三面図」を使います。
+wardrobe:
+  costume_01:
+    id: "uniform_standard"
+    reference: "{{outfit_sheet_01}}" # 透明人間の衣装三面図を指定
+    description: "School sailor uniform"
+  
+  costume_02:
+    id: "sportswear_judo"
+    reference: "{{outfit_sheet_02}}"
+    description: "White Judo Gi with black belt"
+
+  costume_03:
+    id: "swimsuit_comp"
+    reference: "{{outfit_sheet_03}}"
+    description: "Professional competition swimsuit"
+
+# ====================================================
+# 3. Panel Script (脚本・組み立て指示書)
+# ====================================================
+panels:
+  # --- 1コマ目 ---
+  panel_1:
+    scene: "Description of the background/place"
+    composition: "Camera angle and character positioning"
+    characters:
+      - actor: "actor_A"        # 役者を選択
+        wear: "costume_01"      # 衣装を選択
+        variant: "Red scarf"    # (任意) 色や小物の指定
+        action: "Action description"
+        expression: "Facial expression"
+    dialogue: "Character's lines or narration"
+
+  # --- 2コマ目 ---
+  panel_2:
+    scene: "..."
+    composition: "..."
+    characters:
+      - actor: "actor_A"
+        wear: "costume_02"      # 衣装切り替え（例：柔道着）
+        action: "..."
+      - actor: "actor_B"        # 別のキャラが登場
+        wear: "costume_01"      # Aと同じ制服を着せることも可能
+        action: "..."
+
+  # --- 3コマ目 ---
+  panel_3:
+    scene: "..."
+    composition: "..."
+    characters:
+      - actor: "actor_A"
+        wear: "costume_03"      # 衣装切り替え（例：水着）
+        variant: "Black color"  # 色指定：黒
+        action: "..."
+      - actor: "actor_B"
+        wear: "costume_03"      # 同じ水着
+        variant: "Blue color"   # 色指定：青
+        action: "..."
+
+  # --- 4コマ目 ---
+  panel_4:
+    scene: "..."
+    composition: "..."
+    characters:
+      - actor: "actor_A"
+        wear: "costume_01"      # 基本の服に戻る
+        action: "..."
+        expression: "Happy ending smile"
+
+# ====================================================
+# 4. Assembly Logic (AIへの合成指示)
+# ====================================================
+instructions:
+  - "Compose the image by applying the 'wear' (Outfit Reference) onto the 'actor' (Face Reference)."
+  - "STRICTLY maintain the actor's facial features from the `face_reference`."
+  - "STRICTLY maintain the outfit's design and structure from the `wardrobe` reference."
+  - "The `wardrobe` reference is a 'Ghost Mannequin' view. Fit this clothing naturally onto the actor's body."
+  - "If a `variant` is provided, override the color/texture of the outfit while keeping the design shape."
+  - "Ensure consistent art style across all 4 panels."

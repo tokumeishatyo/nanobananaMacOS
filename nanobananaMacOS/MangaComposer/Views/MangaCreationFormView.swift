@@ -14,9 +14,20 @@ struct MangaCreationFormView: View {
                 .font(.headline)
                 .padding(.top, 8)
 
-            Text("1〜4コマの漫画を作成します。各コマにキャラクターを配置し、セリフと特徴を設定できます。")
+            Text("1〜4コマの漫画を作成します。登場人物と衣装を登録してから、各コマで組み合わせを選択してください。")
                 .font(.caption)
                 .foregroundColor(.secondary)
+
+            // MARK: - 登場人物セクション
+            ActorsSectionView(viewModel: viewModel)
+
+            // MARK: - 衣装セクション
+            WardrobesSectionView(viewModel: viewModel)
+
+            // MARK: - 登録/クリアボタン
+            RegistrationButtonsView(viewModel: viewModel)
+
+            Divider()
 
             // MARK: - Panels
             ForEach(Array(viewModel.panels.enumerated()), id: \.element.id) { index, panel in
@@ -24,6 +35,8 @@ struct MangaCreationFormView: View {
                     panel: panel,
                     panelIndex: index,
                     canRemove: viewModel.canRemovePanel,
+                    registeredActors: viewModel.registeredActors,
+                    registeredWardrobes: viewModel.registeredWardrobes,
                     onRemove: {
                         viewModel.removePanel(at: index)
                     }
@@ -48,12 +61,341 @@ struct MangaCreationFormView: View {
     }
 }
 
+// MARK: - Actors Section View
+/// 登場人物セクション
+struct ActorsSectionView: View {
+    @ObservedObject var viewModel: MangaCreationViewModel
+
+    var body: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 12) {
+                // MARK: - Header
+                HStack {
+                    Text("登場人物")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    Text("（1〜3人）")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+
+                // MARK: - Actors
+                ForEach(Array(viewModel.actors.enumerated()), id: \.element.id) { index, actor in
+                    ActorEntryView(
+                        actor: actor,
+                        actorIndex: index,
+                        canRemove: viewModel.canRemoveActor,
+                        onRemove: {
+                            viewModel.removeActor(at: index)
+                        }
+                    )
+                }
+
+                // MARK: - Add Actor Button
+                if viewModel.canAddActor {
+                    Button(action: {
+                        viewModel.addActor()
+                    }) {
+                        HStack {
+                            Image(systemName: "plus.circle")
+                            Text("キャラを追加")
+                        }
+                        .font(.caption)
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+            .padding(.vertical, 4)
+        }
+    }
+}
+
+// MARK: - Actor Entry View
+/// 登場人物の入力フォーム（1人分）
+struct ActorEntryView: View {
+    @ObservedObject var actor: ActorEntry
+    let actorIndex: Int
+    let canRemove: Bool
+    let onRemove: () -> Void
+
+    private var actorLabel: String {
+        let labels = ["A", "B", "C"]
+        return "キャラ\(labels[actorIndex])"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // MARK: - Header
+            HStack {
+                Text(actorLabel)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.accentColor)
+                Spacer()
+                if canRemove {
+                    Button(action: onRemove) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            // MARK: - Name (Required)
+            HStack {
+                Text("キャラクタ名")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .frame(width: 100, alignment: .leading)
+                TextField("", text: $actor.name, prompt: Text("必須"))
+                    .textFieldStyle(.roundedBorder)
+                    .font(.caption)
+            }
+
+            // MARK: - Face Sheet Path (Required)
+            HStack {
+                Text("顔三面図")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .frame(width: 100, alignment: .leading)
+                TextField("", text: $actor.faceSheetPath, prompt: Text("画像パス（必須）"))
+                    .textFieldStyle(.roundedBorder)
+                    .font(.caption)
+                Button("選択...") {
+                    selectImage(for: \.faceSheetPath)
+                }
+                .font(.caption)
+            }
+
+            // MARK: - Face Features (Required)
+            HStack {
+                Text("顔の特徴")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .frame(width: 100, alignment: .leading)
+                TextField("", text: $actor.faceFeatures, prompt: Text("例: 黒髪ロング、青い瞳（必須）"))
+                    .textFieldStyle(.roundedBorder)
+                    .font(.caption)
+            }
+
+            // MARK: - Body Features (Optional)
+            HStack {
+                Text("体型の特徴")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .frame(width: 100, alignment: .leading)
+                TextField("", text: $actor.bodyFeatures, prompt: Text("例: スリム（任意）"))
+                    .textFieldStyle(.roundedBorder)
+                    .font(.caption)
+            }
+
+            // MARK: - Personality (Optional)
+            HStack {
+                Text("パーソナリティ")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .frame(width: 100, alignment: .leading)
+                TextField("", text: $actor.personality, prompt: Text("例: 元気（任意）"))
+                    .textFieldStyle(.roundedBorder)
+                    .font(.caption)
+            }
+        }
+        .padding(8)
+        .background(Color.gray.opacity(0.05))
+        .cornerRadius(8)
+    }
+
+    // MARK: - File Selection
+    private func selectImage(for keyPath: ReferenceWritableKeyPath<ActorEntry, String>) {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        panel.allowedContentTypes = [.png, .jpeg]
+
+        if panel.runModal() == .OK, let url = panel.url {
+            actor[keyPath: keyPath] = url.path
+        }
+    }
+}
+
+// MARK: - Wardrobes Section View
+/// 衣装セクション
+struct WardrobesSectionView: View {
+    @ObservedObject var viewModel: MangaCreationViewModel
+
+    var body: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 12) {
+                // MARK: - Header
+                HStack {
+                    Text("衣装")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    Text("（1〜10体）")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+
+                // MARK: - Wardrobes (横並び)
+                LazyVGrid(columns: [
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                    GridItem(.flexible())
+                ], spacing: 8) {
+                    ForEach(Array(viewModel.wardrobes.enumerated()), id: \.element.id) { index, wardrobe in
+                        WardrobeEntryView(
+                            wardrobe: wardrobe,
+                            wardrobeIndex: index,
+                            canRemove: viewModel.canRemoveWardrobe,
+                            onRemove: {
+                                viewModel.removeWardrobe(at: index)
+                            }
+                        )
+                    }
+                }
+
+                // MARK: - Add Wardrobe Button
+                if viewModel.canAddWardrobe {
+                    Button(action: {
+                        viewModel.addWardrobe()
+                    }) {
+                        HStack {
+                            Image(systemName: "plus.circle")
+                            Text("衣装を追加")
+                        }
+                        .font(.caption)
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+            .padding(.vertical, 4)
+        }
+    }
+}
+
+// MARK: - Wardrobe Entry View
+/// 衣装の入力フォーム（1体分）
+struct WardrobeEntryView: View {
+    @ObservedObject var wardrobe: WardrobeEntry
+    let wardrobeIndex: Int
+    let canRemove: Bool
+    let onRemove: () -> Void
+
+    private var wardrobeLabel: String {
+        let labels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+        return "衣装\(labels[wardrobeIndex])"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            // MARK: - Header
+            HStack {
+                Text(wardrobeLabel)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.orange)
+                Spacer()
+                if canRemove {
+                    Button(action: onRemove) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            // MARK: - Outfit Sheet Path (Required)
+            HStack {
+                TextField("", text: $wardrobe.outfitSheetPath, prompt: Text("画像パス"))
+                    .textFieldStyle(.roundedBorder)
+                    .font(.caption2)
+                Button("...") {
+                    selectImage()
+                }
+                .font(.caption)
+            }
+
+            // MARK: - Features (Optional)
+            TextField("", text: $wardrobe.features, prompt: Text("特徴（任意）"))
+                .textFieldStyle(.roundedBorder)
+                .font(.caption2)
+        }
+        .padding(6)
+        .background(Color.orange.opacity(0.05))
+        .cornerRadius(6)
+    }
+
+    // MARK: - File Selection
+    private func selectImage() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        panel.allowedContentTypes = [.png, .jpeg]
+
+        if panel.runModal() == .OK, let url = panel.url {
+            wardrobe.outfitSheetPath = url.path
+        }
+    }
+}
+
+// MARK: - Registration Buttons View
+/// 登録/クリアボタン
+struct RegistrationButtonsView: View {
+    @ObservedObject var viewModel: MangaCreationViewModel
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: {
+                viewModel.registerActorsAndWardrobes()
+            }) {
+                HStack {
+                    Image(systemName: "checkmark.circle")
+                    Text("登録")
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(!hasValidInput)
+
+            Button(action: {
+                viewModel.clearActorsAndWardrobes()
+            }) {
+                HStack {
+                    Image(systemName: "trash")
+                    Text("クリア")
+                }
+            }
+            .buttonStyle(.bordered)
+
+            Spacer()
+
+            // 登録状態表示
+            if viewModel.hasRegisteredActors || viewModel.hasRegisteredWardrobes {
+                Text("登録済み: キャラ\(viewModel.registeredActors.count)人、衣装\(viewModel.registeredWardrobes.count)体")
+                    .font(.caption)
+                    .foregroundColor(.green)
+            }
+        }
+    }
+
+    private var hasValidInput: Bool {
+        viewModel.actors.contains { $0.isValid } || viewModel.wardrobes.contains { $0.isValid }
+    }
+}
+
 // MARK: - Manga Panel Form View
 /// 1コマ分の入力フォーム
 struct MangaPanelFormView: View {
     @ObservedObject var panel: MangaPanel
     let panelIndex: Int
     let canRemove: Bool
+    let registeredActors: [ActorEntry]
+    let registeredWardrobes: [WardrobeEntry]
     let onRemove: () -> Void
 
     var body: some View {
@@ -141,9 +483,14 @@ struct MangaPanelFormView: View {
                 Divider()
 
                 // MARK: - Characters
-                Text("キャラクター")
-                    .font(.caption)
-                    .fontWeight(.medium)
+                HStack {
+                    Text("キャラクター")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                    Text("（左から右への配置順）")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
 
                 // 横並びのキャラクタースロット
                 HStack(alignment: .top, spacing: 12) {
@@ -152,6 +499,8 @@ struct MangaPanelFormView: View {
                             character: character,
                             characterIndex: charIndex,
                             canRemove: panel.canRemoveCharacter,
+                            registeredActors: registeredActors,
+                            registeredWardrobes: registeredWardrobes,
                             onRemove: {
                                 panel.removeCharacter(at: charIndex)
                             }
@@ -183,14 +532,14 @@ struct MangaPanelFormView: View {
 }
 
 // MARK: - Panel Character Slot View
-/// コマ内のキャラクタースロット（ドラッグ＆ドロップ対応）
+/// コマ内のキャラクタースロット（ドロップダウン選択式）
 struct PanelCharacterSlotView: View {
     @ObservedObject var character: PanelCharacter
     let characterIndex: Int
     let canRemove: Bool
+    let registeredActors: [ActorEntry]
+    let registeredWardrobes: [WardrobeEntry]
     let onRemove: () -> Void
-
-    @State private var isTargeted = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -209,74 +558,38 @@ struct PanelCharacterSlotView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .frame(width: 120)
+            .frame(width: 150)
 
-            // MARK: - Character Name (Required)
+            // MARK: - Actor Selection (Dropdown)
             VStack(alignment: .leading, spacing: 2) {
-                Text("名前")
+                Text("キャラ")
                     .font(.caption2)
                     .foregroundColor(.secondary)
-                TextField("", text: $character.name, prompt: Text("キャラ名（必須）"))
-                    .textFieldStyle(.roundedBorder)
-                    .font(.caption)
-                    .frame(width: 120)
-            }
-
-            // MARK: - Image Drop Zone
-            ZStack {
-                if character.imagePath.isEmpty {
-                    // 空のスロット
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(style: StrokeStyle(lineWidth: 2, dash: [5]))
-                        .foregroundColor(isTargeted ? .accentColor : .gray)
-                        .frame(width: 80, height: 80)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(isTargeted ? Color.accentColor.opacity(0.1) : Color.gray.opacity(0.05))
-                        )
-
-                    VStack(spacing: 2) {
-                        Image(systemName: "photo.on.rectangle.angled")
-                            .font(.title3)
-                            .foregroundColor(.gray)
-                        Text("D&D")
-                            .font(.caption2)
-                            .foregroundColor(.gray)
-                    }
-                } else {
-                    // 画像プレビュー
-                    if let nsImage = NSImage(contentsOfFile: character.imagePath) {
-                        Image(nsImage: nsImage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 80, height: 80)
-                            .cornerRadius(8)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
-                    } else {
-                        // 画像読み込み失敗
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.red.opacity(0.1))
-                            .frame(width: 80, height: 80)
-                            .overlay(
-                                VStack {
-                                    Image(systemName: "exclamationmark.triangle")
-                                        .foregroundColor(.red)
-                                    Text("読込失敗")
-                                        .font(.caption2)
-                                        .foregroundColor(.red)
-                                }
-                            )
+                Picker("", selection: $character.selectedActorId) {
+                    Text("(未選択)").tag(nil as UUID?)
+                    ForEach(registeredActors) { actor in
+                        Text(actor.displayLabel).tag(actor.id as UUID?)
                     }
                 }
+                .pickerStyle(.menu)
+                .frame(width: 150)
+                .disabled(registeredActors.isEmpty)
             }
-            .onDrop(of: [.fileURL], isTargeted: $isTargeted) { providers in
-                handleDrop(providers: providers)
-            }
-            .onTapGesture {
-                selectImage()
+
+            // MARK: - Wardrobe Selection (Dropdown)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("衣装")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Picker("", selection: $character.selectedWardrobeId) {
+                    Text("(未選択)").tag(nil as UUID?)
+                    ForEach(registeredWardrobes) { wardrobe in
+                        Text(wardrobe.displayLabel).tag(wardrobe.id as UUID?)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(width: 150)
+                .disabled(registeredWardrobes.isEmpty)
             }
 
             // MARK: - Dialogue
@@ -287,7 +600,7 @@ struct PanelCharacterSlotView: View {
                 TextField("", text: $character.dialogue, prompt: Text("セリフ"))
                     .textFieldStyle(.roundedBorder)
                     .font(.caption)
-                    .frame(width: 120)
+                    .frame(width: 150)
             }
 
             // MARK: - Features
@@ -298,47 +611,15 @@ struct PanelCharacterSlotView: View {
                 TextField("", text: $character.features, prompt: Text("表情・ポーズ"))
                     .textFieldStyle(.roundedBorder)
                     .font(.caption)
-                    .frame(width: 120)
+                    .frame(width: 150)
             }
         }
-        .frame(width: 120, alignment: .leading)  // 固定幅でずれ防止
-    }
-
-    // MARK: - Drop Handling
-    private func handleDrop(providers: [NSItemProvider]) -> Bool {
-        guard let provider = providers.first else { return false }
-
-        provider.loadItem(forTypeIdentifier: "public.file-url", options: nil) { item, error in
-            guard error == nil,
-                  let data = item as? Data,
-                  let url = URL(dataRepresentation: data, relativeTo: nil),
-                  isImageFile(url: url) else {
-                return
-            }
-
-            DispatchQueue.main.async {
-                character.imagePath = url.path
-            }
-        }
-        return true
-    }
-
-    private func isImageFile(url: URL) -> Bool {
-        let ext = url.pathExtension.lowercased()
-        return ["png", "jpg", "jpeg"].contains(ext)
-    }
-
-    // MARK: - File Selection
-    private func selectImage() {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        panel.canChooseFiles = true
-        panel.allowedContentTypes = [.png, .jpeg]
-
-        if panel.runModal() == .OK, let url = panel.url {
-            character.imagePath = url.path
-        }
+        .frame(width: 150, alignment: .leading)  // 固定幅でずれ防止
+        .padding(6)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.gray.opacity(0.05))
+        )
     }
 }
 

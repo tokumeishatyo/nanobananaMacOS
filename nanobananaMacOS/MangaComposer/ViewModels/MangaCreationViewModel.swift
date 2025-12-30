@@ -12,6 +12,20 @@ final class MangaCreationViewModel: ObservableObject {
     static let maxPanelCount = 4
     static let minCharacterCount = 1
     static let maxCharacterCount = 3
+    static let minActorCount = 1
+    static let maxActorCount = 3
+    static let minWardrobeCount = 1
+    static let maxWardrobeCount = 10
+
+    // MARK: - Actors (登場人物)
+    @Published var actors: [ActorEntry] = []
+
+    // MARK: - Wardrobes (衣装)
+    @Published var wardrobes: [WardrobeEntry] = []
+
+    // MARK: - Registered (登録済み)
+    @Published var registeredActors: [ActorEntry] = []
+    @Published var registeredWardrobes: [WardrobeEntry] = []
 
     // MARK: - Panels
     @Published var panels: [MangaPanel] = []
@@ -19,6 +33,16 @@ final class MangaCreationViewModel: ObservableObject {
     private var cancellables: Set<AnyCancellable> = []
 
     init() {
+        // 初期アクターを追加
+        let initialActor = ActorEntry()
+        actors = [initialActor]
+        observeActor(initialActor)
+
+        // 初期衣装を追加
+        let initialWardrobe = WardrobeEntry(index: 1)
+        wardrobes = [initialWardrobe]
+        observeWardrobe(initialWardrobe)
+
         // 初期パネルを追加
         let initialPanel = MangaPanel()
         panels = [initialPanel]
@@ -35,7 +59,51 @@ final class MangaCreationViewModel: ObservableObject {
             .store(in: &cancellables)
     }
 
-    // MARK: - Computed Properties
+    /// アクターの変更を監視
+    private func observeActor(_ actor: ActorEntry) {
+        actor.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+    }
+
+    /// 衣装の変更を監視
+    private func observeWardrobe(_ wardrobe: WardrobeEntry) {
+        wardrobe.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+    }
+
+    // MARK: - Computed Properties (Actors)
+
+    /// アクターを追加可能か
+    var canAddActor: Bool {
+        actors.count < Self.maxActorCount
+    }
+
+    /// アクターを削除可能か
+    var canRemoveActor: Bool {
+        actors.count > Self.minActorCount
+    }
+
+    // MARK: - Computed Properties (Wardrobes)
+
+    /// 衣装を追加可能か
+    var canAddWardrobe: Bool {
+        wardrobes.count < Self.maxWardrobeCount
+    }
+
+    /// 衣装を削除可能か
+    var canRemoveWardrobe: Bool {
+        wardrobes.count > Self.minWardrobeCount
+    }
+
+    // MARK: - Computed Properties (Panels)
 
     /// パネルを追加可能か
     var canAddPanel: Bool {
@@ -53,7 +121,88 @@ final class MangaCreationViewModel: ObservableObject {
         panels.allSatisfy { $0.hasScene }
     }
 
-    // MARK: - Actions
+    /// 登録済みのアクターがあるか
+    var hasRegisteredActors: Bool {
+        !registeredActors.isEmpty
+    }
+
+    /// 登録済みの衣装があるか
+    var hasRegisteredWardrobes: Bool {
+        !registeredWardrobes.isEmpty
+    }
+
+    // MARK: - Actions (Actors)
+
+    /// アクターを追加
+    func addActor() {
+        guard canAddActor else { return }
+        let newActor = ActorEntry()
+        actors.append(newActor)
+        observeActor(newActor)
+    }
+
+    /// アクターを削除
+    func removeActor(at index: Int) {
+        guard canRemoveActor, actors.indices.contains(index) else { return }
+        actors.remove(at: index)
+    }
+
+    // MARK: - Actions (Wardrobes)
+
+    /// 衣装を追加
+    func addWardrobe() {
+        guard canAddWardrobe else { return }
+        let newWardrobe = WardrobeEntry(index: wardrobes.count + 1)
+        wardrobes.append(newWardrobe)
+        observeWardrobe(newWardrobe)
+    }
+
+    /// 衣装を削除
+    func removeWardrobe(at index: Int) {
+        guard canRemoveWardrobe, wardrobes.indices.contains(index) else { return }
+        wardrobes.remove(at: index)
+    }
+
+    // MARK: - Actions (Registration)
+
+    /// アクターと衣装を登録
+    func registerActorsAndWardrobes() {
+        // 有効なアクターのみ登録
+        registeredActors = actors.filter { $0.isValid }
+        // 有効な衣装のみ登録
+        registeredWardrobes = wardrobes.filter { $0.isValid }
+    }
+
+    /// 登録をクリア
+    func clearRegistration() {
+        registeredActors = []
+        registeredWardrobes = []
+    }
+
+    /// アクターと衣装の入力をクリア
+    func clearActorsAndWardrobes() {
+        cancellables.removeAll()
+
+        // アクターをリセット
+        let initialActor = ActorEntry()
+        actors = [initialActor]
+        observeActor(initialActor)
+
+        // 衣装をリセット
+        let initialWardrobe = WardrobeEntry(index: 1)
+        wardrobes = [initialWardrobe]
+        observeWardrobe(initialWardrobe)
+
+        // 登録もクリア
+        clearRegistration()
+
+        // パネルの監視を再設定
+        for panel in panels {
+            observePanel(panel)
+        }
+    }
+
+    // MARK: - Actions (Panels)
 
     /// パネルを追加
     func addPanel() {
@@ -72,6 +221,22 @@ final class MangaCreationViewModel: ObservableObject {
     /// リセット
     func reset() {
         cancellables.removeAll()
+
+        // アクターをリセット
+        let initialActor = ActorEntry()
+        actors = [initialActor]
+        observeActor(initialActor)
+
+        // 衣装をリセット
+        let initialWardrobe = WardrobeEntry(index: 1)
+        wardrobes = [initialWardrobe]
+        observeWardrobe(initialWardrobe)
+
+        // 登録をクリア
+        registeredActors = []
+        registeredWardrobes = []
+
+        // パネルをリセット
         let initialPanel = MangaPanel()
         panels = [initialPanel]
         observePanel(initialPanel)
@@ -165,22 +330,94 @@ final class MangaPanel: ObservableObject, Identifiable {
 }
 
 // MARK: - Panel Character
-/// コマ内のキャラクター情報
+/// コマ内のキャラクター情報（登録されたアクター・衣装から選択）
 final class PanelCharacter: ObservableObject, Identifiable {
     let id = UUID()
 
-    @Published var name: String = ""            // キャラクター名（相対位置参照用、必須）
-    @Published var imagePath: String = ""       // キャラクター画像パス
+    @Published var selectedActorId: UUID?       // 選択されたアクターのID
+    @Published var selectedWardrobeId: UUID?    // 選択された衣装のID
     @Published var dialogue: String = ""        // セリフ
     @Published var features: String = ""        // 特徴（表情・ポーズ）
 
-    /// 有効か（名前と画像パスが設定されているか）
+    // MARK: - Legacy (後方互換性)
+    @Published var name: String = ""            // キャラクター名（相対位置参照用、必須）
+    @Published var imagePath: String = ""       // キャラクター画像パス
+
+    /// 有効か（アクターと衣装が選択されているか）
     var isValid: Bool {
-        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !imagePath.isEmpty
+        selectedActorId != nil && selectedWardrobeId != nil
     }
 
-    /// 名前が入力されているか
+    /// 名前が入力されているか（後方互換性）
     var hasName: Bool {
         !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// 選択されたアクター名を取得（表示用）
+    func getActorName(from actors: [ActorEntry]) -> String {
+        guard let actorId = selectedActorId,
+              let actor = actors.first(where: { $0.id == actorId }) else {
+            return "(未選択)"
+        }
+        return actor.name
+    }
+
+    /// 選択された衣装ラベルを取得（表示用）
+    func getWardrobeLabel(from wardrobes: [WardrobeEntry]) -> String {
+        guard let wardrobeId = selectedWardrobeId,
+              let wardrobe = wardrobes.first(where: { $0.id == wardrobeId }) else {
+            return "(未選択)"
+        }
+        return wardrobe.displayLabel
+    }
+}
+
+// MARK: - Actor Entry
+/// 登場人物の定義（顔三面図ベース）
+final class ActorEntry: ObservableObject, Identifiable {
+    let id = UUID()
+
+    @Published var name: String = ""                // キャラクタ名（必須）
+    @Published var faceSheetPath: String = ""       // 顔三面図パス（必須）
+    @Published var faceFeatures: String = ""        // 顔の特徴（必須）
+    @Published var bodyFeatures: String = ""        // 体型の特徴（任意）
+    @Published var personality: String = ""         // パーソナリティ（任意）
+
+    /// 有効か（必須項目が入力されているか）
+    var isValid: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !faceSheetPath.isEmpty &&
+        !faceFeatures.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// 表示用ラベル（ドロップダウン用）
+    var displayLabel: String {
+        name.isEmpty ? "(未設定)" : name
+    }
+}
+
+// MARK: - Wardrobe Entry
+/// 衣装の定義（衣装三面図ベース）
+final class WardrobeEntry: ObservableObject, Identifiable {
+    let id = UUID()
+    let index: Int  // 衣装番号（1〜10）
+
+    @Published var outfitSheetPath: String = ""     // 衣装三面図パス（必須）
+    @Published var features: String = ""            // 特徴（任意）
+
+    init(index: Int) {
+        self.index = index
+    }
+
+    /// 有効か（衣装三面図が設定されているか）
+    var isValid: Bool {
+        !outfitSheetPath.isEmpty
+    }
+
+    /// 表示用ラベル（ドロップダウン用）
+    var displayLabel: String {
+        let labels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+        let indexLabel = index >= 1 && index <= 10 ? labels[index - 1] : "\(index)"
+        return "衣装\(indexLabel)"
     }
 }
