@@ -1239,7 +1239,11 @@ decorative_text_overlays:
         )
 
         // panels_contentを動的生成
-        let panelsContent = generatePanelsContent(panels: settings.panels)
+        let panelsContent = generatePanelsContent(
+            panels: settings.panels,
+            registeredActors: settings.registeredActors,
+            registeredWardrobes: settings.registeredWardrobes
+        )
 
         return [
             // ヘッダーパーシャル用
@@ -1263,7 +1267,11 @@ decorative_text_overlays:
     }
 
     /// panelsセクションを動的生成
-    private func generatePanelsContent(panels: [MangaPanel]) -> String {
+    private func generatePanelsContent(
+        panels: [MangaPanel],
+        registeredActors: [ActorEntry],
+        registeredWardrobes: [WardrobeEntry]
+    ) -> String {
         var content = "panels:\n"
 
         for (panelIndex, panel) in panels.enumerated() {
@@ -1282,7 +1290,7 @@ decorative_text_overlays:
                 content += "    narration_rule: \"\(narrationRule)\"\n"
             }
 
-            // キャラクター（有効なもののみ）
+            // キャラクター（有効なもののみ = アクターと衣装が選択されている）
             let validCharacters = panel.characters.filter { $0.isValid }
             let characterCount = validCharacters.count
 
@@ -1307,33 +1315,67 @@ decorative_text_overlays:
 
                 for (charIndex, character) in validCharacters.enumerated() {
                     let order = charIndex + 1
-                    let charName = character.name.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let imageName = YAMLUtilities.getFileName(from: character.imagePath)
+
+                    // 選択されたアクターから情報を取得
+                    let actor = registeredActors.first { $0.id == character.selectedActorId }
+                    let wardrobe = registeredWardrobes.first { $0.id == character.selectedWardrobeId }
+
+                    let charName = actor?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                    let faceReference = YAMLUtilities.getFileName(from: actor?.faceSheetPath ?? "")
+                    let outfitReference = YAMLUtilities.getFileName(from: wardrobe?.outfitSheetPath ?? "")
                     let dialogue = character.dialogue.trimmingCharacters(in: .whitespacesAndNewlines)
                     let features = character.features.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                    // アクターの特徴を結合
+                    var actorFeatures: [String] = []
+                    if let faceFeatures = actor?.faceFeatures, !faceFeatures.isEmpty {
+                        actorFeatures.append(faceFeatures)
+                    }
+                    if let bodyFeatures = actor?.bodyFeatures, !bodyFeatures.isEmpty {
+                        actorFeatures.append(bodyFeatures)
+                    }
+                    // 衣装の特徴も追加
+                    if let wardrobeFeatures = wardrobe?.features, !wardrobeFeatures.isEmpty {
+                        actorFeatures.append(wardrobeFeatures)
+                    }
+                    // UIで入力された特徴も追加
+                    if !features.isEmpty {
+                        actorFeatures.append(features)
+                    }
+                    let combinedFeatures = actorFeatures.joined(separator: ", ")
+
+                    // 前のキャラクター名を取得（相対位置参照用）
+                    var previousCharName: String? = nil
+                    if charIndex > 0 {
+                        let prevChar = validCharacters[charIndex - 1]
+                        if let prevActor = registeredActors.first(where: { $0.id == prevChar.selectedActorId }) {
+                            previousCharName = prevActor.name
+                        }
+                    }
 
                     // 位置生成（キャラクター数とインデックスに応じて）
                     let position = generateCharacterPosition(
                         charIndex: charIndex,
                         totalCount: characterCount,
                         characterName: charName,
-                        previousCharacterName: charIndex > 0 ? validCharacters[charIndex - 1].name : nil,
+                        previousCharacterName: previousCharName,
                         addForeground: panel.hasMobCharacters && panel.drawMobsClearly
                     )
 
                     content += "      - order: \(order)\n"
                     content += "        name: \"\(YAMLUtilities.escapeYAMLString(charName))\"\n"
                     content += "        position: \"\(position)\"\n"
-                    content += "        reference_image: \"\(imageName)\"\n"
+                    content += "        face_reference: \"\(faceReference)\"\n"
+                    content += "        outfit_reference: \"\(outfitReference)\"\n"
 
                     // セリフは任意
                     if !dialogue.isEmpty {
                         content += "        dialogue: \"\(YAMLUtilities.escapeYAMLString(dialogue))\"\n"
                     }
 
-                    // 特徴（表情・ポーズ）は任意
-                    if !features.isEmpty {
-                        content += "        features: \"\(YAMLUtilities.escapeYAMLString(features))\"\n"
+                    // 特徴（結合済み）は任意
+                    if !combinedFeatures.isEmpty {
+                        content += "        features: \"\(YAMLUtilities.escapeYAMLString(combinedFeatures))\"\n"
                     }
                 }
             }

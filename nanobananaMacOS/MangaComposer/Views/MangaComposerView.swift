@@ -116,6 +116,8 @@ struct MangaComposerView: View {
                 mainVM.characterSheetSettings = vm.characterSheetViewModel
                 mainVM.isCharacterSheetMode = true
             case .mangaCreation:
+                // 位置情報をシーンに追記
+                vm.mangaCreationViewModel.appendPositionInfoToScenes()
                 // 漫画作成設定を保存
                 mainVM.mangaCreationSettings = vm.mangaCreationViewModel
                 mainVM.isMangaCreationMode = true

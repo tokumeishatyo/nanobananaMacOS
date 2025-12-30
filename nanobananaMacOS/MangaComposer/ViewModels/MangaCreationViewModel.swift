@@ -241,6 +241,51 @@ final class MangaCreationViewModel: ObservableObject {
         panels = [initialPanel]
         observePanel(initialPanel)
     }
+
+    // MARK: - Apply (位置情報追記)
+
+    /// 適用時に各コマのシーンに位置情報を追記
+    func appendPositionInfoToScenes() {
+        for panel in panels {
+            // 有効なキャラクター（アクターが選択されている）を取得
+            let validCharacters = panel.characters.filter { $0.selectedActorId != nil }
+            guard !validCharacters.isEmpty else { continue }
+
+            // 各キャラクターの名前を取得
+            let characterNames: [String] = validCharacters.compactMap { character in
+                guard let actorId = character.selectedActorId,
+                      let actor = registeredActors.first(where: { $0.id == actorId }) else {
+                    return nil
+                }
+                return actor.name
+            }
+
+            // 位置情報テキストを生成
+            let positionText = generatePositionText(for: characterNames)
+
+            // シーンに追記（既に位置情報がなければ）
+            if !positionText.isEmpty && !panel.scene.contains("左:") && !panel.scene.contains("中央:") && !panel.scene.contains("右:") {
+                panel.scene = panel.scene.trimmingCharacters(in: .whitespaces) + " " + positionText
+            }
+        }
+    }
+
+    /// キャラクター名から位置情報テキストを生成
+    private func generatePositionText(for names: [String]) -> String {
+        switch names.count {
+        case 1:
+            // 1人: 中央
+            return "中央:\(names[0])"
+        case 2:
+            // 2人: 左、右
+            return "左:\(names[0])、右:\(names[1])"
+        case 3:
+            // 3人: 左、真ん中、右
+            return "左:\(names[0])、真ん中:\(names[1])、右:\(names[2])"
+        default:
+            return ""
+        }
+    }
 }
 
 // MARK: - Manga Panel
