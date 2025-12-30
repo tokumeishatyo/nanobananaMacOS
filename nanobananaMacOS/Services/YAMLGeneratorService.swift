@@ -1238,6 +1238,12 @@ decorative_text_overlays:
             hasAuthor: !authorName.isEmpty
         )
 
+        // component_registryを動的生成
+        let componentRegistry = generateComponentRegistrySection(
+            registeredActors: settings.registeredActors,
+            registeredWardrobes: settings.registeredWardrobes
+        )
+
         // panels_contentを動的生成
         let panelsContent = generatePanelsContent(
             panels: settings.panels,
@@ -1262,8 +1268,87 @@ decorative_text_overlays:
 
             // 漫画作成固有
             "panel_count": String(settings.panels.count),
+            "component_registry": componentRegistry,
             "panels_content": panelsContent
         ]
+    }
+
+    /// Component Registryセクションを動的生成（actors + wardrobe）
+    private func generateComponentRegistrySection(
+        registeredActors: [ActorEntry],
+        registeredWardrobes: [WardrobeEntry]
+    ) -> String {
+        guard !registeredActors.isEmpty || !registeredWardrobes.isEmpty else {
+            return ""
+        }
+
+        var content = """
+# ====================================================
+# Component Registry (部品倉庫)
+# ====================================================
+
+"""
+
+        // 【A】Actor Registry
+        if !registeredActors.isEmpty {
+            content += """
+# 【A】Actor Registry (役者定義：顔と身体特徴)
+# ※ここには「服」の情報は一切書きません。顔画像を指定します。
+actors:
+
+"""
+            for (index, actor) in registeredActors.enumerated() {
+                let actorId = actorIdFromIndex(index)
+                let faceReference = YAMLUtilities.getFileName(from: actor.faceSheetPath)
+                let faceFeature = actor.faceFeatures.trimmingCharacters(in: .whitespacesAndNewlines)
+                let bodyFeature = actor.bodyFeatures.trimmingCharacters(in: .whitespacesAndNewlines)
+                let personality = actor.personality.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                content += "  \(actorId):\n"
+                content += "    name: \"\(YAMLUtilities.escapeYAMLString(actor.name))\"\n"
+                content += "    face_reference: \"\(faceReference)\"\n"
+                content += "    face_feature: \"\(YAMLUtilities.escapeYAMLString(faceFeature))\"\n"
+                content += "    body_feature: \"\(YAMLUtilities.escapeYAMLString(bodyFeature))\"\n"
+                content += "    personality: \"\(YAMLUtilities.escapeYAMLString(personality))\"\n"
+                content += "\n"
+            }
+        }
+
+        // 【B】Wardrobe Registry
+        if !registeredWardrobes.isEmpty {
+            content += """
+# 【B】Wardrobe Registry (衣装定義：透明人間三面図)
+# ※ここで「先ほど作った衣装三面図」を使います。
+wardrobe:
+
+"""
+            for (index, wardrobe) in registeredWardrobes.enumerated() {
+                let costumeId = costumeIdFromIndex(index)
+                let reference = YAMLUtilities.getFileName(from: wardrobe.outfitSheetPath)
+                let description = wardrobe.features.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                content += "  \(costumeId):\n"
+                content += "    reference: \"\(reference)\"\n"
+                content += "    description: \"\(YAMLUtilities.escapeYAMLString(description))\"\n"
+                content += "\n"
+            }
+        }
+
+        return content
+    }
+
+    /// インデックスからactor_A, actor_B, actor_Cを生成（0-2 → A-C）
+    private func actorIdFromIndex(_ index: Int) -> String {
+        let letters = ["A", "B", "C"]
+        guard index >= 0 && index < letters.count else { return "actor_\(index + 1)" }
+        return "actor_\(letters[index])"
+    }
+
+    /// インデックスからcostume_A〜costume_Jを生成（0-9 → A-J）
+    private func costumeIdFromIndex(_ index: Int) -> String {
+        let letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+        guard index >= 0 && index < letters.count else { return "costume_\(index + 1)" }
+        return "costume_\(letters[index])"
     }
 
     /// panelsセクションを動的生成
@@ -1314,15 +1399,18 @@ decorative_text_overlays:
                 content += "    characters:\n"
 
                 for (charIndex, character) in validCharacters.enumerated() {
-                    let order = charIndex + 1
-
                     // 選択されたアクターから情報を取得
                     let actor = registeredActors.first { $0.id == character.selectedActorId }
                     let wardrobe = registeredWardrobes.first { $0.id == character.selectedWardrobeId }
 
+                    // actorIdとcostumeIdを取得（Component Registryとの対応）
+                    let actorIndex = registeredActors.firstIndex { $0.id == character.selectedActorId } ?? 0
+                    let wardrobeIndex = registeredWardrobes.firstIndex { $0.id == character.selectedWardrobeId } ?? 0
+                    let actorId = actorIdFromIndex(actorIndex)
+                    let costumeId = costumeIdFromIndex(wardrobeIndex)
+
                     let charName = actor?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                     let faceReference = YAMLUtilities.getFileName(from: actor?.faceSheetPath ?? "")
-                    let outfitReference = YAMLUtilities.getFileName(from: wardrobe?.outfitSheetPath ?? "")
                     let dialogue = character.dialogue.trimmingCharacters(in: .whitespacesAndNewlines)
                     let features = character.features.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -1362,11 +1450,14 @@ decorative_text_overlays:
                         addForeground: panel.hasMobCharacters && panel.drawMobsClearly
                     )
 
-                    content += "      - order: \(order)\n"
+                    // actor: Component Registryで定義した役者ID
+                    content += "      - actor: \"\(actorId)\"\n"
                     content += "        name: \"\(YAMLUtilities.escapeYAMLString(charName))\"\n"
                     content += "        position: \"\(position)\"\n"
-                    content += "        face_reference: \"\(faceReference)\"\n"
-                    content += "        outfit_reference: \"\(outfitReference)\"\n"
+                    // face_reference: コメントアウト（後で復活させるかもしれない）
+                    content += "        # face_reference: \"\(faceReference)\"\n"
+                    // wear: Component Registryで定義した衣装ID
+                    content += "        wear: \"\(costumeId)\"\n"
 
                     // セリフは任意
                     if !dialogue.isEmpty {
