@@ -20,6 +20,7 @@ struct OutfitSettingsView: View {
         self.onApply = onApply
         if let settings = initialSettings {
             let vm = OutfitSettingsViewModel()
+            vm.useBodySheet = settings.useBodySheet
             vm.bodySheetImagePath = settings.bodySheetImagePath
             vm.useOutfitBuilder = settings.useOutfitBuilder
             vm.outfitCategory = settings.outfitCategory
@@ -29,6 +30,9 @@ struct OutfitSettingsView: View {
             vm.outfitStyle = settings.outfitStyle
             vm.referenceOutfitImagePath = settings.referenceOutfitImagePath
             vm.referenceDescription = settings.referenceDescription
+            vm.fitMode = settings.fitMode
+            vm.includeHeadwear = settings.includeHeadwear
+            vm.additionalDescription = settings.additionalDescription
             _viewModel = StateObject(wrappedValue: vm)
         } else {
             _viewModel = StateObject(wrappedValue: OutfitSettingsViewModel())
@@ -54,16 +58,25 @@ struct OutfitSettingsView: View {
                                 .font(.headline)
                                 .fontWeight(.bold)
 
+                            Toggle("素体三面図を使う", isOn: $viewModel.useBodySheet)
+
+                            Text("オフ: 透明人間モード（衣装のみ描画） / オン: キャラクターに衣装を着せる")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+
                             HStack {
                                 Text("素体三面図:")
                                     .frame(width: 90, alignment: .leading)
                                 TextField("素体三面図の画像パス", text: $viewModel.bodySheetImagePath)
                                     .textFieldStyle(.roundedBorder)
+                                    .disabled(!viewModel.useBodySheet)
                                 Button("参照") {
                                     filePickerTarget = .bodySheet
                                     showingFilePicker = true
                                 }
+                                .disabled(!viewModel.useBodySheet)
                             }
+                            .opacity(viewModel.useBodySheet ? 1.0 : 0.5)
                         }
                         .padding(10)
                     }

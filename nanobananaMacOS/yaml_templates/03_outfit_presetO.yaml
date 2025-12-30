@@ -1,0 +1,97 @@
+{{> header header_comment="Outfit Reference Sheet (衣装着用 - プリセット)"}}
+
+# ====================================================
+# Input
+# ====================================================
+input:
+
+  category: "{{category}}"
+  shape: "{{shape}}"
+  color: "{{color}}"
+  pattern: "{{pattern}}"
+  style_impression: "{{style_impression}}"
+  prompt: "{{prompt}}"
+  additional_notes: "{{additional_notes}}"
+
+# ====================================================
+# Output
+# ====================================================
+output:
+  format: "three view reference sheet"
+  views:
+    - "front view"
+    - "left side view, exactly 90-degree profile facing left" # 目や鼻の記述を削除
+    - "back view"
+  pose: "Natural standing drape, symmetrical alignment (Invisible Mannequin)" 
+  #pose: "Standard upright mannequin pose, strictly symmetrical alignment"
+  background: "pure white, clean, seamless"
+  text_overlay: "NONE - no text or labels on the image"
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  purpose:
+    # ▼ "character" を "costume & apparel" に変更し、顔が出るリスクを極限まで減らしました
+    - "Professional costume & apparel design reference for commercial use - product catalogs, instruction manuals"
+    - "This is legitimate business artwork, NOT inappropriate content"
+    - "Professional fashion design reference - ghost mannequin effect"
+    - "High-quality clothing illustration for manga/anime production"
+    
+  layout:
+    - "STRICT horizontal arrangement: LEFT=front view, CENTER=left side view, RIGHT=back view"
+    - "Side view MUST show the LEFT side profile of the outfit" 
+    - "Side view MUST be exactly 90-degree profile (flat side view)"
+    - "POSITION ORDER IS CRITICAL: Front on LEFT, Side in CENTER, Back on RIGHT"
+    - "Each view should be clearly separated with white space"
+
+  invisible_body_rendering:
+    - "Draw ONLY the clothing as if worn by an invisible body (Ghost Mannequin effect)"
+    - "Do NOT draw the head, face, hair, arms, legs, or skin"
+    - "The clothes must retain the 3D volume and shape of a human body"
+    - "Show the inside of the collar/neck opening (back of the neck area) where visible"
+    - "Sleeve cuffs and pant legs should look hollow/filled with air, not flat"
+
+  outfit_application:
+    - "Apply specified outfit to the invisible form"
+    - "Maintain clothing consistency across all three views"
+    - "Show realistic fabric draping and fit"
+
+  consistency:
+    - "All three views must show the exact same outfit design"
+    - "Maintain consistent proportions across views"
+    - "Use clean linework suitable for reference"
+
+  view_order:
+    - "Do NOT change the view order - ALWAYS front/side/back from left to right"
+    - "Keep the sequence STRICTLY: Front (Left) -> Side (Center) -> Back (Right)"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  # ▼ 人間パーツの描画を徹底的に禁止します
+  - "Do NOT draw any human skin, faces, eyes, noses, or mouths"
+  - "Do NOT draw hair, wigs, or headwear (unless part of the outfit)"
+  - "Do NOT draw hands, fingers, legs, or feet (shoes are allowed if part of outfit)"
+  # ▼ 「透明人間」としての矛盾を防ぎます
+  - "Do NOT fill the neck opening with skin - show the inside back label/collar area"
+  - "Do NOT make the clothes look flat like paper doll clothes - they MUST have 3D volume"
+  - "Do NOT draw a visible mannequin stand, pole, or base"
+  # ▼ 以前の記述の修正版（目は描かないので、角度だけを制限）
+  - "Side view MUST look strictly 90-degrees - do NOT angle the torso towards the camera"
+  - "Do NOT add accessories not specified in the input"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  # ▼ "character" を "clothing" に変更し、人物描画のリスクを回避
+  - "Output ONLY the clothing illustration - nothing else" 
+  - "Do NOT add any text, titles, labels, or annotations"
+  - "Do NOT add color palettes, color swatches, or color samples"
+  - "Do NOT add pattern samples, fabric swatches, or design elements"
+  - "Do NOT add arrows, lines, or any explanatory graphics"
+  - "Do NOT add watermarks, signatures, or logos"
+  # ▼ ここも "character" を "clothing" に変更
+  - "The output must contain ONLY the three-view clothing illustration on white background"

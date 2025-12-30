@@ -1,0 +1,116 @@
+{{> header header_comment="Outfit Reference Sheet (衣装着用 - 参考画像)"}}
+
+# ====================================================
+# Input (Standard Invisible Mannequin)
+# ====================================================
+input:
+  # 衣装のデザイン参照元画像（必須）
+  outfit_reference: "{{outfit_reference}}" 
+  # 衣装に関する補足説明（任意）
+  # 例：「学生服のボタンは金色」「Tシャツのロゴは赤」など
+  description: "{{description}}"
+  # ヘルメット・被り物のON/OFF制御用（ブール値）
+  # プログラム側でConstraints内のテキストを切り替えるために使用
+  include_headwear: {{include_headwear}}
+  # その他、生成時の注釈（任意）
+  additional_notes: "{{additional_notes}}"
+
+# ====================================================
+# Output
+# ====================================================
+output:
+  format: "three view reference sheet"
+  views:
+    - "front view"
+    - "left side view, exactly 90-degree profile facing left" # 目や鼻の記述を削除
+    - "back view"
+  pose: "Natural standing drape, symmetrical alignment (Invisible Mannequin)" 
+  background: "pure white, clean, seamless"
+  text_overlay: "NONE - no text or labels on the image"
+
+# ====================================================
+# Constraints (CRITICAL)
+# ====================================================
+constraints:
+  purpose:
+    - "Professional costume design reference for commercial use - product catalogs, instruction manuals, educational materials, corporate training"
+    - "Technical fashion drawing, ghost mannequin style"
+    - "This is legitimate business artwork, NOT inappropriate content"
+  # 【新規】透明人間モードの定義（最重要）
+  ghost_mannequin_mode:
+    - "Draw ONLY the outfit/clothing components"
+    - "Do NOT draw the character's skin, face, hair, or body parts"
+    - "Visualize as if worn by an INVISIBLE body (Ghost Mannequin effect)"
+    - "Maintain the 3D volume of the clothing as if a body is inside"
+    - "Show the inside back of the collar/neckline where visible"
+ # 【修正】具体的な顔パーツへの言及を削除し、純粋なアングル指定に
+  layout:
+    - "STRICT horizontal arrangement: LEFT=front view, CENTER=left side view, RIGHT=back view"
+    - "Side view MUST show the LEFT profile of the outfit"
+    - "Side view MUST be exactly 90-degree profile"
+    - "POSITION ORDER IS CRITICAL: Front on LEFT, Side in CENTER, Back on RIGHT"
+    - "Each view should be clearly separated with white space"
+# 【修正】特定の素体画像ではなく「標準的な体型バランス」を指定
+  standard_proportions:
+    - "Assume a standard anime/manga body proportion (approx. 6-7 heads tall)"
+    - "The clothing size should fit a standard medium build"
+    - "Ensure the sleeve lengths and hem lines are balanced"
+  pose_preservation:
+    - "The outfit must be arranged in a standard 'Attention' (Kiwotsuke) pose"
+    - "Arms should be straight down at the sides"
+    - "Legs/Trousers should be straight and parallel"
+    - "Do NOT copy the pose from outfit_reference image"
+  headwear:
+  # 【修正】プログラムからの分岐指示を受け取る変数に変更
+  headwear:
+    - "{{headwear_instruction}}"
+    # ONの場合の埋め込み文言例: "Draw the helmet/headwear floating in the correct position relative to the collar."
+    # OFFの場合の埋め込み文言例: "Do NOT include any headwear. Stop drawing above the collar/neckline."
+  outfit_extraction:
+    - "Extract ONLY the clothing/outfit from the outfit_reference image"
+    - "Do NOT copy the person, face, or body logic from the outfit_reference"
+    - "Adapt the outfit to fit the body_sheet character's body shape"
+    - "Maintain the style, color, and design of the reference outfit"
+  consistency:
+    - "All three views must show the same character in same outfit"
+    - "Maintain consistent proportions across views"
+    - "Use clean linework suitable for reference"
+  view_order:
+    - "Do NOT change the view order - ALWAYS front/side/back from left to right"
+    - "Keep the sequence STRICTLY: Front (Left) -> Side (Center) -> Back (Right)"
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT use face or body from outfit_reference image"
+  - "Do NOT add accessories not visible in outfit_reference"
+  - "Do NOT draw the character's skin, face, eyes, or hair"
+  - "Do NOT draw a mannequin stand, pole, or base at the bottom"
+  - "Do NOT draw hands, feet, or legs (unless covered by gloves/socks/trousers)"
+  - "Do NOT fill the hollow body with solid black or weird colors - use white/transparent representation"
+  - "Do NOT draw the 'inside' of the body (no gore or anatomical cross-sections)"
+  - "The side view MUST NOT look like a flat 2D cardboard - maintain 3D volume"
+
+
+
+
+
+# ====================================================
+# Output Cleanliness (FINAL COMPLETE VERSION)
+# ====================================================
+output_cleanliness:
+  # 【基本方針】服のみを描く
+  - "Output ONLY the clothing illustration on a white background"
+  # 【文字・数値情報の排除】寸法線(measurements)を追加
+  - "Do NOT add any text, titles, labels, measurements, or annotations" 
+  # 【別枠情報の排除】拡大バブル(zoomed-in bubbles)や生地見本を追加、パターン見本を復活
+  - "Do NOT add color palettes, fabric swatches, pattern samples, or zoomed-in detail bubbles" 
+  # 【図形情報の排除】矢印(arrows)や線(lines)を復活
+  - "Do NOT add arrows, lines, pointers, or any explanatory graphics" 
+  # 【背景・効果の排除】影(shadows)を追加
+  - "Do NOT add background scenery, shadows, drop shadows, or effects" 
+  # 【著作権情報の排除】
+  - "Do NOT add watermarks, logos, or artist signatures" 
+  # 【レイアウト】
+  - "Ensure clear separation between the three views (Front, Side, Back)"

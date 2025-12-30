@@ -208,7 +208,9 @@ final class YAMLGeneratorService {
         settings: OutfitSettingsViewModel
     ) -> String {
         let variables = buildOutfitPresetVariables(mainViewModel: mainViewModel, settings: settings)
-        return templateEngine.render(templateName: "03_outfit_preset.yaml", variables: variables)
+        // 素体三面図を使う場合は通常テンプレート、使わない場合は透明人間用テンプレート
+        let templateName = settings.useBodySheet ? "03_outfit_preset.yaml" : "03_outfit_presetO.yaml"
+        return templateEngine.render(templateName: templateName, variables: variables)
     }
 
     /// 衣装着用YAML生成（参考画像モード）
@@ -218,7 +220,9 @@ final class YAMLGeneratorService {
         settings: OutfitSettingsViewModel
     ) -> String {
         let variables = buildOutfitReferenceVariables(mainViewModel: mainViewModel, settings: settings)
-        return templateEngine.render(templateName: "03_outfit_reference.yaml", variables: variables)
+        // 素体三面図を使う場合は通常テンプレート、使わない場合は透明人間用テンプレート
+        let templateName = settings.useBodySheet ? "03_outfit_reference.yaml" : "03_outfit_referenceO.yaml"
+        return templateEngine.render(templateName: templateName, variables: variables)
     }
 
     /// プリセットモード用の変数辞書を構築
@@ -305,6 +309,9 @@ final class YAMLGeneratorService {
             "description": YAMLUtilities.convertNewlinesToComma(settings.referenceDescription),
             "fit_mode": settings.fitMode,
             "include_headwear": settings.includeHeadwear ? "true" : "false",
+            "headwear_instruction": settings.includeHeadwear
+                ? "Draw the helmet/headwear floating in the correct position relative to the collar."
+                : "Do NOT include any headwear. Stop drawing above the collar/neckline.",
             "additional_notes": YAMLUtilities.convertNewlinesToComma(settings.additionalDescription)
         ]
     }

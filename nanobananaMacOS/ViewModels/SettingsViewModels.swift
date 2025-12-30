@@ -40,6 +40,7 @@ final class BodySheetSettingsViewModel: ObservableObject {
 /// ※スタイルはメイン画面で一元管理（各ステップでは設定しない）
 @MainActor
 final class OutfitSettingsViewModel: ObservableObject {
+    @Published var useBodySheet: Bool = false  // デフォルト: オフ（透明人間モード）
     @Published var bodySheetImagePath: String = ""
     @Published var useOutfitBuilder: Bool = true
 
