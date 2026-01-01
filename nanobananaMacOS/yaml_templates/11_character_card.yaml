@@ -43,6 +43,7 @@ constraints:
 
   character_preservation:
     - "Preserve exact character appearance from input image"
+    - "Isolate and render ONLY the front-facing pose from the reference image."
     - "Maintain clothing, accessories, and pose from input image"
   text_rules:
     - "Name and Info text must be clear, legible, and dark color for contrast."
@@ -54,6 +55,7 @@ constraints:
 # Anti-Hallucination (MUST FOLLOW)
 # ====================================================
 anti_hallucination:
+  - "Do NOT include the side view or back view from the reference image."
   - "Do NOT alter character design from input image"
   - "Do NOT change or omit any character info text"
   - "Do NOT add extra characters or elements"
