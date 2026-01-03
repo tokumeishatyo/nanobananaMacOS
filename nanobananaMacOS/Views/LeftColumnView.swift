@@ -169,6 +169,15 @@ struct LeftColumnView: View {
                         .buttonStyle(.bordered)
                         .tint(.green)
                         .padding(.horizontal, 10)
+
+                        // 画像サイズ調整
+                        Button(action: viewModel.openImageResize) {
+                            Text("画像サイズ調整")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.orange)
+                        .padding(.horizontal, 10)
                         .padding(.bottom, 10)
                     }
                 }

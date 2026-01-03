@@ -137,6 +137,17 @@ final class WindowManager {
             MangaComposerView(mainViewModel: mainViewModel)
         }
     }
+
+    /// 画像リサイズツールウィンドウを開く
+    func openImageResizeWindow() {
+        openWindow(
+            id: "imageResize",
+            title: "画像リサイズ",
+            size: NSSize(width: 550, height: 900)
+        ) {
+            ImageResizeView()
+        }
+    }
 }
 
 // MARK: - Window Content Wrapper

@@ -978,6 +978,11 @@ final class MainViewModel: ObservableObject {
         }
     }
 
+    /// 画像サイズ調整ツールを開く
+    func openImageResize() {
+        WindowManager.shared.openImageResizeWindow()
+    }
+
     /// 使用量詳細を表示
     func showUsageDetails() {
         // TODO: 機能実装時に追加
