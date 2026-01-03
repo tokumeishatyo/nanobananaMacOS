@@ -161,6 +161,15 @@ struct LeftColumnView: View {
                         .tint(.purple)
                         .padding(.horizontal, 10)
 
+                        // 詳細漫画コンポーザー
+                        Button(action: viewModel.openDetailedMangaComposer) {
+                            Text("詳細漫画コンポーザー")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.purple)
+                        .padding(.horizontal, 10)
+
                         // 画像ツール
                         Button(action: viewModel.openBackgroundRemover) {
                             Text("画像ツール（背景透過）")

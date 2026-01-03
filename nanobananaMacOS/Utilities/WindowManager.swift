@@ -148,6 +148,17 @@ final class WindowManager {
             ImageResizeView()
         }
     }
+
+    /// 詳細漫画コンポーザーウィンドウを開く
+    func openDetailedMangaComposerWindow() {
+        openWindow(
+            id: "detailedMangaComposer",
+            title: "詳細漫画コンポーザー",
+            size: NSSize(width: 750, height: 650)
+        ) {
+            DetailedMangaComposerView()
+        }
+    }
 }
 
 // MARK: - Window Content Wrapper

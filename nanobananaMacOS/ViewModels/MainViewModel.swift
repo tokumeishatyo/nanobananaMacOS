@@ -969,6 +969,11 @@ final class MainViewModel: ObservableObject {
         WindowManager.shared.openMangaComposerWindow(mainViewModel: self)
     }
 
+    /// 詳細漫画コンポーザーを開く
+    func openDetailedMangaComposer() {
+        WindowManager.shared.openDetailedMangaComposerWindow()
+    }
+
     /// 画像ツール（背景透過）を開く
     func openBackgroundRemover() {
         if #available(macOS 14.0, *) {
