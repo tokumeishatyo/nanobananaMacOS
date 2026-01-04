@@ -161,13 +161,11 @@ struct CharacterCardFormView: View {
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .padding(.top, 4)
-                    HStack {
-                        TextField("キャラ画像", text: $character.imagePath)
-                            .textFieldStyle(.roundedBorder)
-                        Button("選択...") {
-                            selectCharacterImage()
-                        }
-                    }
+                    ImageDropField(
+                        imagePath: $character.imagePath,
+                        placeholder: "キャラ画像をドロップ",
+                        height: 60
+                    )
 
                     // 情報
                     VStack(alignment: .leading, spacing: 4) {
@@ -197,19 +195,6 @@ struct CharacterCardFormView: View {
             }
         }
     }
-
-    // MARK: - File Selection
-    private func selectCharacterImage() {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        panel.canChooseFiles = true
-        panel.allowedContentTypes = [.png, .jpeg]
-
-        if panel.runModal() == .OK, let url = panel.url {
-            character.imagePath = url.path
-        }
-    }
 }
 
 // MARK: - Character Sheet Form View
@@ -234,13 +219,11 @@ struct CharacterSheetFormView: View {
             .pickerStyle(.segmented)
 
             if viewModel.backgroundSourceType == .file {
-                HStack {
-                    TextField("背景画像", text: $viewModel.backgroundImagePath)
-                        .textFieldStyle(.roundedBorder)
-                    Button("選択...") {
-                        selectBackgroundImage()
-                    }
-                }
+                ImageDropField(
+                    imagePath: $viewModel.backgroundImagePath,
+                    placeholder: "背景画像をドロップ",
+                    height: 60
+                )
             } else {
                 TextField("背景説明", text: $viewModel.backgroundDescription, prompt: Text(viewModel.backgroundDescriptionPlaceholder), axis: .vertical)
                     .textFieldStyle(.roundedBorder)
@@ -296,19 +279,6 @@ struct CharacterSheetFormView: View {
         Text(title)
             .font(.headline)
             .padding(.top, 8)
-    }
-
-    // MARK: - File Selection
-    private func selectBackgroundImage() {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        panel.canChooseFiles = true
-        panel.allowedContentTypes = [.png, .jpeg]
-
-        if panel.runModal() == .OK, let url = panel.url {
-            viewModel.backgroundImagePath = url.path
-        }
     }
 }
 

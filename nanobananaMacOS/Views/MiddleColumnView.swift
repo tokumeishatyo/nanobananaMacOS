@@ -67,17 +67,12 @@ struct MiddleColumnView: View {
 
                         // 参考画像（シンプルモードのみ表示）
                         if viewModel.selectedAPISubMode == .simple && viewModel.isAPIModeEnabled {
-                            HStack {
-                                Text("参考画像:")
-                                    .frame(width: 100, alignment: .leading)
-
-                                TextField("参考画像（任意）", text: $viewModel.referenceImagePath)
-                                    .textFieldStyle(.roundedBorder)
-
-                                Button("参照") {
-                                    viewModel.browseReferenceImage()
-                                }
-                            }
+                            ImageDropField(
+                                imagePath: $viewModel.referenceImagePath,
+                                label: "参考画像:",
+                                placeholder: "参考画像をドロップ（任意）",
+                                height: 60
+                            )
                             .padding(.horizontal, 10)
                         }
 

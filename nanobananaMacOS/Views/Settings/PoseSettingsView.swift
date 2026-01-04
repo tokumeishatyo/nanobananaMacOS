@@ -7,13 +7,6 @@ struct PoseSettingsView: View {
     @StateObject private var viewModel: PoseSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
-    @State private var showingFilePicker = false
-    @State private var filePickerTarget: FilePickerTarget = .outfitSheet
-
-    private enum FilePickerTarget {
-        case outfitSheet
-        case poseReference
-    }
     var onApply: ((PoseSettingsViewModel) -> Void)?
 
     init(initialSettings: PoseSettingsViewModel? = nil, onApply: ((PoseSettingsViewModel) -> Void)? = nil) {
@@ -75,18 +68,12 @@ struct PoseSettingsView: View {
                             }
 
                             // ポーズ参考画像パス
-                            HStack {
-                                Text("ポーズ参考画像:")
-                                    .frame(width: 100, alignment: .leading)
-                                TextField("ポーズを取り込みたい画像のパス", text: $viewModel.poseReferenceImagePath)
-                                    .textFieldStyle(.roundedBorder)
-                                    .disabled(!viewModel.usePoseCapture)
-                                Button("参照") {
-                                    filePickerTarget = .poseReference
-                                    showingFilePicker = true
-                                }
-                                .disabled(!viewModel.usePoseCapture)
-                            }
+                            ImageDropField(
+                                imagePath: $viewModel.poseReferenceImagePath,
+                                label: "ポーズ参考画像:",
+                                placeholder: "ポーズを取り込みたい画像をドロップ",
+                                isDisabled: !viewModel.usePoseCapture
+                            )
 
                             Text("※ 参考画像の著作権はユーザー責任です")
                                 .font(.caption)
@@ -106,16 +93,11 @@ struct PoseSettingsView: View {
                                 .font(.caption)
                                 .foregroundColor(.gray)
 
-                            HStack {
-                                Text("画像:")
-                                    .frame(width: 80, alignment: .leading)
-                                TextField("衣装着用三面図の画像パス", text: $viewModel.outfitSheetImagePath)
-                                    .textFieldStyle(.roundedBorder)
-                                Button("参照") {
-                                    filePickerTarget = .outfitSheet
-                                    showingFilePicker = true
-                                }
-                            }
+                            ImageDropField(
+                                imagePath: $viewModel.outfitSheetImagePath,
+                                label: "画像:",
+                                placeholder: "衣装着用三面図をドロップ"
+                            )
 
                             Text("※ 顔・衣装の同一性は常に保持されます（ポーズのみ変更）")
                                 .font(.caption)
@@ -234,26 +216,7 @@ struct PoseSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 700, height: 800)
-        .fileImporter(
-            isPresented: $showingFilePicker,
-            allowedContentTypes: [.png, .jpeg, .gif, .webP],
-            allowsMultipleSelection: false
-        ) { result in
-            switch result {
-            case .success(let urls):
-                if let url = urls.first {
-                    switch filePickerTarget {
-                    case .outfitSheet:
-                        viewModel.outfitSheetImagePath = url.path
-                    case .poseReference:
-                        viewModel.poseReferenceImagePath = url.path
-                    }
-                }
-            case .failure(let error):
-                print("File selection error: \(error.localizedDescription)")
-            }
-        }
+        .frame(width: 700, height: 870)
     }
 }
 

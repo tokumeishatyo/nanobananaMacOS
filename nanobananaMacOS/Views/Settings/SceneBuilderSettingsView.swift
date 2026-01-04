@@ -9,15 +9,6 @@ struct SceneBuilderSettingsView: View {
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((SceneBuilderSettingsViewModel) -> Void)?
 
-    // MARK: - File Picker State
-    enum FilePickerTarget {
-        case background
-        case storyCharacter(Int)  // index 0-4
-    }
-
-    @State private var showingFilePicker = false
-    @State private var filePickerTarget: FilePickerTarget = .background
-
     init(initialSettings: SceneBuilderSettingsViewModel? = nil, onApply: ((SceneBuilderSettingsViewModel) -> Void)? = nil) {
         self.onApply = onApply
         if let settings = initialSettings {
@@ -127,13 +118,6 @@ struct SceneBuilderSettingsView: View {
             .sheet(isPresented: $viewModel.showTextOverlaySheet) {
                 TextOverlayPlacementView(items: $viewModel.textOverlayItems)
             }
-            .fileImporter(
-                isPresented: $showingFilePicker,
-                allowedContentTypes: [.image],
-                allowsMultipleSelection: false
-            ) { result in
-                handleFileSelection(result)
-            }
 
             Divider()
 
@@ -152,7 +136,7 @@ struct SceneBuilderSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 850, height: 900)
+        .frame(width: 850, height: 1000)
     }
 
     // MARK: - ストーリーシーン
@@ -194,16 +178,11 @@ struct SceneBuilderSettingsView: View {
                 }
 
                 if viewModel.backgroundSourceType == .file {
-                    HStack {
-                        Text("背景画像:")
-                            .frame(width: 80, alignment: .leading)
-                        TextField("背景画像パス", text: $viewModel.backgroundImagePath)
-                            .textFieldStyle(.roundedBorder)
-                        Button("参照") {
-                            filePickerTarget = .background
-                            showingFilePicker = true
-                        }
-                    }
+                    ImageDropField(
+                        imagePath: $viewModel.backgroundImagePath,
+                        label: "背景画像:",
+                        placeholder: "背景画像をドロップ"
+                    )
                 } else {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("情景説明:")
@@ -322,17 +301,12 @@ struct SceneBuilderSettingsView: View {
                 .font(.caption)
                 .fontWeight(.semibold)
 
-            // 画像
-            HStack(spacing: 2) {
-                TextField("画像", text: storyCharacterImageBinding(index: index))
-                    .textFieldStyle(.roundedBorder)
-                    .frame(width: 80)
-                Button("参照") {
-                    filePickerTarget = .storyCharacter(index)
-                    showingFilePicker = true
-                }
-                .font(.caption)
-            }
+            // 画像（コンパクトなD&D対応フィールド）
+            ImageDropField(
+                imagePath: storyCharacterImageBinding(index: index),
+                placeholder: "画像をドロップ",
+                height: 50
+            )
 
             // 表情
             HStack {
@@ -361,27 +335,6 @@ struct SceneBuilderSettingsView: View {
         if total == 1 { return "キャラ1" }
         if index == 0 { return "キャラ1（左端）" }
         return "キャラ\(index + 1)（\(index)の右隣）"
-    }
-
-    // MARK: - File Selection Handler
-
-    private func handleFileSelection(_ result: Result<[URL], Error>) {
-        switch result {
-        case .success(let urls):
-            guard let url = urls.first else { return }
-            let path = url.path
-
-            switch filePickerTarget {
-            case .background:
-                viewModel.backgroundImagePath = path
-            case .storyCharacter(let index):
-                if index < viewModel.storyCharacters.count {
-                    viewModel.storyCharacters[index].imagePath = path
-                }
-            }
-        case .failure(let error):
-            print("ファイル選択エラー: \(error.localizedDescription)")
-        }
     }
 
     private var storyDialogSection: some View {

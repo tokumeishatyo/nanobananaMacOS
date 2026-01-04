@@ -9,8 +9,6 @@ struct StyleTransformSettingsView: View {
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((StyleTransformSettingsViewModel) -> Void)?
 
-    @State private var showingFilePicker = false
-
     init(initialSettings: StyleTransformSettingsViewModel? = nil, onApply: ((StyleTransformSettingsViewModel) -> Void)? = nil) {
         self.onApply = onApply
         if let settings = initialSettings {
@@ -78,21 +76,7 @@ struct StyleTransformSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 700, height: 600)
-        .fileImporter(
-            isPresented: $showingFilePicker,
-            allowedContentTypes: [.image],
-            allowsMultipleSelection: false
-        ) { result in
-            switch result {
-            case .success(let urls):
-                if let url = urls.first {
-                    viewModel.sourceImagePath = url.path
-                }
-            case .failure(let error):
-                print("ファイル選択エラー: \(error.localizedDescription)")
-            }
-        }
+        .frame(width: 700, height: 650)
     }
 
     // MARK: - 入力画像セクション
@@ -103,15 +87,11 @@ struct StyleTransformSettingsView: View {
                     .font(.headline)
                     .fontWeight(.bold)
 
-                HStack {
-                    Text("元画像:")
-                        .frame(width: 80, alignment: .leading)
-                    TextField("変換する画像のパス", text: $viewModel.sourceImagePath)
-                        .textFieldStyle(.roundedBorder)
-                    Button("参照") {
-                        showingFilePicker = true
-                    }
-                }
+                ImageDropField(
+                    imagePath: $viewModel.sourceImagePath,
+                    label: "元画像:",
+                    placeholder: "変換する画像をドロップ"
+                )
 
                 Text("※ 素体/衣装/ポーズなど、どの段階の画像でも変換可能")
                     .font(.caption)

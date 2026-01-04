@@ -9,9 +9,6 @@ struct DecorativeTextSettingsView: View {
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((DecorativeTextSettingsViewModel) -> Void)?
 
-    // MARK: - File Picker State
-    @State private var showingFaceIconFilePicker = false
-
     init(initialSettings: DecorativeTextSettingsViewModel? = nil, onApply: ((DecorativeTextSettingsViewModel) -> Void)? = nil) {
         self.onApply = onApply
         if let settings = initialSettings {
@@ -418,37 +415,14 @@ struct DecorativeTextSettingsView: View {
                         Spacer()
                     }
 
-                    HStack {
-                        Text("顔アイコン画像:")
-                            .frame(width: 100, alignment: .leading)
-                        TextField("（任意）衣装/ポーズ画像から顔を使用", text: $viewModel.faceIconImagePath)
-                            .textFieldStyle(.roundedBorder)
-                        Button("参照") {
-                            showingFaceIconFilePicker = true
-                        }
-                    }
+                    ImageDropField(
+                        imagePath: $viewModel.faceIconImagePath,
+                        label: "顔アイコン画像:",
+                        placeholder: "衣装/ポーズ画像をドロップ（任意）"
+                    )
                 }
             }
             .padding(10)
-        }
-        .fileImporter(
-            isPresented: $showingFaceIconFilePicker,
-            allowedContentTypes: [.image],
-            allowsMultipleSelection: false
-        ) { result in
-            handleFaceIconFileSelection(result)
-        }
-    }
-
-    // MARK: - File Selection Handler
-
-    private func handleFaceIconFileSelection(_ result: Result<[URL], Error>) {
-        switch result {
-        case .success(let urls):
-            guard let url = urls.first else { return }
-            viewModel.faceIconImagePath = url.path
-        case .failure(let error):
-            print("ファイル選択エラー: \(error.localizedDescription)")
         }
     }
 }

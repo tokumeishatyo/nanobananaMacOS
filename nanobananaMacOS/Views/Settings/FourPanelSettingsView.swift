@@ -11,14 +11,6 @@ struct FourPanelSettingsView: View {
 
     private let panelLabels = ["1コマ目（起）", "2コマ目（承）", "3コマ目（転）", "4コマ目（結）"]
 
-    // MARK: - File Picker State
-    private enum FilePickerTarget {
-        case character1
-        case character2
-    }
-    @State private var showingFilePicker = false
-    @State private var filePickerTarget: FilePickerTarget = .character1
-
     init(initialSettings: FourPanelSettingsViewModel? = nil, onApply: ((FourPanelSettingsViewModel) -> Void)? = nil) {
         self.onApply = onApply
         if let settings = initialSettings {
@@ -82,14 +74,7 @@ struct FourPanelSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 800, height: 1000)
-        .fileImporter(
-            isPresented: $showingFilePicker,
-            allowedContentTypes: [.image],
-            allowsMultipleSelection: false
-        ) { result in
-            handleFileSelection(result)
-        }
+        .frame(width: 800, height: 1100)
     }
 
     // MARK: - 登場人物設定
@@ -114,16 +99,11 @@ struct FourPanelSettingsView: View {
                         .textFieldStyle(.roundedBorder)
                 }
 
-                HStack {
-                    Text("画像1:")
-                        .frame(width: 70, alignment: .leading)
-                    TextField("キャラクター参照画像パス", text: $viewModel.character1ImagePath)
-                        .textFieldStyle(.roundedBorder)
-                    Button("参照") {
-                        filePickerTarget = .character1
-                        showingFilePicker = true
-                    }
-                }
+                ImageDropField(
+                    imagePath: $viewModel.character1ImagePath,
+                    label: "画像1:",
+                    placeholder: "キャラクター参照画像をドロップ"
+                )
 
                 Divider()
 
@@ -141,35 +121,13 @@ struct FourPanelSettingsView: View {
                         .textFieldStyle(.roundedBorder)
                 }
 
-                HStack {
-                    Text("画像2:")
-                        .frame(width: 70, alignment: .leading)
-                    TextField("キャラクター参照画像パス（任意）", text: $viewModel.character2ImagePath)
-                        .textFieldStyle(.roundedBorder)
-                    Button("参照") {
-                        filePickerTarget = .character2
-                        showingFilePicker = true
-                    }
-                }
+                ImageDropField(
+                    imagePath: $viewModel.character2ImagePath,
+                    label: "画像2:",
+                    placeholder: "キャラクター参照画像をドロップ（任意）"
+                )
             }
             .padding(10)
-        }
-    }
-
-    // MARK: - File Selection Handler
-
-    private func handleFileSelection(_ result: Result<[URL], Error>) {
-        switch result {
-        case .success(let urls):
-            guard let url = urls.first else { return }
-            switch filePickerTarget {
-            case .character1:
-                viewModel.character1ImagePath = url.path
-            case .character2:
-                viewModel.character2ImagePath = url.path
-            }
-        case .failure(let error):
-            print("ファイル選択エラー: \(error.localizedDescription)")
         }
     }
 

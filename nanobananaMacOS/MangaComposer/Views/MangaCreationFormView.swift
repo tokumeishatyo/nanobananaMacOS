@@ -155,18 +155,15 @@ struct ActorEntryView: View {
             }
 
             // MARK: - Face Sheet Path (Required)
-            HStack {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("顔三面図")
                     .font(.caption2)
                     .foregroundColor(.secondary)
-                    .frame(width: 100, alignment: .leading)
-                TextField("", text: $actor.faceSheetPath, prompt: Text("画像パス（必須）"))
-                    .textFieldStyle(.roundedBorder)
-                    .font(.caption)
-                Button("選択...") {
-                    selectImage(for: \.faceSheetPath)
-                }
-                .font(.caption)
+                ImageDropField(
+                    imagePath: $actor.faceSheetPath,
+                    placeholder: "顔三面図をドロップ（必須）",
+                    height: 50
+                )
             }
 
             // MARK: - Face Features (Required)
@@ -205,19 +202,6 @@ struct ActorEntryView: View {
         .padding(8)
         .background(Color.gray.opacity(0.05))
         .cornerRadius(8)
-    }
-
-    // MARK: - File Selection
-    private func selectImage(for keyPath: ReferenceWritableKeyPath<ActorEntry, String>) {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        panel.canChooseFiles = true
-        panel.allowedContentTypes = [.png, .jpeg]
-
-        if panel.runModal() == .OK, let url = panel.url {
-            actor[keyPath: keyPath] = url.path
-        }
     }
 }
 
@@ -310,15 +294,11 @@ struct WardrobeEntryView: View {
             }
 
             // MARK: - Outfit Sheet Path (Required)
-            HStack {
-                TextField("", text: $wardrobe.outfitSheetPath, prompt: Text("画像パス"))
-                    .textFieldStyle(.roundedBorder)
-                    .font(.caption2)
-                Button("...") {
-                    selectImage()
-                }
-                .font(.caption)
-            }
+            ImageDropField(
+                imagePath: $wardrobe.outfitSheetPath,
+                placeholder: "衣装シートをドロップ",
+                height: 50
+            )
 
             // MARK: - Features (Optional)
             TextField("", text: $wardrobe.features, prompt: Text("特徴（任意）"))
@@ -328,19 +308,6 @@ struct WardrobeEntryView: View {
         .padding(6)
         .background(Color.orange.opacity(0.05))
         .cornerRadius(6)
-    }
-
-    // MARK: - File Selection
-    private func selectImage() {
-        let panel = NSOpenPanel()
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        panel.canChooseFiles = true
-        panel.allowedContentTypes = [.png, .jpeg]
-
-        if panel.runModal() == .OK, let url = panel.url {
-            wardrobe.outfitSheetPath = url.path
-        }
     }
 }
 

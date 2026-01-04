@@ -9,9 +9,6 @@ struct BackgroundSettingsView: View {
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((BackgroundSettingsViewModel) -> Void)?
 
-    // MARK: - File Picker State
-    @State private var showingFilePicker = false
-
     init(initialSettings: BackgroundSettingsViewModel? = nil, onApply: ((BackgroundSettingsViewModel) -> Void)? = nil) {
         self.onApply = onApply
         if let settings = initialSettings {
@@ -47,17 +44,12 @@ struct BackgroundSettingsView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Toggle("参考画像を使用", isOn: $viewModel.useReferenceImage)
 
-                        HStack {
-                            Text("画像パス:")
-                                .frame(width: 70, alignment: .leading)
-                            TextField("参考画像のパス", text: $viewModel.referenceImagePath)
-                                .textFieldStyle(.roundedBorder)
-                                .disabled(!viewModel.useReferenceImage)
-                            Button("参照") {
-                                showingFilePicker = true
-                            }
-                            .disabled(!viewModel.useReferenceImage)
-                        }
+                        ImageDropField(
+                            imagePath: $viewModel.referenceImagePath,
+                            label: "参考画像:",
+                            placeholder: "参考画像をドロップ",
+                            isDisabled: !viewModel.useReferenceImage
+                        )
 
                         Toggle("人物を自動除去（推奨）", isOn: $viewModel.removeCharacters)
                             .disabled(!viewModel.useReferenceImage)
@@ -115,26 +107,7 @@ struct BackgroundSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 500, height: 470)
-        .fileImporter(
-            isPresented: $showingFilePicker,
-            allowedContentTypes: [.image],
-            allowsMultipleSelection: false
-        ) { result in
-            handleFileSelection(result)
-        }
-    }
-
-    // MARK: - File Selection Handler
-
-    private func handleFileSelection(_ result: Result<[URL], Error>) {
-        switch result {
-        case .success(let urls):
-            guard let url = urls.first else { return }
-            viewModel.referenceImagePath = url.path
-        case .failure(let error):
-            print("ファイル選択エラー: \(error.localizedDescription)")
-        }
+        .frame(width: 500, height: 530)
     }
 
     /// プレースホルダーテキスト

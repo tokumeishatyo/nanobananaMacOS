@@ -7,7 +7,6 @@ struct FaceSheetSettingsView: View {
     @StateObject private var viewModel: FaceSheetSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
-    @State private var showingFilePicker = false
     var onApply: ((FaceSheetSettingsViewModel) -> Void)?
 
     init(initialSettings: FaceSheetSettingsViewModel? = nil, onApply: ((FaceSheetSettingsViewModel) -> Void)? = nil) {
@@ -53,15 +52,11 @@ struct FaceSheetSettingsView: View {
                             }
 
                             // 参照画像
-                            HStack {
-                                Text("参照画像:")
-                                    .frame(width: 80, alignment: .leading)
-                                TextField("参照画像パス（任意）", text: $viewModel.referenceImagePath)
-                                    .textFieldStyle(.roundedBorder)
-                                Button("参照") {
-                                    showingFilePicker = true
-                                }
-                            }
+                            ImageDropField(
+                                imagePath: $viewModel.referenceImagePath,
+                                label: "参照画像:",
+                                placeholder: "参照画像をドロップ（任意）"
+                            )
 
                             // 外見説明
                             VStack(alignment: .leading, spacing: 4) {
@@ -108,21 +103,7 @@ struct FaceSheetSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 600, height: 400)
-        .fileImporter(
-            isPresented: $showingFilePicker,
-            allowedContentTypes: [.png, .jpeg, .gif, .webP],
-            allowsMultipleSelection: false
-        ) { result in
-            switch result {
-            case .success(let urls):
-                if let url = urls.first {
-                    viewModel.referenceImagePath = url.path
-                }
-            case .failure(let error):
-                print("ファイル選択エラー: \(error.localizedDescription)")
-            }
-        }
+        .frame(width: 600, height: 450)
     }
 }
 

@@ -7,13 +7,6 @@ struct OutfitSettingsView: View {
     @StateObject private var viewModel: OutfitSettingsViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
-    @State private var showingFilePicker = false
-    @State private var filePickerTarget: FilePickerTarget = .bodySheet
-
-    private enum FilePickerTarget {
-        case bodySheet
-        case referenceOutfit
-    }
     var onApply: ((OutfitSettingsViewModel) -> Void)?
 
     init(initialSettings: OutfitSettingsViewModel? = nil, onApply: ((OutfitSettingsViewModel) -> Void)? = nil) {
@@ -64,19 +57,12 @@ struct OutfitSettingsView: View {
                                 .font(.caption)
                                 .foregroundColor(.gray)
 
-                            HStack {
-                                Text("素体三面図:")
-                                    .frame(width: 90, alignment: .leading)
-                                TextField("素体三面図の画像パス", text: $viewModel.bodySheetImagePath)
-                                    .textFieldStyle(.roundedBorder)
-                                    .disabled(!viewModel.useBodySheet)
-                                Button("参照") {
-                                    filePickerTarget = .bodySheet
-                                    showingFilePicker = true
-                                }
-                                .disabled(!viewModel.useBodySheet)
-                            }
-                            .opacity(viewModel.useBodySheet ? 1.0 : 0.5)
+                            ImageDropField(
+                                imagePath: $viewModel.bodySheetImagePath,
+                                label: "素体三面図:",
+                                placeholder: "素体三面図をドロップ",
+                                isDisabled: !viewModel.useBodySheet
+                            )
                         }
                         .padding(10)
                     }
@@ -188,16 +174,11 @@ struct OutfitSettingsView: View {
                                     .font(.headline)
                                     .fontWeight(.bold)
 
-                                HStack {
-                                    Text("衣装参考画像:")
-                                        .frame(width: 90, alignment: .leading)
-                                    TextField("着せたい衣装の参考画像を選択", text: $viewModel.referenceOutfitImagePath)
-                                        .textFieldStyle(.roundedBorder)
-                                    Button("参照") {
-                                        filePickerTarget = .referenceOutfit
-                                        showingFilePicker = true
-                                    }
-                                }
+                                ImageDropField(
+                                    imagePath: $viewModel.referenceOutfitImagePath,
+                                    label: "衣装参考画像:",
+                                    placeholder: "着せたい衣装の参考画像をドロップ"
+                                )
 
                                 HStack(alignment: .top) {
                                     Text("衣装説明:")
@@ -294,26 +275,7 @@ struct OutfitSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 780, height: 750)
-        .fileImporter(
-            isPresented: $showingFilePicker,
-            allowedContentTypes: [.png, .jpeg, .gif, .webP],
-            allowsMultipleSelection: false
-        ) { result in
-            switch result {
-            case .success(let urls):
-                if let url = urls.first {
-                    switch filePickerTarget {
-                    case .bodySheet:
-                        viewModel.bodySheetImagePath = url.path
-                    case .referenceOutfit:
-                        viewModel.referenceOutfitImagePath = url.path
-                    }
-                }
-            case .failure(let error):
-                print("ファイル選択エラー: \(error.localizedDescription)")
-            }
-        }
+        .frame(width: 780, height: 820)
     }
 }
 

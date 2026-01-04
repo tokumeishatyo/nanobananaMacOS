@@ -9,13 +9,6 @@ struct InfographicSettingsView: View {
     @Environment(\.windowDismiss) private var windowDismiss
     var onApply: ((InfographicSettingsViewModel) -> Void)?
 
-    private enum FilePickerTarget {
-        case mainCharacter
-        case subCharacter
-    }
-    @State private var showingFilePicker = false
-    @State private var filePickerTarget: FilePickerTarget = .mainCharacter
-
     init(initialSettings: InfographicSettingsViewModel? = nil, onApply: ((InfographicSettingsViewModel) -> Void)? = nil) {
         self.onApply = onApply
         if let settings = initialSettings {
@@ -106,27 +99,17 @@ struct InfographicSettingsView: View {
                                 .font(.headline)
                                 .fontWeight(.bold)
 
-                            HStack {
-                                Text("メイン:")
-                                    .frame(width: 80, alignment: .leading)
-                                TextField("中央に配置するキャラ画像", text: $viewModel.mainCharacterImagePath)
-                                    .textFieldStyle(.roundedBorder)
-                                Button("参照") {
-                                    filePickerTarget = .mainCharacter
-                                    showingFilePicker = true
-                                }
-                            }
+                            ImageDropField(
+                                imagePath: $viewModel.mainCharacterImagePath,
+                                label: "メイン:",
+                                placeholder: "中央に配置するキャラ画像をドロップ"
+                            )
 
-                            HStack {
-                                Text("おまけ:")
-                                    .frame(width: 80, alignment: .leading)
-                                TextField("ちびキャラなど（任意）", text: $viewModel.subCharacterImagePath)
-                                    .textFieldStyle(.roundedBorder)
-                                Button("参照") {
-                                    filePickerTarget = .subCharacter
-                                    showingFilePicker = true
-                                }
-                            }
+                            ImageDropField(
+                                imagePath: $viewModel.subCharacterImagePath,
+                                label: "おまけ:",
+                                placeholder: "ちびキャラなど（任意）をドロップ"
+                            )
                         }
                         .padding(10)
                     }
@@ -174,26 +157,7 @@ struct InfographicSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 750, height: 1000)
-        .fileImporter(
-            isPresented: $showingFilePicker,
-            allowedContentTypes: [.image],
-            allowsMultipleSelection: false
-        ) { result in
-            switch result {
-            case .success(let urls):
-                if let url = urls.first {
-                    switch filePickerTarget {
-                    case .mainCharacter:
-                        viewModel.mainCharacterImagePath = url.path
-                    case .subCharacter:
-                        viewModel.subCharacterImagePath = url.path
-                    }
-                }
-            case .failure(let error):
-                print("ファイル選択エラー: \(error.localizedDescription)")
-            }
-        }
+        .frame(width: 750, height: 1100)
     }
 
     private func sectionRow(index: Int) -> some View {
