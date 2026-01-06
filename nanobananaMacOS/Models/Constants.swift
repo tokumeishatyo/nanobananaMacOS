@@ -80,4 +80,8 @@ struct AppConstants {
 
     static let leftColumnWidth: CGFloat = 320
     static let middleColumnWidth: CGFloat = 380
+
+    // キャラクターデータベース
+    static let appSupportFolderName = "nanobananaMacOS"
+    static let characterDatabaseFileName = "characters.json"
 }

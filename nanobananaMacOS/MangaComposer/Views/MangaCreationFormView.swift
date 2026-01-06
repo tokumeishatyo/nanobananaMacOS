@@ -6,6 +6,7 @@ import UniformTypeIdentifiers
 /// 漫画作成の入力フォーム
 struct MangaCreationFormView: View {
     @ObservedObject var viewModel: MangaCreationViewModel
+    let savedCharacters: [SavedCharacter]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -19,7 +20,7 @@ struct MangaCreationFormView: View {
                 .foregroundColor(.secondary)
 
             // MARK: - 登場人物セクション
-            ActorsSectionView(viewModel: viewModel)
+            ActorsSectionView(viewModel: viewModel, savedCharacters: savedCharacters)
 
             // MARK: - 衣装セクション
             WardrobesSectionView(viewModel: viewModel)
@@ -65,6 +66,7 @@ struct MangaCreationFormView: View {
 /// 登場人物セクション
 struct ActorsSectionView: View {
     @ObservedObject var viewModel: MangaCreationViewModel
+    let savedCharacters: [SavedCharacter]
 
     var body: some View {
         GroupBox {
@@ -86,6 +88,7 @@ struct ActorsSectionView: View {
                         actor: actor,
                         actorIndex: index,
                         canRemove: viewModel.canRemoveActor,
+                        savedCharacters: savedCharacters,
                         onRemove: {
                             viewModel.removeActor(at: index)
                         }
@@ -117,6 +120,7 @@ struct ActorEntryView: View {
     @ObservedObject var actor: ActorEntry
     let actorIndex: Int
     let canRemove: Bool
+    let savedCharacters: [SavedCharacter]
     let onRemove: () -> Void
 
     private var actorLabel: String {
@@ -143,15 +147,36 @@ struct ActorEntryView: View {
                 }
             }
 
-            // MARK: - Name (Required)
+            // MARK: - Character Selection (Required)
             HStack {
-                Text("キャラクタ名")
+                Text("キャラクタ")
                     .font(.caption2)
                     .foregroundColor(.secondary)
                     .frame(width: 100, alignment: .leading)
-                TextField("", text: $actor.name, prompt: Text("必須"))
-                    .textFieldStyle(.roundedBorder)
-                    .font(.caption)
+
+                if savedCharacters.isEmpty {
+                    Text("キャラクタが未登録です")
+                        .font(.caption)
+                        .foregroundColor(.red)
+                } else {
+                    Picker("", selection: Binding(
+                        get: { actor.selectedCharacterId },
+                        set: { newId in
+                            if let id = newId,
+                               let character = savedCharacters.first(where: { $0.id == id }) {
+                                actor.selectCharacter(character)
+                            } else {
+                                actor.clearSelection()
+                            }
+                        }
+                    )) {
+                        Text("選択してください").tag(nil as UUID?)
+                        ForEach(savedCharacters) { character in
+                            Text(character.name).tag(character.id as UUID?)
+                        }
+                    }
+                    .labelsHidden()
+                }
             }
 
             // MARK: - Face Sheet Path (Required)
@@ -166,35 +191,35 @@ struct ActorEntryView: View {
                 )
             }
 
-            // MARK: - Face Features (Required)
+            // MARK: - Face Features (Auto-filled, Editable)
             HStack {
                 Text("顔の特徴")
                     .font(.caption2)
                     .foregroundColor(.secondary)
                     .frame(width: 100, alignment: .leading)
-                TextField("", text: $actor.faceFeatures, prompt: Text("例: 黒髪ロング、青い瞳（必須）"))
+                TextField("", text: $actor.faceFeatures, prompt: Text("キャラクタ選択で自動入力"))
                     .textFieldStyle(.roundedBorder)
                     .font(.caption)
             }
 
-            // MARK: - Body Features (Optional)
+            // MARK: - Body Features (Auto-filled, Editable)
             HStack {
                 Text("体型の特徴")
                     .font(.caption2)
                     .foregroundColor(.secondary)
                     .frame(width: 100, alignment: .leading)
-                TextField("", text: $actor.bodyFeatures, prompt: Text("例: スリム（任意）"))
+                TextField("", text: $actor.bodyFeatures, prompt: Text("キャラクタ選択で自動入力"))
                     .textFieldStyle(.roundedBorder)
                     .font(.caption)
             }
 
-            // MARK: - Personality (Optional)
+            // MARK: - Personality (Auto-filled, Editable)
             HStack {
                 Text("パーソナリティ")
                     .font(.caption2)
                     .foregroundColor(.secondary)
                     .frame(width: 100, alignment: .leading)
-                TextField("", text: $actor.personality, prompt: Text("例: 元気（任意）"))
+                TextField("", text: $actor.personality, prompt: Text("キャラクタ選択で自動入力"))
                     .textFieldStyle(.roundedBorder)
                     .font(.caption)
             }
@@ -592,7 +617,10 @@ struct PanelCharacterSlotView: View {
 
 // MARK: - Preview
 #Preview {
-    MangaCreationFormView(viewModel: MangaCreationViewModel())
-        .frame(width: 500)
-        .padding()
+    MangaCreationFormView(
+        viewModel: MangaCreationViewModel(),
+        savedCharacters: []
+    )
+    .frame(width: 500)
+    .padding()
 }

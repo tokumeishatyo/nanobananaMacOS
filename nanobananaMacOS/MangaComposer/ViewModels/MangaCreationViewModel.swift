@@ -422,15 +422,34 @@ final class PanelCharacter: ObservableObject, Identifiable {
 final class ActorEntry: ObservableObject, Identifiable {
     let id = UUID()
 
-    @Published var name: String = ""                // キャラクタ名（必須）
-    @Published var faceSheetPath: String = ""       // 顔三面図パス（必須）
-    @Published var faceFeatures: String = ""        // 顔の特徴（必須）
-    @Published var bodyFeatures: String = ""        // 体型の特徴（任意）
-    @Published var personality: String = ""         // パーソナリティ（任意）
+    @Published var selectedCharacterId: UUID?       // 選択されたキャラクターのID（データベースから）
+    @Published var name: String = ""                // キャラクタ名（選択時に自動設定）
+    @Published var faceSheetPath: String = ""       // 顔三面図パス（必須、都度入力）
+    @Published var faceFeatures: String = ""        // 顔の特徴（選択時に自動設定）
+    @Published var bodyFeatures: String = ""        // 体型の特徴（選択時に自動設定）
+    @Published var personality: String = ""         // パーソナリティ（選択時に自動設定）
+
+    /// キャラクターを選択して自動入力
+    func selectCharacter(_ character: SavedCharacter) {
+        selectedCharacterId = character.id
+        name = character.name
+        faceFeatures = character.faceFeatures
+        bodyFeatures = character.bodyFeatures
+        personality = character.personality
+    }
+
+    /// 選択をクリア
+    func clearSelection() {
+        selectedCharacterId = nil
+        name = ""
+        faceFeatures = ""
+        bodyFeatures = ""
+        personality = ""
+    }
 
     /// 有効か（必須項目が入力されているか）
     var isValid: Bool {
-        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        selectedCharacterId != nil &&
         !faceSheetPath.isEmpty &&
         !faceFeatures.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }

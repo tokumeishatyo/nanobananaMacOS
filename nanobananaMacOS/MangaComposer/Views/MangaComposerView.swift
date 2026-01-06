@@ -73,7 +73,10 @@ struct MangaComposerView: View {
         case .characterSheet:
             CharacterSheetFormView(viewModel: viewModel.characterSheetViewModel)
         case .mangaCreation:
-            MangaCreationFormView(viewModel: viewModel.mangaCreationViewModel)
+            MangaCreationFormView(
+                viewModel: viewModel.mangaCreationViewModel,
+                savedCharacters: mainViewModel.characterDatabaseService.characters
+            )
         }
     }
 

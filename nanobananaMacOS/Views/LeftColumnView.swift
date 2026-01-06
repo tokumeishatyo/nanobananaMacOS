@@ -152,6 +152,15 @@ struct LeftColumnView: View {
                         .padding(.horizontal, 10)
                         .padding(.top, 10)
 
+                        // キャラクタ管理
+                        Button(action: viewModel.openCharacterDatabase) {
+                            Text("キャラクタ管理")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.blue)
+                        .padding(.horizontal, 10)
+
                         // 漫画ページコンポーザー
                         Button(action: viewModel.openMangaComposer) {
                             Text("漫画ページコンポーザー")

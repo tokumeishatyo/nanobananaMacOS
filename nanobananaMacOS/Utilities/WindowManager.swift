@@ -159,6 +159,18 @@ final class WindowManager {
             DetailedMangaComposerView()
         }
     }
+
+    /// キャラクター管理ウィンドウを開く
+    func openCharacterDatabaseWindow(service: CharacterDatabaseService) {
+        let viewModel = CharacterDatabaseViewModel(service: service)
+        openWindow(
+            id: "characterDatabase",
+            title: "キャラクター管理",
+            size: NSSize(width: 500, height: 600)
+        ) {
+            CharacterDatabaseView(viewModel: viewModel)
+        }
+    }
 }
 
 // MARK: - Window Content Wrapper

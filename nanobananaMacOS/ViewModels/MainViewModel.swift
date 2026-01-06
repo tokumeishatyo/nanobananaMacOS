@@ -93,6 +93,11 @@ final class MainViewModel: ObservableObject {
     /// 漫画作成YAML生成モード（適用ボタンでtrueになる）
     @Published var isMangaCreationMode: Bool = false
 
+    // MARK: - Character Database
+
+    /// キャラクターデータベースサービス
+    let characterDatabaseService = CharacterDatabaseService()
+
     // MARK: - Middle Column (API設定)
 
     /// 出力モード
@@ -962,6 +967,11 @@ final class MainViewModel: ObservableObject {
                 }
             }
         }
+    }
+
+    /// キャラクター管理を開く
+    func openCharacterDatabase() {
+        WindowManager.shared.openCharacterDatabaseWindow(service: characterDatabaseService)
     }
 
     /// 漫画コンポーザーを開く
