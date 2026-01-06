@@ -40,6 +40,7 @@ final class WindowManager {
         window.title = title
         window.center()
         window.isReleasedWhenClosed = false
+        window.level = .floating  // メインウィンドウより前面に表示
 
         // dismissを処理するラッパーでコンテンツを包む
         let wrappedContent = WindowContentWrapper(windowId: id) {
