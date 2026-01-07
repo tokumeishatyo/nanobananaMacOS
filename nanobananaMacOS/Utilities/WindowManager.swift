@@ -40,7 +40,10 @@ final class WindowManager {
         window.title = title
         window.center()
         window.isReleasedWhenClosed = false
-        window.level = .floating  // メインウィンドウより前面に表示
+
+        // ドラッグ＆ドロップを妨げないよう.floatingは使用しない
+        // 代わりにcollectionBehaviorでウィンドウの動作を制御
+        window.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
 
         // dismissを処理するラッパーでコンテンツを包む
         let wrappedContent = WindowContentWrapper(windowId: id) {
