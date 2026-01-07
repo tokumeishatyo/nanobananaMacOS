@@ -172,6 +172,33 @@ final class WindowManager {
             CharacterDatabaseView(viewModel: viewModel)
         }
     }
+
+    /// 漫画ストーリーインポートウィンドウを開く
+    /// - Parameters:
+    ///   - savedCharacters: キャラクターデータベースの登録済みキャラクター
+    ///   - onApply: インポート完了時のコールバック
+    func openMangaStoryImportWindow(
+        savedCharacters: [SavedCharacter],
+        onApply: @escaping (MangaStoryYAML, [CharacterMatchResult]) -> Void
+    ) {
+        let viewModel = MangaStoryImportViewModel(savedCharacters: savedCharacters)
+        openWindow(
+            id: "mangaStoryImport",
+            title: "漫画ストーリー読み込み",
+            size: NSSize(width: 600, height: 700)
+        ) {
+            MangaStoryImportView(
+                viewModel: viewModel,
+                onApply: { yaml, results in
+                    onApply(yaml, results)
+                    WindowManager.shared.closeWindow(id: "mangaStoryImport")
+                },
+                onCancel: {
+                    WindowManager.shared.closeWindow(id: "mangaStoryImport")
+                }
+            )
+        }
+    }
 }
 
 // MARK: - Window Content Wrapper

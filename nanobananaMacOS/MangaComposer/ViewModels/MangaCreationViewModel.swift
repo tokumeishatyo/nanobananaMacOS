@@ -286,6 +286,116 @@ final class MangaCreationViewModel: ObservableObject {
             return ""
         }
     }
+
+    // MARK: - Import (YAML読み込み)
+
+    /// YAMLインポート結果を反映
+    func applyImportedStory(
+        yaml: MangaStoryYAML,
+        matchResults: [CharacterMatchResult],
+        savedCharacters: [SavedCharacter]
+    ) {
+        // Combineの監視をクリア
+        cancellables.removeAll()
+
+        // 1. アクターを再構築
+        applyActors(from: matchResults, savedCharacters: savedCharacters)
+
+        // 2. パネルを再構築
+        applyPanels(from: yaml.panels ?? [], matchResults: matchResults)
+    }
+
+    private func applyActors(
+        from matchResults: [CharacterMatchResult],
+        savedCharacters: [SavedCharacter]
+    ) {
+        actors = []
+
+        for result in matchResults {
+            guard let matched = result.matchedCharacter else { continue }
+
+            let actor = ActorEntry()
+            actor.selectCharacter(matched)
+            // faceSheetPath は空のまま（手動入力）
+            actors.append(actor)
+            observeActor(actor)
+        }
+
+        // 最低1人は必要
+        if actors.isEmpty {
+            let initialActor = ActorEntry()
+            actors = [initialActor]
+            observeActor(initialActor)
+        }
+    }
+
+    private func applyPanels(
+        from yamlPanels: [MangaStoryPanel],
+        matchResults: [CharacterMatchResult]
+    ) {
+        panels = []
+
+        for yamlPanel in yamlPanels {
+            // インポート用の初期化（初期キャラクターなし）
+            let panel = MangaPanel(forImport: true)
+            panel.scene = yamlPanel.scene ?? ""
+            panel.narration = yamlPanel.narration ?? ""
+            panel.hasMobCharacters = yamlPanel.mob ?? false
+
+            // キャラクターを設定
+            applyPanelCharacters(
+                to: panel,
+                from: yamlPanel.characters ?? [],
+                matchResults: matchResults
+            )
+
+            panels.append(panel)
+            observePanel(panel)
+        }
+
+        // 最低1コマは必要
+        if panels.isEmpty {
+            let initialPanel = MangaPanel()
+            panels = [initialPanel]
+            observePanel(initialPanel)
+        }
+    }
+
+    private func applyPanelCharacters(
+        to panel: MangaPanel,
+        from yamlCharacters: [MangaStoryPanelCharacter],
+        matchResults: [CharacterMatchResult]
+    ) {
+        panel.characters = []
+
+        for yamlChar in yamlCharacters {
+            let character = PanelCharacter()
+            character.dialogue = yamlChar.dialogue ?? ""
+            character.features = yamlChar.feature ?? ""
+
+            // 名前からアクターを検索してIDを設定
+            if let name = yamlChar.name,
+               let matchResult = matchResults.first(where: { $0.yamlName == name }),
+               let matchedChar = matchResult.matchedCharacter {
+                // アクターリストから該当するactorIdを検索
+                if let actor = actors.first(where: { $0.name == matchedChar.name }) {
+                    character.selectedActorId = actor.id
+                }
+            }
+
+            // selectedWardrobeId は nil のまま（手動選択）
+
+            panel.characters.append(character)
+            panel.observeCharacter(character)
+        }
+
+        // 最低1人は必要
+        if panel.characters.isEmpty {
+            let initialCharacter = PanelCharacter()
+            panel.characters = [initialCharacter]
+            panel.observeCharacter(initialCharacter)
+        }
+    }
 }
 
 // MARK: - Manga Panel
@@ -305,6 +415,7 @@ final class MangaPanel: ObservableObject, Identifiable {
 
     private var cancellables: Set<AnyCancellable> = []
 
+    /// 通常の初期化（初期キャラクター1人を追加）
     init() {
         // 初期キャラクターを追加
         let initialCharacter = PanelCharacter()
@@ -312,8 +423,19 @@ final class MangaPanel: ObservableObject, Identifiable {
         observeCharacter(initialCharacter)
     }
 
+    /// インポート用の初期化（キャラクターなしで作成）
+    init(forImport: Bool) {
+        // キャラクターは後から設定する
+    }
+
+    /// 監視をクリア（インポート時に使用）
+    func clearObservers() {
+        cancellables.removeAll()
+    }
+
     /// キャラクターの変更を監視
-    private func observeCharacter(_ character: PanelCharacter) {
+    /// インポート時に外部から呼び出せるようinternalに変更
+    func observeCharacter(_ character: PanelCharacter) {
         character.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in

@@ -11,9 +11,21 @@ struct MangaCreationFormView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // MARK: - Header
-            Text("漫画作成")
-                .font(.headline)
-                .padding(.top, 8)
+            HStack {
+                Text("漫画作成")
+                    .font(.headline)
+                Spacer()
+                // YAML読み込みボタン
+                Button(action: openYAMLImport) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "doc.text")
+                        Text("YAML読み込み")
+                    }
+                    .font(.caption)
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(.top, 8)
 
             Text("1〜4コマの漫画を作成します。登場人物と衣装を登録してから、各コマで組み合わせを選択してください。")
                 .font(.caption)
@@ -58,6 +70,22 @@ struct MangaCreationFormView: View {
                 }
                 .buttonStyle(.bordered)
             }
+        }
+    }
+
+    // MARK: - YAML Import
+
+    /// YAML読み込みウィンドウを開く
+    private func openYAMLImport() {
+        WindowManager.shared.openMangaStoryImportWindow(
+            savedCharacters: savedCharacters
+        ) { yaml, matchResults in
+            // インポート結果をViewModelに反映
+            viewModel.applyImportedStory(
+                yaml: yaml,
+                matchResults: matchResults,
+                savedCharacters: savedCharacters
+            )
         }
     }
 }
