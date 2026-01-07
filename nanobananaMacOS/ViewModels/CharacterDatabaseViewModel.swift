@@ -25,6 +25,7 @@ class CharacterDatabaseViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let service: CharacterDatabaseService
+    private var cancellables = Set<AnyCancellable>()
 
     /// 登録済みキャラクター一覧
     var characters: [SavedCharacter] {
@@ -35,6 +36,13 @@ class CharacterDatabaseViewModel: ObservableObject {
 
     init(service: CharacterDatabaseService) {
         self.service = service
+
+        // Serviceの変更をViewに伝播
+        service.objectWillChange
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Form Operations
@@ -148,6 +156,34 @@ class CharacterDatabaseViewModel: ObservableObject {
         }
 
         return isValid
+    }
+
+    // MARK: - Export / Import
+
+    /// 外部ファイルにエクスポート
+    /// - Parameter url: 保存先URL
+    /// - Returns: エラーメッセージ（成功時はnil）
+    func exportToFile(url: URL) -> String? {
+        do {
+            try service.exportToFile(url: url)
+            return nil
+        } catch {
+            return "エクスポートに失敗しました: \(error.localizedDescription)"
+        }
+    }
+
+    /// 外部ファイルからインポート
+    /// - Parameter url: 読み込み元URL
+    /// - Returns: エラーメッセージ（成功時はnil）
+    func importFromFile(url: URL) -> String? {
+        do {
+            try service.importFromFile(url: url)
+            // 編集モードを解除
+            cancelEditing()
+            return nil
+        } catch {
+            return error.localizedDescription
+        }
     }
 
     // MARK: - Private Methods

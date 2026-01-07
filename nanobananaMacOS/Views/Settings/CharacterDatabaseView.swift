@@ -1,10 +1,18 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// キャラクター管理ウィンドウ
 struct CharacterDatabaseView: View {
     @ObservedObject var viewModel: CharacterDatabaseViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
+
+    // エクスポート/インポート用
+    @State private var showExportDialog = false
+    @State private var showImportDialog = false
+    @State private var alertMessage: String?
+    @State private var showAlert = false
+    @State private var isSuccessAlert = false
 
     private func dismissWindow() {
         if let windowDismiss = windowDismiss {
@@ -21,6 +29,9 @@ struct CharacterDatabaseView: View {
                 VStack(spacing: 16) {
                     // 登録済みキャラクター一覧
                     characterListSection
+
+                    // エクスポート/インポートボタン
+                    exportImportSection
 
                     Divider()
 
@@ -44,6 +55,80 @@ struct CharacterDatabaseView: View {
             .padding(16)
         }
         .frame(width: 500, height: 600)
+        .fileExporter(
+            isPresented: $showExportDialog,
+            document: CharacterExportDocument(characters: viewModel.characters),
+            contentType: .json,
+            defaultFilename: "characters_export.json"
+        ) { result in
+            switch result {
+            case .success:
+                alertMessage = "エクスポートが完了しました"
+                isSuccessAlert = true
+                showAlert = true
+            case .failure(let error):
+                alertMessage = "エクスポートに失敗しました: \(error.localizedDescription)"
+                isSuccessAlert = false
+                showAlert = true
+            }
+        }
+        .fileImporter(
+            isPresented: $showImportDialog,
+            allowedContentTypes: [.json],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                guard let url = urls.first else { return }
+                // セキュリティスコープのアクセス開始
+                guard url.startAccessingSecurityScopedResource() else {
+                    alertMessage = "ファイルへのアクセス権限がありません"
+                    isSuccessAlert = false
+                    showAlert = true
+                    return
+                }
+                defer { url.stopAccessingSecurityScopedResource() }
+
+                if let errorMessage = viewModel.importFromFile(url: url) {
+                    alertMessage = errorMessage
+                    isSuccessAlert = false
+                } else {
+                    alertMessage = "インポートが完了しました（\(viewModel.characters.count)件）"
+                    isSuccessAlert = true
+                }
+                showAlert = true
+            case .failure(let error):
+                alertMessage = "ファイルの選択に失敗しました: \(error.localizedDescription)"
+                isSuccessAlert = false
+                showAlert = true
+            }
+        }
+        .alert(isSuccessAlert ? "完了" : "エラー", isPresented: $showAlert) {
+            Button("OK") { }
+        } message: {
+            Text(alertMessage ?? "")
+        }
+    }
+
+    // MARK: - Export/Import Section
+
+    private var exportImportSection: some View {
+        HStack(spacing: 12) {
+            Button {
+                showExportDialog = true
+            } label: {
+                Label("エクスポート", systemImage: "square.and.arrow.up")
+            }
+            .buttonStyle(.bordered)
+            .disabled(viewModel.characters.isEmpty)
+
+            Button {
+                showImportDialog = true
+            } label: {
+                Label("インポート", systemImage: "square.and.arrow.down")
+            }
+            .buttonStyle(.bordered)
+        }
     }
 
     // MARK: - Character List Section
@@ -253,4 +338,29 @@ struct CharacterDatabaseView: View {
             service: CharacterDatabaseService()
         )
     )
+}
+
+// MARK: - CharacterExportDocument
+/// fileExporter用のドキュメントタイプ
+struct CharacterExportDocument: FileDocument {
+    static var readableContentTypes: [UTType] { [.json] }
+
+    var characters: [SavedCharacter]
+
+    init(characters: [SavedCharacter]) {
+        self.characters = characters
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        // 読み込みはfileImporterで行うため、ここでは空配列で初期化
+        characters = []
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        let exportData = CharacterExportData(characters: characters)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let data = try encoder.encode(exportData)
+        return FileWrapper(regularFileWithContents: data)
+    }
 }

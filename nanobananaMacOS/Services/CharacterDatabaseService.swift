@@ -1,6 +1,41 @@
 import Foundation
 import Combine
 
+// MARK: - CharacterExportData
+/// エクスポート用データモデル（シグネチャ付き）
+struct CharacterExportData: Codable {
+    let signature: String
+    let exportedAt: String
+    let version: String
+    let characters: [SavedCharacter]
+
+    static let currentSignature = "nanobananaMacOS-character-db-v1"
+    static let currentVersion = "1.0"
+
+    init(characters: [SavedCharacter]) {
+        self.signature = Self.currentSignature
+        self.exportedAt = ISO8601DateFormatter().string(from: Date())
+        self.version = Self.currentVersion
+        self.characters = characters
+    }
+}
+
+// MARK: - CharacterImportError
+/// インポート時のエラー
+enum CharacterImportError: LocalizedError {
+    case invalidSignature
+    case invalidFormat(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidSignature:
+            return "このファイルは本アプリで作成されたものではありません"
+        case .invalidFormat(let detail):
+            return "ファイル形式が不正です: \(detail)"
+        }
+    }
+}
+
 // MARK: - CharacterDatabaseService
 /// キャラクターデータベースの永続化サービス
 /// JSONファイルでローカル保存
@@ -114,5 +149,40 @@ class CharacterDatabaseService: ObservableObject {
         } catch {
             print("CharacterDatabaseService: Failed to save - \(error)")
         }
+    }
+
+    // MARK: - Export / Import
+
+    /// 外部ファイルにエクスポート
+    /// - Parameter url: 保存先URL
+    func exportToFile(url: URL) throws {
+        let exportData = CharacterExportData(characters: characters)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let data = try encoder.encode(exportData)
+        try data.write(to: url, options: .atomic)
+    }
+
+    /// 外部ファイルからインポート（シグネチャ検証付き）
+    /// - Parameter url: 読み込み元URL
+    func importFromFile(url: URL) throws {
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+
+        let importData: CharacterExportData
+        do {
+            importData = try decoder.decode(CharacterExportData.self, from: data)
+        } catch {
+            throw CharacterImportError.invalidFormat(error.localizedDescription)
+        }
+
+        // シグネチャ検証
+        guard importData.signature == CharacterExportData.currentSignature else {
+            throw CharacterImportError.invalidSignature
+        }
+
+        // インポート実行（既存データを上書き）
+        characters = importData.characters
+        save()
     }
 }
