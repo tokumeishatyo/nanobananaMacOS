@@ -245,8 +245,13 @@ final class MangaCreationViewModel: ObservableObject {
     // MARK: - Apply (位置情報追記)
 
     /// 適用時に各コマのシーンに位置情報を追記
+    /// インポートされたパネルはスキップ（YAMLに既に位置情報が含まれている）
     func appendPositionInfoToScenes() {
         for panel in panels {
+            // インポートされたパネルはスキップ
+            // YAMLに既に位置情報が含まれているため追記しない
+            guard !panel.isImported else { continue }
+
             // 有効なキャラクター（アクターが選択されている）を取得
             let validCharacters = panel.characters.filter { $0.selectedActorId != nil }
             guard !validCharacters.isEmpty else { continue }
@@ -372,6 +377,9 @@ final class MangaCreationViewModel: ObservableObject {
             let character = PanelCharacter()
             character.dialogue = yamlChar.dialogue ?? ""
             character.features = yamlChar.feature ?? ""
+            // YAMLからインポートされたキャラクターとしてマーク
+            // features結合をスキップするため
+            character.isImported = true
 
             // 名前からアクターを検索してIDを設定
             if let name = yamlChar.name,
@@ -410,6 +418,11 @@ final class MangaPanel: ObservableObject, Identifiable {
     @Published var hasMobCharacters: Bool = false  // モブキャラを含める
     @Published var drawMobsClearly: Bool = false   // モブキャラもしっかり描く（被写界深度なし）
 
+    // MARK: - Import Flag
+    /// YAMLからインポートされたパネルかどうか
+    /// true: scene/featuresはYAMLの内容をそのまま使用（位置情報追記・特徴結合をスキップ）
+    var isImported: Bool = false
+
     // MARK: - Characters (1〜3人)
     @Published var characters: [PanelCharacter] = []
 
@@ -426,6 +439,7 @@ final class MangaPanel: ObservableObject, Identifiable {
     /// インポート用の初期化（キャラクターなしで作成）
     init(forImport: Bool) {
         // キャラクターは後から設定する
+        self.isImported = forImport
     }
 
     /// 監視をクリア（インポート時に使用）
@@ -505,6 +519,11 @@ final class PanelCharacter: ObservableObject, Identifiable {
     @Published var selectedWardrobeId: UUID?    // 選択された衣装のID
     @Published var dialogue: String = ""        // セリフ
     @Published var features: String = ""        // 特徴（表情・ポーズ）
+
+    // MARK: - Import Flag
+    /// YAMLからインポートされたキャラクターかどうか
+    /// true: featuresはYAMLの内容のみ使用（アクター特徴・衣装特徴との結合をスキップ）
+    var isImported: Bool = false
 
     // MARK: - Legacy (後方互換性)
     @Published var name: String = ""            // キャラクター名（相対位置参照用、必須）

@@ -1300,16 +1300,17 @@ actors:
             for (index, actor) in registeredActors.enumerated() {
                 let actorId = actorIdFromIndex(index)
                 let faceReference = YAMLUtilities.getFileName(from: actor.faceSheetPath)
-                let faceFeature = actor.faceFeatures.trimmingCharacters(in: .whitespacesAndNewlines)
-                let bodyFeature = actor.bodyFeatures.trimmingCharacters(in: .whitespacesAndNewlines)
-                let personality = actor.personality.trimmingCharacters(in: .whitespacesAndNewlines)
+                // 改行をカンマに変換してYAML崩壊を防止
+                let faceFeature = YAMLUtilities.convertNewlinesToComma(actor.faceFeatures)
+                let bodyFeature = YAMLUtilities.convertNewlinesToComma(actor.bodyFeatures)
+                let personality = YAMLUtilities.convertNewlinesToComma(actor.personality)
 
                 content += "  \(actorId):\n"
                 content += "    name: \"\(YAMLUtilities.escapeYAMLString(actor.name))\"\n"
                 content += "    face_reference: \"\(faceReference)\"\n"
-                content += "    face_feature: \"\(YAMLUtilities.escapeYAMLString(faceFeature))\"\n"
-                content += "    body_feature: \"\(YAMLUtilities.escapeYAMLString(bodyFeature))\"\n"
-                content += "    personality: \"\(YAMLUtilities.escapeYAMLString(personality))\"\n"
+                content += "    face_feature: \"\(faceFeature)\"\n"
+                content += "    body_feature: \"\(bodyFeature)\"\n"
+                content += "    personality: \"\(personality)\"\n"
                 content += "\n"
             }
         }
@@ -1414,23 +1415,32 @@ wardrobe:
                     let dialogue = character.dialogue.trimmingCharacters(in: .whitespacesAndNewlines)
                     let features = character.features.trimmingCharacters(in: .whitespacesAndNewlines)
 
-                    // アクターの特徴を結合
-                    var actorFeatures: [String] = []
-                    if let faceFeatures = actor?.faceFeatures, !faceFeatures.isEmpty {
-                        actorFeatures.append(faceFeatures)
+                    // 特徴の決定
+                    let combinedFeatures: String
+                    if character.isImported {
+                        // インポートされたキャラクター: featuresをそのまま使用（結合しない）
+                        combinedFeatures = features
+                    } else {
+                        // 手動入力: アクター・衣装の特徴を結合
+                        var actorFeatures: [String] = []
+                        if let faceFeatures = actor?.faceFeatures, !faceFeatures.isEmpty {
+                            // 改行をカンマに変換
+                            actorFeatures.append(YAMLUtilities.convertNewlinesToCommaRaw(faceFeatures))
+                        }
+                        if let bodyFeatures = actor?.bodyFeatures, !bodyFeatures.isEmpty {
+                            // 改行をカンマに変換
+                            actorFeatures.append(YAMLUtilities.convertNewlinesToCommaRaw(bodyFeatures))
+                        }
+                        // 衣装の特徴も追加
+                        if let wardrobeFeatures = wardrobe?.features, !wardrobeFeatures.isEmpty {
+                            actorFeatures.append(YAMLUtilities.convertNewlinesToCommaRaw(wardrobeFeatures))
+                        }
+                        // UIで入力された特徴も追加
+                        if !features.isEmpty {
+                            actorFeatures.append(features)
+                        }
+                        combinedFeatures = actorFeatures.joined(separator: ", ")
                     }
-                    if let bodyFeatures = actor?.bodyFeatures, !bodyFeatures.isEmpty {
-                        actorFeatures.append(bodyFeatures)
-                    }
-                    // 衣装の特徴も追加
-                    if let wardrobeFeatures = wardrobe?.features, !wardrobeFeatures.isEmpty {
-                        actorFeatures.append(wardrobeFeatures)
-                    }
-                    // UIで入力された特徴も追加
-                    if !features.isEmpty {
-                        actorFeatures.append(features)
-                    }
-                    let combinedFeatures = actorFeatures.joined(separator: ", ")
 
                     // 前のキャラクター名を取得（相対位置参照用）
                     var previousCharName: String? = nil
@@ -1621,15 +1631,20 @@ enum YAMLUtilities {
             .replacingOccurrences(of: "\"", with: "\\\"")
     }
 
-    /// 改行をカンマ区切りに変換
+    /// 改行をカンマ区切りに変換（YAMLエスケープ付き）
     static func convertNewlinesToComma(_ string: String) -> String {
+        let joined = convertNewlinesToCommaRaw(string)
+        return escapeYAMLString(joined)
+    }
+
+    /// 改行をカンマ区切りに変換（エスケープなし、結合前の部品用）
+    static func convertNewlinesToCommaRaw(_ string: String) -> String {
         let lines = string
             .split(separator: "\n", omittingEmptySubsequences: true)
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
 
-        let joined = lines.joined(separator: ", ")
-        return escapeYAMLString(joined)
+        return lines.joined(separator: ", ")
     }
 
     /// 改行を\nリテラル文字列に変換（YAML内で改行として表示）

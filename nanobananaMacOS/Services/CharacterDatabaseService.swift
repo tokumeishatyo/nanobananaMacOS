@@ -3,7 +3,7 @@ import Combine
 
 // MARK: - CharacterExportData
 /// エクスポート用データモデル（シグネチャ付き）
-struct CharacterExportData: Codable {
+struct CharacterExportData: Codable, Sendable {
     let signature: String
     let exportedAt: String
     let version: String

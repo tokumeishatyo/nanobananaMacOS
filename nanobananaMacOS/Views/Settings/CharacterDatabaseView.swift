@@ -356,7 +356,7 @@ struct CharacterExportDocument: FileDocument {
         characters = []
     }
 
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+    nonisolated func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         let exportData = CharacterExportData(characters: characters)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]

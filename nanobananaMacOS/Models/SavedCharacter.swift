@@ -3,7 +3,7 @@ import Foundation
 // MARK: - SavedCharacter
 /// キャラクターデータベース用モデル
 /// 漫画コンポーザーで使用するキャラクター情報を保存
-struct SavedCharacter: Codable, Identifiable, Equatable {
+struct SavedCharacter: Codable, Identifiable, Equatable, Sendable {
     let id: UUID
     var name: String           // キャラクタ名（一意、必須）
     var faceFeatures: String   // 顔の特徴（必須）
