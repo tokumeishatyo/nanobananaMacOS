@@ -1479,11 +1479,8 @@ bubble_registry:
                     if !dialogue.isEmpty {
                         content += "        dialogue: \"\(YAMLUtilities.escapeYAMLString(dialogue))\"\n"
 
-                        // bubble_style: 吹き出し形状（auto以外の場合のみ出力）
-                        // autoは省略可（「auto or missing」は同じ扱い）
-                        if character.bubbleStyle != .auto {
-                            content += "        bubble_style: \"\(character.bubbleStyle.rawValue)\"\n"
-                        }
+                        // bubble_style: 吹き出し形状（常に出力）
+                        content += "        bubble_style: \"\(character.bubbleStyle.rawValue)\"\n"
                     }
 
                     // appearance_compilation: Face, Body, Outfitを明示的に分離
