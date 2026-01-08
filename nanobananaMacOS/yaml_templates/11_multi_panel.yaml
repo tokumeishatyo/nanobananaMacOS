@@ -76,6 +76,19 @@ constraints:
   transparency_handling:
     - "Recognize checkerboard patterns in character images as TRANSPARENT backgrounds"
     - "Remove/ignore the transparent background area so only the character is visible"
+  # 【必須】吹き出し制御ルール (Bubble Control Rules)
+  bubble_rendering:
+    # 1. 辞書の参照ルール
+    - "Reference 'bubble_registry' to determine the shape of speech bubbles (e.g., 'scream', 'shout')."
+    # 2. キャラクターのセリフ用 (Pattern A)
+    - "If a character has a 'bubble_style' field, render their speech bubble in that specific shape."
+    - "If 'bubble_style' is specified (e.g., 'scream'), STRICTLY follow that shape."
+    - "If 'bubble_style' is 'auto' or missing, analyze the dialogue text emotion and choose the most appropriate shape automatically."
+    # 3. シーン内の特殊効果用 (Pattern B)
+    - "Recognize syntax '[Visual Effect: STYLE | FACE_SOURCE | TEXT]' in scene descriptions."
+    - "For this syntax, render a FLOATING bubble of the specified 'STYLE'."
+    - "Inside the floating bubble, show ONLY the 'FACE_SOURCE' face and the 'TEXT'."
+    - "CRITICAL: Do NOT render the body of the 'FACE_SOURCE' actor for floating bubbles."
 
 # ====================================================
 # Anti-Hallucination (MUST FOLLOW)
