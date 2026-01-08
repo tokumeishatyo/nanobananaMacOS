@@ -32,14 +32,16 @@ panel_count: {{panel_count}}
 # ====================================================
 # Assembly Logic (AIへの合成指示)
 # ====================================================
-# 顔画像（face_reference）と衣装三面図（outfit_reference）を組み合わせてキャラクターを描画
+# face_reference画像とappearance_compilationの情報を組み合わせてキャラクターを描画
 instructions:
-  - "Compose the image by applying the 'outfit_reference' (Outfit Reference) onto the 'face_reference' (Face Reference)."
-  - "STRICTLY maintain the character's facial features from the face_reference image."
-  - "STRICTLY maintain the outfit's design and structure from the outfit_reference image."
-  - "The outfit_reference is a 'Ghost Mannequin' view. Fit this clothing naturally onto the character's body."
-  - "If 'features' field specifies color/texture variations, apply them while keeping the design shape."
-  - "Ensure consistent art style across all panels."
+  - "Use 'face_reference' image as the primary visual reference for the character's face."
+  - "Use 'appearance_compilation' fields to render the character's full appearance:"
+  - "  - Face: Use facial feature description to ensure consistency with face_reference image."
+  - "  - Body: Apply body type description when rendering the character's physique."
+  - "  - Outfit: Render clothing exactly as described in this field."
+  - "The 'features' field specifies ONLY acting, pose, and expression - NOT appearance."
+  - "Apply the pose/expression from 'features' while maintaining appearance from 'appearance_compilation'."
+  - "Ensure consistent art style and character identity across all panels."
 
 # ====================================================
 # Constraints (CRITICAL)
