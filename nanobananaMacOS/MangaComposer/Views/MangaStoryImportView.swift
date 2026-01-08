@@ -385,9 +385,9 @@ struct PanelCharacterPreviewView: View {
                         .font(.caption)
                 }
 
-                // Feature
-                if let feature = character.feature, !feature.isEmpty {
-                    Text("(\(feature))")
+                // Features
+                if let features = character.features, !features.isEmpty {
+                    Text("(\(features))")
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }

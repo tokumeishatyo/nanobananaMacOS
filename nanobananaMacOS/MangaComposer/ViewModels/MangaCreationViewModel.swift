@@ -376,7 +376,7 @@ final class MangaCreationViewModel: ObservableObject {
         for yamlChar in yamlCharacters {
             let character = PanelCharacter()
             character.dialogue = yamlChar.dialogue ?? ""
-            character.features = yamlChar.feature ?? ""
+            character.features = yamlChar.features ?? ""
             // YAMLからインポートされたキャラクターとしてマーク
             // features結合をスキップするため
             character.isImported = true

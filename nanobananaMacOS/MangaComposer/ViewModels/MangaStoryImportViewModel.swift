@@ -178,7 +178,7 @@ final class MangaStoryImportViewModel: ObservableObject {
                             currentPanelCharacters.append(MangaStoryPanelCharacter(
                                 name: name,
                                 dialogue: currentCharDialogue,
-                                feature: currentCharFeature
+                                features: currentCharFeature
                             ))
                         }
                         panels.append(MangaStoryPanel(
@@ -228,7 +228,7 @@ final class MangaStoryImportViewModel: ObservableObject {
                             currentPanelCharacters.append(MangaStoryPanelCharacter(
                                 name: name,
                                 dialogue: currentCharDialogue,
-                                feature: currentCharFeature
+                                features: currentCharFeature
                             ))
                         }
                         currentCharName = extractValue(from: trimmed, key: "- name:")
@@ -240,8 +240,8 @@ final class MangaStoryImportViewModel: ObservableObject {
                         currentCharDialogue = extractValue(from: trimmed, key: "dialogue:")
                         continue
                     }
-                    if trimmed.hasPrefix("feature:") {
-                        currentCharFeature = extractValue(from: trimmed, key: "feature:")
+                    if trimmed.hasPrefix("features:") {
+                        currentCharFeature = extractValue(from: trimmed, key: "features:")
                         continue
                     }
                 }
@@ -254,7 +254,7 @@ final class MangaStoryImportViewModel: ObservableObject {
                 currentPanelCharacters.append(MangaStoryPanelCharacter(
                     name: name,
                     dialogue: currentCharDialogue,
-                    feature: currentCharFeature
+                    features: currentCharFeature
                 ))
             }
             panels.append(MangaStoryPanel(

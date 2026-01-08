@@ -42,12 +42,12 @@ struct MangaStoryPanelCharacter: Decodable, Identifiable {
 
     let name: String?
     let dialogue: String?
-    let feature: String?
+    let features: String?
 
     enum CodingKeys: String, CodingKey {
         case name
         case dialogue
-        case feature
+        case features
     }
 }
 
