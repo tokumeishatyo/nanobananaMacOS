@@ -75,7 +75,8 @@ struct MangaComposerView: View {
         case .mangaCreation:
             MangaCreationFormView(
                 viewModel: viewModel.mangaCreationViewModel,
-                savedCharacters: mainViewModel.characterDatabaseService.characters
+                savedCharacters: mainViewModel.characterDatabaseService.characters,
+                savedWardrobes: mainViewModel.wardrobeDatabaseService.wardrobes
             )
         }
     }

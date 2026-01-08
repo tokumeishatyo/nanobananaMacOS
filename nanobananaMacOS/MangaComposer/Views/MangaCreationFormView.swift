@@ -7,6 +7,7 @@ import UniformTypeIdentifiers
 struct MangaCreationFormView: View {
     @ObservedObject var viewModel: MangaCreationViewModel
     let savedCharacters: [SavedCharacter]
+    let savedWardrobes: [SavedWardrobe]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -35,7 +36,7 @@ struct MangaCreationFormView: View {
             ActorsSectionView(viewModel: viewModel, savedCharacters: savedCharacters)
 
             // MARK: - 衣装セクション
-            WardrobesSectionView(viewModel: viewModel)
+            WardrobesSectionView(viewModel: viewModel, savedWardrobes: savedWardrobes)
 
             // MARK: - 登録/クリアボタン
             RegistrationButtonsView(viewModel: viewModel)
@@ -262,6 +263,7 @@ struct ActorEntryView: View {
 /// 衣装セクション
 struct WardrobesSectionView: View {
     @ObservedObject var viewModel: MangaCreationViewModel
+    let savedWardrobes: [SavedWardrobe]
 
     var body: some View {
         GroupBox {
@@ -275,6 +277,11 @@ struct WardrobesSectionView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Spacer()
+                    if savedWardrobes.isEmpty {
+                        Text("衣装管理で登録してください")
+                            .font(.caption2)
+                            .foregroundColor(.orange)
+                    }
                 }
 
                 // MARK: - Wardrobes (横並び)
@@ -287,6 +294,7 @@ struct WardrobesSectionView: View {
                         WardrobeEntryView(
                             wardrobe: wardrobe,
                             wardrobeIndex: index,
+                            savedWardrobes: savedWardrobes,
                             canRemove: viewModel.canRemoveWardrobe,
                             onRemove: {
                                 viewModel.removeWardrobe(at: index)
@@ -319,6 +327,7 @@ struct WardrobesSectionView: View {
 struct WardrobeEntryView: View {
     @ObservedObject var wardrobe: WardrobeEntry
     let wardrobeIndex: Int
+    let savedWardrobes: [SavedWardrobe]
     let canRemove: Bool
     let onRemove: () -> Void
 
@@ -346,6 +355,33 @@ struct WardrobeEntryView: View {
                 }
             }
 
+            // MARK: - Wardrobe Selection (Required)
+            if savedWardrobes.isEmpty {
+                Text("衣装未登録")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 4)
+            } else {
+                Picker("", selection: Binding(
+                    get: { wardrobe.name },
+                    set: { newValue in
+                        wardrobe.name = newValue
+                        // 選択した衣装の説明を自動入力
+                        if let saved = savedWardrobes.first(where: { $0.name == newValue }) {
+                            wardrobe.selectSavedWardrobe(saved)
+                        }
+                    }
+                )) {
+                    Text("選択してください").tag("")
+                    ForEach(savedWardrobes) { saved in
+                        Text(saved.name).tag(saved.name)
+                    }
+                }
+                .labelsHidden()
+                .font(.caption2)
+            }
+
             // MARK: - Outfit Sheet Path (Required)
             ImageDropField(
                 imagePath: $wardrobe.outfitSheetPath,
@@ -353,8 +389,8 @@ struct WardrobeEntryView: View {
                 height: 50
             )
 
-            // MARK: - Features (Optional)
-            TextField("", text: $wardrobe.features, prompt: Text("特徴（任意）"))
+            // MARK: - Features (Auto-filled, Editable)
+            TextField("", text: $wardrobe.features, prompt: Text("衣装の説明（自動入力）"))
                 .textFieldStyle(.roundedBorder)
                 .font(.caption2)
         }
@@ -647,7 +683,8 @@ struct PanelCharacterSlotView: View {
 #Preview {
     MangaCreationFormView(
         viewModel: MangaCreationViewModel(),
-        savedCharacters: []
+        savedCharacters: [],
+        savedWardrobes: []
     )
     .frame(width: 500)
     .padding()

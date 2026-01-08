@@ -1,9 +1,10 @@
+// rule.mdを読むこと
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// キャラクター管理ウィンドウ
-struct CharacterDatabaseView: View {
-    @ObservedObject var viewModel: CharacterDatabaseViewModel
+/// 衣装管理ウィンドウ
+struct WardrobeDatabaseView: View {
+    @ObservedObject var viewModel: WardrobeDatabaseViewModel
     @Environment(\.dismiss) private var standardDismiss
     @Environment(\.windowDismiss) private var windowDismiss
 
@@ -27,8 +28,8 @@ struct CharacterDatabaseView: View {
             // コンテンツエリア
             ScrollView {
                 VStack(spacing: 16) {
-                    // 登録済みキャラクター一覧
-                    characterListSection
+                    // 登録済み衣装一覧
+                    wardrobeListSection
 
                     // エクスポート/インポートボタン
                     exportImportSection
@@ -54,12 +55,12 @@ struct CharacterDatabaseView: View {
             }
             .padding(16)
         }
-        .frame(width: 500, height: 600)
+        .frame(width: 500, height: 500)
         .fileExporter(
             isPresented: $showExportDialog,
-            document: CharacterExportDocument(characters: viewModel.characters),
+            document: WardrobeExportDocument(wardrobes: viewModel.wardrobes),
             contentType: .json,
-            defaultFilename: "characters_export.json"
+            defaultFilename: "wardrobes_export.json"
         ) { result in
             switch result {
             case .success:
@@ -93,7 +94,7 @@ struct CharacterDatabaseView: View {
                     alertMessage = errorMessage
                     isSuccessAlert = false
                 } else {
-                    alertMessage = "インポートが完了しました（\(viewModel.characters.count)件）"
+                    alertMessage = "インポートが完了しました（\(viewModel.wardrobes.count)件）"
                     isSuccessAlert = true
                 }
                 showAlert = true
@@ -120,7 +121,7 @@ struct CharacterDatabaseView: View {
                 Label("エクスポート", systemImage: "square.and.arrow.up")
             }
             .buttonStyle(.bordered)
-            .disabled(viewModel.characters.isEmpty)
+            .disabled(viewModel.wardrobes.isEmpty)
 
             Button {
                 showImportDialog = true
@@ -131,30 +132,30 @@ struct CharacterDatabaseView: View {
         }
     }
 
-    // MARK: - Character List Section
+    // MARK: - Wardrobe List Section
 
-    private var characterListSection: some View {
+    private var wardrobeListSection: some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text("登録済みキャラクター")
+                    Text("登録済み衣装")
                         .font(.headline)
                         .fontWeight(.bold)
 
                     Spacer()
 
-                    Text("\(viewModel.characters.count)件")
+                    Text("\(viewModel.wardrobes.count)件")
                         .foregroundColor(.secondary)
                 }
 
-                if viewModel.characters.isEmpty {
-                    Text("登録されているキャラクターはありません")
+                if viewModel.wardrobes.isEmpty {
+                    Text("登録されている衣装はありません")
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 20)
                 } else {
-                    ForEach(viewModel.characters) { character in
-                        characterRow(character)
+                    ForEach(viewModel.wardrobes) { wardrobe in
+                        wardrobeRow(wardrobe)
                     }
                 }
             }
@@ -162,21 +163,23 @@ struct CharacterDatabaseView: View {
         }
     }
 
-    private func characterRow(_ character: SavedCharacter) -> some View {
+    private func wardrobeRow(_ wardrobe: SavedWardrobe) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text(character.name)
+                Text(wardrobe.name)
                     .fontWeight(.medium)
-                Text(character.faceFeatures)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
+                if !wardrobe.description.isEmpty {
+                    Text(wardrobe.description)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
             }
 
             Spacer()
 
             // 編集中の場合はハイライト
-            if viewModel.editingCharacterId == character.id {
+            if viewModel.editingWardrobeId == wardrobe.id {
                 Text("編集中")
                     .font(.caption)
                     .foregroundColor(.blue)
@@ -187,13 +190,13 @@ struct CharacterDatabaseView: View {
             }
 
             Button("編集") {
-                viewModel.startEditing(character)
+                viewModel.startEditing(wardrobe)
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
 
             Button("削除") {
-                viewModel.delete(character)
+                viewModel.delete(wardrobe)
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
@@ -208,7 +211,7 @@ struct CharacterDatabaseView: View {
         GroupBox {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text(viewModel.editingCharacterId == nil ? "新規登録" : "編集")
+                    Text(viewModel.editingWardrobeId == nil ? "新規登録" : "編集")
                         .font(.headline)
                         .fontWeight(.bold)
 
@@ -224,14 +227,14 @@ struct CharacterDatabaseView: View {
                 }
 
                 if viewModel.isEditing {
-                    // キャラクタ名
+                    // 衣装名
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
-                            Text("キャラクタ名")
+                            Text("衣装名")
                             Text("*")
                                 .foregroundColor(.red)
                         }
-                        TextField("キャラクタ名を入力", text: $viewModel.formName)
+                        TextField("衣装名を入力", text: $viewModel.formName)
                             .textFieldStyle(.roundedBorder)
                         if let error = viewModel.nameError {
                             Text(error)
@@ -240,63 +243,16 @@ struct CharacterDatabaseView: View {
                         }
                     }
 
-                    // 顔の特徴
+                    // 衣装の説明
                     VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text("顔の特徴")
-                            Text("*")
-                                .foregroundColor(.red)
-                        }
-                        TextEditor(text: $viewModel.formFaceFeatures)
-                            .frame(height: 60)
+                        Text("衣装の説明")
+                        TextEditor(text: $viewModel.formDescription)
+                            .frame(height: 80)
                             .border(Color.gray.opacity(0.3), width: 1)
                             .overlay(
                                 Group {
-                                    if viewModel.formFaceFeatures.isEmpty {
-                                        Text("顔の特徴を入力（例：青い目、金髪ロングヘア）")
-                                            .foregroundColor(.gray.opacity(0.5))
-                                            .padding(8)
-                                            .allowsHitTesting(false)
-                                    }
-                                },
-                                alignment: .topLeading
-                            )
-                        if let error = viewModel.faceFeaturesError {
-                            Text(error)
-                                .font(.caption)
-                                .foregroundColor(.red)
-                        }
-                    }
-
-                    // 体型の特徴
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("体型の特徴")
-                        TextEditor(text: $viewModel.formBodyFeatures)
-                            .frame(height: 40)
-                            .border(Color.gray.opacity(0.3), width: 1)
-                            .overlay(
-                                Group {
-                                    if viewModel.formBodyFeatures.isEmpty {
-                                        Text("体型の特徴を入力（任意）")
-                                            .foregroundColor(.gray.opacity(0.5))
-                                            .padding(8)
-                                            .allowsHitTesting(false)
-                                    }
-                                },
-                                alignment: .topLeading
-                            )
-                    }
-
-                    // パーソナリティ
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("パーソナリティ")
-                        TextEditor(text: $viewModel.formPersonality)
-                            .frame(height: 40)
-                            .border(Color.gray.opacity(0.3), width: 1)
-                            .overlay(
-                                Group {
-                                    if viewModel.formPersonality.isEmpty {
-                                        Text("パーソナリティを入力（任意）")
+                                    if viewModel.formDescription.isEmpty {
+                                        Text("衣装の説明を入力（任意）")
                                             .foregroundColor(.gray.opacity(0.5))
                                             .padding(8)
                                             .allowsHitTesting(false)
@@ -333,24 +289,24 @@ struct CharacterDatabaseView: View {
 }
 
 #Preview {
-    CharacterDatabaseView(
-        viewModel: CharacterDatabaseViewModel(
-            service: CharacterDatabaseService()
+    WardrobeDatabaseView(
+        viewModel: WardrobeDatabaseViewModel(
+            service: WardrobeDatabaseService()
         )
     )
 }
 
-// MARK: - CharacterExportDocument
+// MARK: - WardrobeExportDocument
 /// fileExporter用のドキュメントタイプ
-struct CharacterExportDocument: FileDocument {
+struct WardrobeExportDocument: FileDocument {
     static var readableContentTypes: [UTType] { [.json] }
 
     /// 事前にシリアライズされたデータ
     private let serializedData: Data
 
     @MainActor
-    init(characters: [SavedCharacter]) {
-        let exportData = CharacterExportData(characters: characters)
+    init(wardrobes: [SavedWardrobe]) {
+        let exportData = WardrobeExportData(wardrobes: wardrobes)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         self.serializedData = (try? encoder.encode(exportData)) ?? Data()

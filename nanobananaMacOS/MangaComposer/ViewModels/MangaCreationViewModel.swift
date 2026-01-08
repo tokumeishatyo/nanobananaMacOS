@@ -607,8 +607,9 @@ final class WardrobeEntry: ObservableObject, Identifiable {
     let id = UUID()
     let index: Int  // 衣装番号（1〜10）
 
+    @Published var name: String = ""                // 衣装名（DBから選択）
     @Published var outfitSheetPath: String = ""     // 衣装三面図パス（必須）
-    @Published var features: String = ""            // 特徴（任意）
+    @Published var features: String = ""            // 衣装の説明（DBから自動入力、編集可）
 
     init(index: Int) {
         self.index = index
@@ -624,5 +625,11 @@ final class WardrobeEntry: ObservableObject, Identifiable {
         let labels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
         let indexLabel = index >= 1 && index <= 10 ? labels[index - 1] : "\(index)"
         return "衣装\(indexLabel)"
+    }
+
+    /// 登録済み衣装を選択して自動入力
+    func selectSavedWardrobe(_ saved: SavedWardrobe) {
+        name = saved.name
+        features = saved.description
     }
 }

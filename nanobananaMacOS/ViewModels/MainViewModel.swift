@@ -98,6 +98,11 @@ final class MainViewModel: ObservableObject {
     /// キャラクターデータベースサービス
     let characterDatabaseService = CharacterDatabaseService()
 
+    // MARK: - Wardrobe Database
+
+    /// 衣装データベースサービス
+    let wardrobeDatabaseService = WardrobeDatabaseService()
+
     // MARK: - Middle Column (API設定)
 
     /// 出力モード
@@ -972,6 +977,11 @@ final class MainViewModel: ObservableObject {
     /// キャラクター管理を開く
     func openCharacterDatabase() {
         WindowManager.shared.openCharacterDatabaseWindow(service: characterDatabaseService)
+    }
+
+    /// 衣装管理を開く
+    func openWardrobeDatabase() {
+        WindowManager.shared.openWardrobeDatabaseWindow(service: wardrobeDatabaseService)
     }
 
     /// 漫画コンポーザーを開く

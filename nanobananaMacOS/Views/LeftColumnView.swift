@@ -161,6 +161,15 @@ struct LeftColumnView: View {
                         .tint(.blue)
                         .padding(.horizontal, 10)
 
+                        // 衣装管理
+                        Button(action: viewModel.openWardrobeDatabase) {
+                            Text("衣装管理")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.blue)
+                        .padding(.horizontal, 10)
+
                         // 漫画ページコンポーザー
                         Button(action: viewModel.openMangaComposer) {
                             Text("漫画ページコンポーザー")

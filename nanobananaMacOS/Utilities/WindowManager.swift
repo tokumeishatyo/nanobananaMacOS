@@ -176,6 +176,18 @@ final class WindowManager {
         }
     }
 
+    /// 衣装管理ウィンドウを開く
+    func openWardrobeDatabaseWindow(service: WardrobeDatabaseService) {
+        let viewModel = WardrobeDatabaseViewModel(service: service)
+        openWindow(
+            id: "wardrobeDatabase",
+            title: "衣装管理",
+            size: NSSize(width: 500, height: 500)
+        ) {
+            WardrobeDatabaseView(viewModel: viewModel)
+        }
+    }
+
     /// 漫画ストーリーインポートウィンドウを開く
     /// - Parameters:
     ///   - savedCharacters: キャラクターデータベースの登録済みキャラクター

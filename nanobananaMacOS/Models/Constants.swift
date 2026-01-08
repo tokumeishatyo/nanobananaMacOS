@@ -84,4 +84,7 @@ struct AppConstants {
     // キャラクターデータベース
     static let appSupportFolderName = "nanobananaMacOS"
     static let characterDatabaseFileName = "characters.json"
+
+    // 衣装データベース
+    static let wardrobeDatabaseFileName = "wardrobes.json"
 }

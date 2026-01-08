@@ -1,28 +1,29 @@
+// rule.mdを読むこと
 import Foundation
 import Combine
 
-// MARK: - CharacterExportData
+// MARK: - WardrobeExportData
 /// エクスポート用データモデル（シグネチャ付き）
-struct CharacterExportData: Codable, Sendable {
+struct WardrobeExportData: Codable, Sendable {
     let signature: String
     let exportedAt: String
     let version: String
-    let characters: [SavedCharacter]
+    let wardrobes: [SavedWardrobe]
 
-    static let currentSignature = "nanobananaMacOS-character-db-v1"
+    static let currentSignature = "nanobananaMacOS-wardrobe-db-v1"
     static let currentVersion = "1.0"
 
-    init(characters: [SavedCharacter]) {
+    init(wardrobes: [SavedWardrobe]) {
         self.signature = Self.currentSignature
         self.exportedAt = Date().ISO8601Format()
         self.version = Self.currentVersion
-        self.characters = characters
+        self.wardrobes = wardrobes
     }
 }
 
-// MARK: - CharacterImportError
+// MARK: - WardrobeImportError
 /// インポート時のエラー
-enum CharacterImportError: LocalizedError {
+enum WardrobeImportError: LocalizedError {
     case invalidSignature
     case invalidFormat(String)
 
@@ -36,18 +37,18 @@ enum CharacterImportError: LocalizedError {
     }
 }
 
-// MARK: - CharacterDatabaseService
-/// キャラクターデータベースの永続化サービス
+// MARK: - WardrobeDatabaseService
+/// 衣装データベースの永続化サービス
 /// JSONファイルでローカル保存
-class CharacterDatabaseService: ObservableObject {
-    @Published private(set) var characters: [SavedCharacter] = []
+class WardrobeDatabaseService: ObservableObject {
+    @Published private(set) var wardrobes: [SavedWardrobe] = []
 
     private let fileURL: URL
 
     init() {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
         let appFolder = appSupport.appendingPathComponent(AppConstants.appSupportFolderName)
-        self.fileURL = appFolder.appendingPathComponent(AppConstants.characterDatabaseFileName)
+        self.fileURL = appFolder.appendingPathComponent(AppConstants.wardrobeDatabaseFileName)
 
         // フォルダがなければ作成
         try? FileManager.default.createDirectory(at: appFolder, withIntermediateDirectories: true)
@@ -57,53 +58,53 @@ class CharacterDatabaseService: ObservableObject {
 
     // MARK: - CRUD Operations
 
-    /// キャラクターを追加
+    /// 衣装を追加
     /// - Returns: 成功した場合true
-    func add(_ character: SavedCharacter) -> Bool {
-        guard isNameUnique(character.name) else {
+    func add(_ wardrobe: SavedWardrobe) -> Bool {
+        guard isNameUnique(wardrobe.name) else {
             return false
         }
-        characters.append(character)
+        wardrobes.append(wardrobe)
         save()
         return true
     }
 
-    /// キャラクターを更新
+    /// 衣装を更新
     /// - Returns: 成功した場合true
-    func update(_ character: SavedCharacter) -> Bool {
-        guard let index = characters.firstIndex(where: { $0.id == character.id }) else {
+    func update(_ wardrobe: SavedWardrobe) -> Bool {
+        guard let index = wardrobes.firstIndex(where: { $0.id == wardrobe.id }) else {
             return false
         }
         // 名前変更時の重複チェック
-        if characters[index].name != character.name {
-            guard isNameUnique(character.name, excludingId: character.id) else {
+        if wardrobes[index].name != wardrobe.name {
+            guard isNameUnique(wardrobe.name, excludingId: wardrobe.id) else {
                 return false
             }
         }
-        characters[index] = character
+        wardrobes[index] = wardrobe
         save()
         return true
     }
 
-    /// キャラクターを削除
+    /// 衣装を削除
     /// - Returns: 成功した場合true
     func delete(id: UUID) -> Bool {
-        guard let index = characters.firstIndex(where: { $0.id == id }) else {
+        guard let index = wardrobes.firstIndex(where: { $0.id == id }) else {
             return false
         }
-        characters.remove(at: index)
+        wardrobes.remove(at: index)
         save()
         return true
     }
 
-    /// 名前でキャラクターを検索
-    func find(byName name: String) -> SavedCharacter? {
-        characters.first { $0.name == name }
+    /// 名前で衣装を検索
+    func find(byName name: String) -> SavedWardrobe? {
+        wardrobes.first { $0.name == name }
     }
 
-    /// IDでキャラクターを検索
-    func find(byId id: UUID) -> SavedCharacter? {
-        characters.first { $0.id == id }
+    /// IDで衣装を検索
+    func find(byId id: UUID) -> SavedWardrobe? {
+        wardrobes.first { $0.id == id }
     }
 
     // MARK: - Validation
@@ -114,11 +115,11 @@ class CharacterDatabaseService: ObservableObject {
         guard !trimmedName.isEmpty else {
             return false
         }
-        return !characters.contains { character in
-            if let excludingId = excludingId, character.id == excludingId {
+        return !wardrobes.contains { wardrobe in
+            if let excludingId = excludingId, wardrobe.id == excludingId {
                 return false
             }
-            return character.name == trimmedName
+            return wardrobe.name == trimmedName
         }
     }
 
@@ -126,17 +127,17 @@ class CharacterDatabaseService: ObservableObject {
 
     private func load() {
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
-            characters = []
+            wardrobes = []
             return
         }
 
         do {
             let data = try Data(contentsOf: fileURL)
             let decoder = JSONDecoder()
-            characters = try decoder.decode([SavedCharacter].self, from: data)
+            wardrobes = try decoder.decode([SavedWardrobe].self, from: data)
         } catch {
-            print("CharacterDatabaseService: Failed to load - \(error)")
-            characters = []
+            print("WardrobeDatabaseService: Failed to load - \(error)")
+            wardrobes = []
         }
     }
 
@@ -144,10 +145,10 @@ class CharacterDatabaseService: ObservableObject {
         do {
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            let data = try encoder.encode(characters)
+            let data = try encoder.encode(wardrobes)
             try data.write(to: fileURL, options: .atomic)
         } catch {
-            print("CharacterDatabaseService: Failed to save - \(error)")
+            print("WardrobeDatabaseService: Failed to save - \(error)")
         }
     }
 
@@ -156,7 +157,7 @@ class CharacterDatabaseService: ObservableObject {
     /// 外部ファイルにエクスポート
     /// - Parameter url: 保存先URL
     func exportToFile(url: URL) throws {
-        let exportData = CharacterExportData(characters: characters)
+        let exportData = WardrobeExportData(wardrobes: wardrobes)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let data = try encoder.encode(exportData)
@@ -169,20 +170,20 @@ class CharacterDatabaseService: ObservableObject {
         let data = try Data(contentsOf: url)
         let decoder = JSONDecoder()
 
-        let importData: CharacterExportData
+        let importData: WardrobeExportData
         do {
-            importData = try decoder.decode(CharacterExportData.self, from: data)
+            importData = try decoder.decode(WardrobeExportData.self, from: data)
         } catch {
-            throw CharacterImportError.invalidFormat(error.localizedDescription)
+            throw WardrobeImportError.invalidFormat(error.localizedDescription)
         }
 
         // シグネチャ検証
-        guard importData.signature == CharacterExportData.currentSignature else {
-            throw CharacterImportError.invalidSignature
+        guard importData.signature == WardrobeExportData.currentSignature else {
+            throw WardrobeImportError.invalidSignature
         }
 
         // インポート実行（既存データを上書き）
-        characters = importData.characters
+        wardrobes = importData.wardrobes
         save()
     }
 }
