@@ -1428,8 +1428,15 @@ wardrobe:
                     // 特徴の決定
                     let combinedFeatures: String
                     if character.isImported {
-                        // インポートされたキャラクター: featuresをそのまま使用（結合しない）
-                        combinedFeatures = features
+                        // インポートされたキャラクター: faceFeatures + featuresを結合
+                        var importedParts: [String] = []
+                        if let faceFeatures = actor?.faceFeatures, !faceFeatures.isEmpty {
+                            importedParts.append(YAMLUtilities.convertNewlinesToCommaRaw(faceFeatures))
+                        }
+                        if !features.isEmpty {
+                            importedParts.append(features)
+                        }
+                        combinedFeatures = importedParts.joined(separator: ", ")
                     } else {
                         // 手動入力: アクター・衣装の特徴を結合
                         var actorFeatures: [String] = []
