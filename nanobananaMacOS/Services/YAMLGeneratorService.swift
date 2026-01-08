@@ -1363,8 +1363,22 @@ wardrobe:
         for (panelIndex, panel) in panels.enumerated() {
             let panelNum = panelIndex + 1
 
+            // キャラクター（有効なもののみ = アクターと衣装が選択されている）
+            let validCharacters = panel.characters.filter { $0.isValid }
+            let characterCount = validCharacters.count
+
             content += "  - panel_number: \(panelNum)\n"
-            content += "    scene: \"\(YAMLUtilities.escapeYAMLString(panel.scene))\"\n"
+
+            // シーン制約をprefixとして付与
+            let sceneConstraint = generateSceneConstraint(
+                characterCount: characterCount,
+                hasMob: panel.hasMobCharacters,
+                drawMobsClearly: panel.drawMobsClearly
+            )
+            let fullScene = sceneConstraint.isEmpty
+                ? panel.scene
+                : "\(sceneConstraint) \(panel.scene)"
+            content += "    scene: \"\(YAMLUtilities.escapeYAMLString(fullScene))\"\n"
 
             // ナレーションは任意
             let trimmedNarration = panel.narration.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1375,10 +1389,6 @@ wardrobe:
                 let narrationRule = generateNarrationRule(position: panel.narrationPosition)
                 content += "    narration_rule: \"\(narrationRule)\"\n"
             }
-
-            // キャラクター（有効なもののみ = アクターと衣装が選択されている）
-            let validCharacters = panel.characters.filter { $0.isValid }
-            let characterCount = validCharacters.count
 
             // タグ生成（キャラクター数とモブ有無に応じて）
             let tags = generateCharacterTags(
@@ -1533,18 +1543,18 @@ wardrobe:
     }
 
     /// キャラクタータグを生成（Googleガイダンス準拠）
-    /// - solo: "solo, 1girl" / "solo, 1boy"
-    /// - duo: "duo, 2girls" / "duo, 2boys" / "duo, 1girl, 1boy"
-    /// - trio: "trio, 3girls" / etc.
-    /// - with_crowd (blurred): "crowd, many people, depth of field, blurred background"
-    /// - with_crowd (clear): "crowd, many people, sharp focus, all in focus, intricate details"
+    /// - solo: "solo, 1girl, solitary"
+    /// - duo: "duo, 2girls, pair"
+    /// - trio: "trio, 3girls, solitary group"
+    /// - ensemble (clear): "ensemble, group, sharp focus, all in focus"
+    /// - crowd (blurred): "crowd, many people, depth of field, blurred background"
     private func generateCharacterTags(characterCount: Int, hasMob: Bool, drawMobsClearly: Bool) -> String {
         if hasMob {
             if drawMobsClearly {
-                // モブもはっきり描く（sharp focus）
-                return "crowd, many people, sharp focus, all in focus, intricate details"
+                // モブもはっきり描く（ensemble）
+                return "ensemble, group, sharp focus, all in focus"
             } else {
-                // モブはぼやける（被写界深度）
+                // モブはぼやける（crowd）
                 return "crowd, many people, depth of field, blurred background"
             }
         }
@@ -1552,11 +1562,11 @@ wardrobe:
         // モブなし: 人数に応じたタグ
         switch characterCount {
         case 1:
-            return "solo, 1girl"
+            return "solo, 1girl, solitary"
         case 2:
-            return "duo, 2girls"
+            return "duo, 2girls, pair"
         case 3:
-            return "trio, 3girls"
+            return "trio, 3girls, solitary group"
         default:
             return "multiple characters"
         }
@@ -1566,21 +1576,21 @@ wardrobe:
     private func generatePositioningRule(characterCount: Int, hasMob: Bool, drawMobsClearly: Bool) -> String {
         if hasMob {
             if drawMobsClearly {
-                // モブもはっきり描く（sharp focus）
-                return "crowd: Draw background crowd/people with sharp focus. All characters clearly visible. Main characters in foreground."
+                // モブもはっきり描く（ensemble）
+                return "ensemble: Group composition. All characters clearly visible. No blurring."
             } else {
-                // モブはぼやける（被写界深度）
-                return "crowd: Draw background crowd/pedestrians with depth of field. Main characters in focus, crowd blurred."
+                // モブはぼやける（crowd）
+                return "crowd: Draw background crowd with cinematic depth of field. Main characters in sharp focus, background crowd blurred."
             }
         }
 
         switch characterCount {
         case 1:
-            return "solo: Single character at center. Do NOT add extra characters."
+            return "solo: Single character at center. Occupies the frame alone. Do NOT add extra characters."
         case 2:
-            return "duo: First character on the left, second to the immediate right. Exactly 2 people only."
+            return "duo: Split composition. First character on the left, second on the right. Clear separation. Exactly 2 people only."
         case 3:
-            return "trio: Three-point fixed layout (left/center/right). Exactly 3 people only."
+            return "trio: Three-point fixed layout (Left / Center / Right). No overlapping faces. Exactly 3 people only."
         default:
             return "Follow each character's position field strictly."
         }
@@ -1599,6 +1609,31 @@ wardrobe:
             return "Place narration on RIGHT side of panel. VERTICAL text (縦書き, top-to-bottom)."
         case .left:
             return "Place narration on LEFT side of panel. VERTICAL text (縦書き, top-to-bottom)."
+        }
+    }
+
+    /// シーン制約プレフィックスを生成（Googleガイダンス準拠）
+    /// sceneの先頭に付与して、キャラクター人数の制約をAIに明示する
+    private func generateSceneConstraint(characterCount: Int, hasMob: Bool, drawMobsClearly: Bool) -> String {
+        if hasMob {
+            if drawMobsClearly {
+                // ensemble
+                return "[Visual Constraint: GROUP COMPOSITION. ALL IN FOCUS.]"
+            } else {
+                // crowd
+                return "[Visual Constraint: MAIN CHARACTERS IN FOREGROUND. CROWD BLURRED.]"
+            }
+        }
+
+        switch characterCount {
+        case 1:
+            return "[Visual Constraint: SINGLE PERSON ONLY.]"
+        case 2:
+            return "[Visual Constraint: EXACTLY 2 PEOPLE.]"
+        case 3:
+            return "[Visual Constraint: EXACTLY 3 PEOPLE.]"
+        default:
+            return ""
         }
     }
 
