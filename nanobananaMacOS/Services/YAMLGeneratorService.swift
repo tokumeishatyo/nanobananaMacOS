@@ -1278,9 +1278,7 @@ decorative_text_overlays:
         registeredActors: [ActorEntry],
         registeredWardrobes: [WardrobeEntry]
     ) -> String {
-        guard !registeredActors.isEmpty || !registeredWardrobes.isEmpty else {
-            return ""
-        }
+        // bubble_registryは常に出力するためguardを削除
 
         var content = """
 # ====================================================
@@ -1334,6 +1332,18 @@ wardrobe:
                 content += "\n"
             }
         }
+
+        // 【C】Bubble Registry（常に出力）
+        content += """
+# 【C】Bubble Registry (吹き出し形状の定義)
+bubble_registry:
+  scream: "Jagged, spiky explosion shape. Used for screaming or anger."
+  normal: "Standard smooth oval or round shape. Used for normal conversation."
+  shout: "Starburst shape with radiating spikes. Used for loud calling."
+  thought: "Cloud-like shape used for thoughts."
+  auto: "Dynamic shape based on dialogue emotion. Use jagged for anger, shaky for fear, or dotted for whispers."
+
+"""
 
         return content
     }
