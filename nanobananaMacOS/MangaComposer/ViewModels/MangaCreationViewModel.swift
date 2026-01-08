@@ -607,9 +607,14 @@ final class WardrobeEntry: ObservableObject, Identifiable {
     let id = UUID()
     let index: Int  // 衣装番号（1〜10）
 
-    @Published var name: String = ""                // 衣装名（DBから選択）
+    /// 手動入力モード選択用の特殊値
+    static let manualInputKey = "__manual_input__"
+
+    @Published var name: String = ""                // 衣装名（DBから選択 or 手動入力）
     @Published var outfitSheetPath: String = ""     // 衣装三面図パス（必須）
     @Published var features: String = ""            // 衣装の説明（DBから自動入力、編集可）
+    @Published var isManualInput: Bool = false      // 手動入力モードかどうか
+    @Published var manualName: String = ""          // 手動入力時の衣装名
 
     init(index: Int) {
         self.index = index
@@ -627,9 +632,31 @@ final class WardrobeEntry: ObservableObject, Identifiable {
         return "衣装\(indexLabel)"
     }
 
+    /// 実際に使用する衣装名（DB選択時はname、手動入力時はmanualName）
+    var effectiveName: String {
+        isManualInput ? manualName : name
+    }
+
     /// 登録済み衣装を選択して自動入力
     func selectSavedWardrobe(_ saved: SavedWardrobe) {
         name = saved.name
         features = saved.description
+        isManualInput = false
+        manualName = ""
+    }
+
+    /// 手動入力モードに切り替え
+    func switchToManualInput() {
+        isManualInput = true
+        name = Self.manualInputKey
+        // featuresとmanualNameはユーザーが入力するのでクリアしない
+    }
+
+    /// 選択解除（未選択状態に戻す）
+    func clearSelection() {
+        isManualInput = false
+        name = ""
+        manualName = ""
+        features = ""
     }
 }

@@ -1425,39 +1425,19 @@ wardrobe:
                     let dialogue = character.dialogue.trimmingCharacters(in: .whitespacesAndNewlines)
                     let features = character.features.trimmingCharacters(in: .whitespacesAndNewlines)
 
-                    // 特徴の決定
-                    let combinedFeatures: String
-                    if character.isImported {
-                        // インポートされたキャラクター: faceFeatures + featuresを結合
-                        var importedParts: [String] = []
-                        if let faceFeatures = actor?.faceFeatures, !faceFeatures.isEmpty {
-                            importedParts.append(YAMLUtilities.convertNewlinesToCommaRaw(faceFeatures))
-                        }
-                        if !features.isEmpty {
-                            importedParts.append(features)
-                        }
-                        combinedFeatures = importedParts.joined(separator: ", ")
-                    } else {
-                        // 手動入力: アクター・衣装の特徴を結合
-                        var actorFeatures: [String] = []
-                        if let faceFeatures = actor?.faceFeatures, !faceFeatures.isEmpty {
-                            // 改行をカンマに変換
-                            actorFeatures.append(YAMLUtilities.convertNewlinesToCommaRaw(faceFeatures))
-                        }
-                        if let bodyFeatures = actor?.bodyFeatures, !bodyFeatures.isEmpty {
-                            // 改行をカンマに変換
-                            actorFeatures.append(YAMLUtilities.convertNewlinesToCommaRaw(bodyFeatures))
-                        }
-                        // 衣装の特徴も追加
-                        if let wardrobeFeatures = wardrobe?.features, !wardrobeFeatures.isEmpty {
-                            actorFeatures.append(YAMLUtilities.convertNewlinesToCommaRaw(wardrobeFeatures))
-                        }
-                        // UIで入力された特徴も追加
-                        if !features.isEmpty {
-                            actorFeatures.append(features)
-                        }
-                        combinedFeatures = actorFeatures.joined(separator: ", ")
-                    }
+                    // appearance_compilation用の各フィールドを準備
+                    let faceDesc: String = {
+                        guard let f = actor?.faceFeatures, !f.isEmpty else { return "" }
+                        return YAMLUtilities.convertNewlinesToCommaRaw(f)
+                    }()
+                    let bodyDesc: String = {
+                        guard let b = actor?.bodyFeatures, !b.isEmpty else { return "" }
+                        return YAMLUtilities.convertNewlinesToCommaRaw(b)
+                    }()
+                    let outfitDesc: String = {
+                        guard let o = wardrobe?.features, !o.isEmpty else { return "" }
+                        return YAMLUtilities.convertNewlinesToCommaRaw(o)
+                    }()
 
                     // 前のキャラクター名を取得（相対位置参照用）
                     var previousCharName: String? = nil
@@ -1490,9 +1470,26 @@ wardrobe:
                         content += "        dialogue: \"\(YAMLUtilities.escapeYAMLString(dialogue))\"\n"
                     }
 
-                    // 特徴（結合済み）は任意
-                    if !combinedFeatures.isEmpty {
-                        content += "        features: \"\(YAMLUtilities.escapeYAMLString(combinedFeatures))\"\n"
+                    // appearance_compilation: Face, Body, Outfitを明示的に分離
+                    // AIがキャラクターの外見を正確に理解するための構造化フィールド
+                    let hasAppearance = !faceDesc.isEmpty || !bodyDesc.isEmpty || !outfitDesc.isEmpty
+                    if hasAppearance {
+                        content += "        # Character appearance breakdown for AI reference\n"
+                        content += "        appearance_compilation:\n"
+                        if !faceDesc.isEmpty {
+                            content += "          Face: \"\(YAMLUtilities.escapeYAMLString(faceDesc))\"\n"
+                        }
+                        if !bodyDesc.isEmpty {
+                            content += "          Body: \"\(YAMLUtilities.escapeYAMLString(bodyDesc))\"\n"
+                        }
+                        if !outfitDesc.isEmpty {
+                            content += "          Outfit: \"\(YAMLUtilities.escapeYAMLString(outfitDesc))\"\n"
+                        }
+                    }
+
+                    // features: 演技・ポーズのみに集中（外見情報は含まない）
+                    if !features.isEmpty {
+                        content += "        features: \"\(YAMLUtilities.escapeYAMLString(features))\"\n"
                     }
                 }
             }

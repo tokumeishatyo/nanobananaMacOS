@@ -277,11 +277,6 @@ struct WardrobesSectionView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Spacer()
-                    if savedWardrobes.isEmpty {
-                        Text("衣装管理で登録してください")
-                            .font(.caption2)
-                            .foregroundColor(.orange)
-                    }
                 }
 
                 // MARK: - Wardrobes (横並び)
@@ -356,30 +351,40 @@ struct WardrobeEntryView: View {
             }
 
             // MARK: - Wardrobe Selection (Required)
-            if savedWardrobes.isEmpty {
-                Text("衣装未登録")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.vertical, 4)
-            } else {
-                Picker("", selection: Binding(
-                    get: { wardrobe.name },
-                    set: { newValue in
-                        wardrobe.name = newValue
-                        // 選択した衣装の説明を自動入力
+            Picker("", selection: Binding(
+                get: { wardrobe.name },
+                set: { newValue in
+                    if newValue == WardrobeEntry.manualInputKey {
+                        // 手動入力モードに切り替え
+                        wardrobe.switchToManualInput()
+                    } else if newValue.isEmpty {
+                        // 選択解除
+                        wardrobe.clearSelection()
+                    } else {
+                        // 登録済み衣装を選択
                         if let saved = savedWardrobes.first(where: { $0.name == newValue }) {
                             wardrobe.selectSavedWardrobe(saved)
                         }
                     }
-                )) {
-                    Text("選択してください").tag("")
+                }
+            )) {
+                Text("選択してください").tag("")
+                Text("手動入力").tag(WardrobeEntry.manualInputKey)
+                if !savedWardrobes.isEmpty {
+                    Divider()
                     ForEach(savedWardrobes) { saved in
                         Text(saved.name).tag(saved.name)
                     }
                 }
-                .labelsHidden()
-                .font(.caption2)
+            }
+            .labelsHidden()
+            .font(.caption2)
+
+            // MARK: - Manual Name Input (手動入力モード時のみ表示)
+            if wardrobe.isManualInput {
+                TextField("", text: $wardrobe.manualName, prompt: Text("衣装名を入力"))
+                    .textFieldStyle(.roundedBorder)
+                    .font(.caption2)
             }
 
             // MARK: - Outfit Sheet Path (Required)
@@ -389,8 +394,8 @@ struct WardrobeEntryView: View {
                 height: 50
             )
 
-            // MARK: - Features (Auto-filled, Editable)
-            TextField("", text: $wardrobe.features, prompt: Text("衣装の説明（自動入力）"))
+            // MARK: - Features (Auto-filled or Manual, Editable)
+            TextField("", text: $wardrobe.features, prompt: Text(wardrobe.isManualInput ? "衣装の説明を入力" : "衣装の説明（自動入力）"))
                 .textFieldStyle(.roundedBorder)
                 .font(.caption2)
         }
