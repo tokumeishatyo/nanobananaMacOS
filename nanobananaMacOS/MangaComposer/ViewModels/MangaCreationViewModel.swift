@@ -10,7 +10,7 @@ final class MangaCreationViewModel: ObservableObject {
     // MARK: - Constants
     static let minPanelCount = 1
     static let maxPanelCount = 4
-    static let minCharacterCount = 1
+    static let minCharacterCount = 0  // 0人も許容（NO HUMANS VISIBLEシーン用）
     static let maxCharacterCount = 3
     static let minActorCount = 1
     static let maxActorCount = 3
@@ -396,13 +396,7 @@ final class MangaCreationViewModel: ObservableObject {
             panel.characters.append(character)
             panel.observeCharacter(character)
         }
-
-        // 最低1人は必要
-        if panel.characters.isEmpty {
-            let initialCharacter = PanelCharacter()
-            panel.characters = [initialCharacter]
-            panel.observeCharacter(initialCharacter)
-        }
+        // キャラクター0人も許容（NO HUMANS VISIBLEシーン用）
     }
 }
 
@@ -428,12 +422,10 @@ final class MangaPanel: ObservableObject, Identifiable {
 
     private var cancellables: Set<AnyCancellable> = []
 
-    /// 通常の初期化（初期キャラクター1人を追加）
+    /// 通常の初期化（キャラクター0人で開始）
     init() {
-        // 初期キャラクターを追加
-        let initialCharacter = PanelCharacter()
-        characters = [initialCharacter]
-        observeCharacter(initialCharacter)
+        // キャラクターは「+」ボタンで追加する
+        characters = []
     }
 
     /// インポート用の初期化（キャラクターなしで作成）
@@ -482,15 +474,8 @@ final class MangaPanel: ObservableObject, Identifiable {
 
     /// パネルが有効か（YAML生成時の完全な検証用）
     var isValid: Bool {
-        // シーンが必須
-        guard hasScene else {
-            return false
-        }
-        // 最低1人のキャラクターが有効
-        guard validCharacterCount >= 1 else {
-            return false
-        }
-        return true
+        // シーンが必須（キャラクター0人でもシーンがあればOK）
+        hasScene
     }
 
     // MARK: - Actions

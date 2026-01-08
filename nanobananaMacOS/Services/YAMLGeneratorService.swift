@@ -1578,6 +1578,8 @@ bubble_registry:
 
         // モブなし: 人数に応じたタグ
         switch characterCount {
+        case 0:
+            return "no humans, scenery only"
         case 1:
             return "solo, 1girl, solitary"
         case 2:
@@ -1602,6 +1604,8 @@ bubble_registry:
         }
 
         switch characterCount {
+        case 0:
+            return "no humans: Scene without visible characters. Focus on environment, objects, or atmosphere only."
         case 1:
             return "solo: Single character at center. Occupies the frame alone. Do NOT add extra characters."
         case 2:
@@ -1643,6 +1647,8 @@ bubble_registry:
         }
 
         switch characterCount {
+        case 0:
+            return "[Visual Constraint: NO HUMANS VISIBLE.]"
         case 1:
             return "[Visual Constraint: SINGLE PERSON ONLY.]"
         case 2:
@@ -1650,7 +1656,8 @@ bubble_registry:
         case 3:
             return "[Visual Constraint: EXACTLY 3 PEOPLE.]"
         default:
-            return ""
+            // 4人以上、またはその他のケース
+            return "[Visual Constraint: NO HUMANS VISIBLE.]"
         }
     }
 
