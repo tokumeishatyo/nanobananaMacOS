@@ -664,6 +664,20 @@ struct PanelCharacterSlotView: View {
                     .frame(width: 150)
             }
 
+            // MARK: - Bubble Style
+            VStack(alignment: .leading, spacing: 2) {
+                Text("吹き出し")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Picker("", selection: $character.bubbleStyle) {
+                    ForEach(BubbleStyle.allCases, id: \.self) { style in
+                        Text(style.displayLabel).tag(style)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 150)
+            }
+
             // MARK: - Features
             VStack(alignment: .leading, spacing: 2) {
                 Text("特徴")

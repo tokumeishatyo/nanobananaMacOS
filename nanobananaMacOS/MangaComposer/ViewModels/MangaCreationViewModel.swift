@@ -510,6 +510,27 @@ final class MangaPanel: ObservableObject, Identifiable {
     }
 }
 
+// MARK: - Bubble Style
+/// 吹き出し形状の定義
+enum BubbleStyle: String, CaseIterable {
+    case auto = "auto"
+    case normal = "normal"
+    case scream = "scream"
+    case shout = "shout"
+    case thought = "thought"
+
+    /// UI表示用のラベル
+    var displayLabel: String {
+        switch self {
+        case .auto: return "AIにおまかせ"
+        case .normal: return "通常"
+        case .scream: return "叫び"
+        case .shout: return "大声"
+        case .thought: return "心の声"
+        }
+    }
+}
+
 // MARK: - Panel Character
 /// コマ内のキャラクター情報（登録されたアクター・衣装から選択）
 final class PanelCharacter: ObservableObject, Identifiable {
@@ -518,6 +539,7 @@ final class PanelCharacter: ObservableObject, Identifiable {
     @Published var selectedActorId: UUID?       // 選択されたアクターのID
     @Published var selectedWardrobeId: UUID?    // 選択された衣装のID
     @Published var dialogue: String = ""        // セリフ
+    @Published var bubbleStyle: BubbleStyle = .auto  // 吹き出し形状（デフォルト: auto）
     @Published var features: String = ""        // 特徴（表情・ポーズ）
 
     // MARK: - Import Flag
