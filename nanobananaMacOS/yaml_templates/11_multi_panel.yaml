@@ -4,19 +4,19 @@
 # Main Prompt and Layout (メインプロンプトとレイアウト)
 # ====================================================
 main_prompt:
-  - "以下のYAML指示に従って、{{panel_count}}コマ漫画を1枚の画像として生成してください。"
-  - "添付したキャラクター画像を参考に、キャラクターの外見を一貫させてください。"
-  - "Generate a {{panel_count}}-panel manga as a single image following the YAML instructions below."
-  - "Use the attached character images to maintain consistent character appearances."
+  - "Generate a {{panel_count}}-panel manga as a single vertical image based strictly on the YAML instructions below."
+  - "CRITICAL: Use the attached reference images (face and costume sheets) to maintain perfect character consistency across all panels."
 
 layout_instruction:
-  - "漫画を縦1列に配置してください。"
-  - "横並びにせず、上から下へ1コマずつ縦に並べてください。"
-  - "出力画像は縦長で、漫画だけが画像全体を占めるようにしてください。"
-  - "余白は不要です。"
-  - "各キャラクターの外見は添付画像を忠実に再現してください。"
-  - "セリフは吹き出しで表示してください。"
-  - "各コマのpositioning_ruleとnarration_ruleに従ってください。"
+  - "Layout format: Vertical strip, 1 column, {{panel_count}} rows."
+  - "Order: Panel 1 at the top, Panel {{panel_count}} at the bottom."
+  - "Aspect Ratio: Vertical. The {{panel_count}} panels must occupy the entire image area."
+  - "Margins: Minimal white space. No wide borders."
+  - "Character Consistency: Strictly adhere to the attached reference sheets for facial features and clothing."
+  - "Art Style: Flat color, anime style, clean line art (as defined in constraints)."
+  - "Dialogue: Render text clearly inside speech bubbles. Place bubbles strategically to not cover faces."
+  - "Narration: Place narration text in rectangular boxes at the top or bottom of the panel edges."
+  - "Follow the positioning_rule and narration_rule in each panel."
 
 # ====================================================
 # Panel Count (コマ数)
