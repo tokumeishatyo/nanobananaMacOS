@@ -44,51 +44,80 @@ instructions:
   - "Ensure consistent art style and character identity across all panels."
 
 # ====================================================
-# Constraints (CRITICAL)
+# Constraints (CRITICAL RULES)
 # ====================================================
 constraints:
-  character_rendering:
-    - "Preserve exact character appearance from input images"
-    - "Apply the specified features (expression, pose) to each character"
-    - "Maintain character identity across all panels"
-  character_positioning:
-    - "Follow the 'position' field for each character strictly"
-    - "Absolute positions: 'on the left side', 'center', 'on the right side'"
-    - "Relative positions: 'to the immediate right of [name]'"
-    - "Scene description reinforces positioning - follow it"
-  person_count:
-    - "The 'tags' field specifies exact person count"
-    - "'solo' = exactly 1 person, no extras"
-    - "'duo' = exactly 2 people, no extras"
-    - "'trio' = exactly 3 people, no extras"
-    - "'crowd' = main characters + background people"
-    - "'crowd' with 'depth of field' = background people are blurred"
-    - "'crowd' with 'sharp focus' = background people are clearly drawn"
-  panel_layout:
-    - "Arrange panels vertically from top to bottom"
-    - "Each panel should have clear boundaries"
-  dialogue_rules:
-    - "Display dialogue in speech bubbles near the speaking character"
-    - "Position dialogue appropriately within the panel"
-  narration_rules:
-    - "Follow the 'narration_rule' field in each panel for narration placement"
-    - "Each panel specifies its own narration position and text orientation"
+  # ----------------------------------------------------
+  # 1. 画像処理と画風 (Image Processing & Style)
+  # ----------------------------------------------------
   transparency_handling:
-    - "Recognize checkerboard patterns in character images as TRANSPARENT backgrounds"
-    - "Remove/ignore the transparent background area so only the character is visible"
-  # 【必須】吹き出し制御ルール (Bubble Control Rules)
+    - "Recognize checkerboard patterns in character images as TRANSPARENT backgrounds."
+    - "Remove/ignore the transparent background area so only the character is visible."
+
+  art_style:
+    positive: "flat color, simple shading, clean lines, anime style, cel shading, simple background, white background"
+    negative: "photorealistic, realistic, 3d, highly detailed, detailed eyes, detailed skin, shiny skin, volumetric lighting, heavy shading, sketch"
+
+  # ----------------------------------------------------
+  # 2. キャラクターの一貫性 (Character Consistency)
+  # ----------------------------------------------------
+  character_rendering:
+    - "Preserve exact character appearance from input images."
+    - "Apply the specified features (expression, pose) to each character."
+    - "Maintain character identity strictly across all panels."
+
+  person_count_definitions:
+    - "The 'tags' field specifies the visible person count (full_body)."
+    - "'solo' = exactly 1 person."
+    - "'duo' = exactly 2 people."
+    - "'trio' = exactly 3 people."
+
+  # ----------------------------------------------------
+  # 3. 吹き出しの形状ルール (Bubble Rendering)
+  # ----------------------------------------------------
   bubble_rendering:
-    # 1. 辞書の参照ルール
     - "Reference 'bubble_registry' to determine the shape of speech bubbles (e.g., 'scream', 'shout')."
-    # 2. キャラクターのセリフ用 (Pattern A)
-    - "If a character has a 'bubble_style' field, render their speech bubble in that specific shape."
-    - "If 'bubble_style' is specified (e.g., 'scream'), STRICTLY follow that shape."
+    - "If 'bubble_style' is explicitly specified (e.g., 'scream'), STRICTLY follow that shape from the registry."
     - "If 'bubble_style' is 'auto' or missing, analyze the dialogue text emotion and choose the most appropriate shape automatically."
-    # 3. シーン内の特殊効果用 (Pattern B)
-    - "Recognize syntax '[Visual Effect: STYLE | FACE_SOURCE | TEXT]' in scene descriptions."
-    - "For this syntax, render a FLOATING bubble of the specified 'STYLE'."
-    - "Inside the floating bubble, show ONLY the 'FACE_SOURCE' face and the 'TEXT'."
-    - "CRITICAL: Do NOT render the body of the 'FACE_SOURCE' actor for floating bubbles."
+
+  # ----------------------------------------------------
+  # 4. キャラクター描画と配置のルール (Character & Positioning)
+  # ----------------------------------------------------
+  character_rendering_rules:
+    # --- [Render Mode Definitions] ---
+    # 通常の描画 (full_body)
+    - "If 'render_mode' is 'full_body', draw the character normally in the scene."
+    - "CRITICAL: 'full_body' characters COUNT towards the 'tags' person count (e.g., solo, duo)."
+
+    # 声のみの描画 (bubble_only)
+    - "If 'render_mode' is 'bubble_only', do NOT draw the character's body."
+    - "Instead, render a FLOATING SPEECH BUBBLE containing the character's face reference."
+    - "Apply the specified 'bubble_style' and 'dialogue' inside this floating bubble."
+    - "CRITICAL: 'bubble_only' characters do NOT count towards the 'tags' person count."
+
+    # --- [Positioning Rules] ---
+    - "Use the 'position' field to determine placement."
+
+    # Auto配置 (AIにお任せする場合)
+    - "If 'position' is 'auto' for 'full_body': Prioritize the CENTER or Rule of Thirds to balance the composition."
+    - "If 'position' is 'auto' for 'bubble_only': Place the bubble in the NEGATIVE SPACE (empty area) around the 'full_body' character."
+
+    # Manual配置 (指定がある場合)
+    - "If a specific position is given (e.g., 'top left', 'on the right'), strictly follow it."
+
+    # 安全装置
+    - "CRITICAL: Regardless of position, floating bubbles must NEVER cover the faces of 'full_body' characters."
+
+  # ----------------------------------------------------
+  # 5. レイアウトとナレーション (Layout & Narration)
+  # ----------------------------------------------------
+  panel_layout:
+    - "Arrange panels vertically from top to bottom."
+    - "Each panel should have clear boundaries."
+
+  narration_rules:
+    - "Follow the 'narration_rule' field in each panel if present."
+    - "Position narration boxes carefully not to obstruct key visual elements."
 
 # ====================================================
 # Anti-Hallucination (MUST FOLLOW)

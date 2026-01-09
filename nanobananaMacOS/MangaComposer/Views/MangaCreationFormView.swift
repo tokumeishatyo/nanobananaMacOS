@@ -638,6 +638,7 @@ struct PanelCharacterSlotView: View {
             }
 
             // MARK: - Wardrobe Selection (Dropdown)
+            // Note: 「吹き出しのみ」の場合は衣装不要のため無効化
             VStack(alignment: .leading, spacing: 2) {
                 Text("衣装")
                     .font(.caption2)
@@ -650,7 +651,35 @@ struct PanelCharacterSlotView: View {
                 }
                 .pickerStyle(.menu)
                 .frame(width: 150)
-                .disabled(registeredWardrobes.isEmpty)
+                .disabled(registeredWardrobes.isEmpty || character.renderMode == .bubbleOnly)
+            }
+
+            // MARK: - Render Mode
+            VStack(alignment: .leading, spacing: 2) {
+                Text("描画")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Picker("", selection: $character.renderMode) {
+                    ForEach(RenderMode.allCases, id: \.self) { mode in
+                        Text(mode.displayLabel).tag(mode)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 150)
+            }
+
+            // MARK: - Position
+            VStack(alignment: .leading, spacing: 2) {
+                Text("位置")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Picker("", selection: $character.position) {
+                    ForEach(CharacterPosition.allCases, id: \.self) { pos in
+                        Text(pos.displayLabel).tag(pos)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 150)
             }
 
             // MARK: - Dialogue

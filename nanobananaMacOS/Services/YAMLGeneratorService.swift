@@ -1375,13 +1375,14 @@ bubble_registry:
 
             // キャラクター（有効なもののみ = アクターと衣装が選択されている）
             let validCharacters = panel.characters.filter { $0.isValid }
-            let characterCount = validCharacters.count
+            // full_bodyのみを人数カウント対象（bubble_onlyは人数に含まない）
+            let fullBodyCount = validCharacters.filter { $0.renderMode == .fullBody }.count
 
             content += "  - panel_number: \(panelNum)\n"
 
-            // シーン制約をprefixとして付与
+            // シーン制約をprefixとして付与（full_body人数でカウント）
             let sceneConstraint = generateSceneConstraint(
-                characterCount: characterCount,
+                characterCount: fullBodyCount,
                 hasMob: panel.hasMobCharacters,
                 drawMobsClearly: panel.drawMobsClearly
             )
@@ -1400,17 +1401,17 @@ bubble_registry:
                 content += "    narration_rule: \"\(narrationRule)\"\n"
             }
 
-            // タグ生成（キャラクター数とモブ有無に応じて）
+            // タグ生成（full_body人数でカウント）
             let tags = generateCharacterTags(
-                characterCount: characterCount,
+                characterCount: fullBodyCount,
                 hasMob: panel.hasMobCharacters,
                 drawMobsClearly: panel.drawMobsClearly
             )
             content += "    tags: \"\(tags)\"\n"
 
-            // 配置ルール（このコマ専用）
+            // 配置ルール（full_body人数でカウント）
             let positioningRule = generatePositioningRule(
-                characterCount: characterCount,
+                characterCount: fullBodyCount,
                 hasMob: panel.hasMobCharacters,
                 drawMobsClearly: panel.drawMobsClearly
             )
@@ -1419,7 +1420,21 @@ bubble_registry:
             if !validCharacters.isEmpty {
                 content += "    characters:\n"
 
-                for (charIndex, character) in validCharacters.enumerated() {
+                // 位置優先度でソート（left → center → right → auto）
+                // 同じ優先度なら元の順序を維持（安定ソート）
+                let sortedCharacters = validCharacters.enumerated()
+                    .sorted { (lhs, rhs) in
+                        let lhsPriority = lhs.element.position.sortPriority
+                        let rhsPriority = rhs.element.position.sortPriority
+                        if lhsPriority == rhsPriority {
+                            // 同じ優先度なら元の順序を維持
+                            return lhs.offset < rhs.offset
+                        }
+                        return lhsPriority < rhsPriority
+                    }
+                    .map { $0.element }
+
+                for character in sortedCharacters {
                     // 選択されたアクターから情報を取得
                     let actor = registeredActors.first { $0.id == character.selectedActorId }
                     let wardrobe = registeredWardrobes.first { $0.id == character.selectedWardrobeId }
@@ -1449,31 +1464,20 @@ bubble_registry:
                         return YAMLUtilities.convertNewlinesToCommaRaw(o)
                     }()
 
-                    // 前のキャラクター名を取得（相対位置参照用）
-                    var previousCharName: String? = nil
-                    if charIndex > 0 {
-                        let prevChar = validCharacters[charIndex - 1]
-                        if let prevActor = registeredActors.first(where: { $0.id == prevChar.selectedActorId }) {
-                            previousCharName = prevActor.name
-                        }
-                    }
-
-                    // 位置生成（キャラクター数とインデックスに応じて）
-                    let position = generateCharacterPosition(
-                        charIndex: charIndex,
-                        totalCount: characterCount,
-                        characterName: charName,
-                        previousCharacterName: previousCharName,
-                        addForeground: panel.hasMobCharacters && panel.drawMobsClearly
-                    )
+                    // 位置: ユーザーが選択した位置をそのまま使用
+                    let position = character.position.rawValue
 
                     // actor: Component Registryで定義した役者ID
                     content += "      - actor: \"\(actorId)\"\n"
                     content += "        name: \"\(YAMLUtilities.escapeYAMLString(charName))\"\n"
                     content += "        position: \"\(position)\"\n"
+                    content += "        render_mode: \"\(character.renderMode.rawValue)\"\n"
                     content += "        face_reference: \"\(faceReference)\"\n"
-                    // wear: Component Registryで定義した衣装ID
-                    content += "        wear: \"\(costumeId)\"\n"
+
+                    // wear: full_bodyの場合のみ出力（bubble_onlyは体を描かないため不要）
+                    if character.renderMode == .fullBody {
+                        content += "        wear: \"\(costumeId)\"\n"
+                    }
 
                     // セリフは任意
                     if !dialogue.isEmpty {
@@ -1484,23 +1488,33 @@ bubble_registry:
                     }
 
                     // appearance_compilation: Face, Body, Outfitを明示的に分離
-                    // AIがキャラクターの外見を正確に理解するための構造化フィールド
-                    let hasAppearance = !faceDesc.isEmpty || !bodyDesc.isEmpty || !outfitDesc.isEmpty
-                    if hasAppearance {
-                        content += "        # Character appearance breakdown for AI reference\n"
-                        content += "        appearance_compilation:\n"
+                    // bubble_onlyの場合はFaceのみ（Body/Outfitは体が描かれないため不要）
+                    if character.renderMode == .fullBody {
+                        // full_body: Face, Body, Outfit すべて出力
+                        let hasAppearance = !faceDesc.isEmpty || !bodyDesc.isEmpty || !outfitDesc.isEmpty
+                        if hasAppearance {
+                            content += "        # Character appearance breakdown for AI reference\n"
+                            content += "        appearance_compilation:\n"
+                            if !faceDesc.isEmpty {
+                                content += "          Face: \"\(YAMLUtilities.escapeYAMLString(faceDesc))\"\n"
+                            }
+                            if !bodyDesc.isEmpty {
+                                content += "          Body: \"\(YAMLUtilities.escapeYAMLString(bodyDesc))\"\n"
+                            }
+                            if !outfitDesc.isEmpty {
+                                content += "          Outfit: \"\(YAMLUtilities.escapeYAMLString(outfitDesc))\"\n"
+                            }
+                        }
+                    } else {
+                        // bubble_only: Faceのみ出力（Body/Outfitは不要）
                         if !faceDesc.isEmpty {
+                            content += "        # Character appearance breakdown for AI reference\n"
+                            content += "        appearance_compilation:\n"
                             content += "          Face: \"\(YAMLUtilities.escapeYAMLString(faceDesc))\"\n"
-                        }
-                        if !bodyDesc.isEmpty {
-                            content += "          Body: \"\(YAMLUtilities.escapeYAMLString(bodyDesc))\"\n"
-                        }
-                        if !outfitDesc.isEmpty {
-                            content += "          Outfit: \"\(YAMLUtilities.escapeYAMLString(outfitDesc))\"\n"
                         }
                     }
 
-                    // features: 演技・ポーズのみに集中（外見情報は含まない）
+                    // features: 演技・ポーズ・表情
                     if !features.isEmpty {
                         content += "        features: \"\(YAMLUtilities.escapeYAMLString(features))\"\n"
                     }
@@ -1509,54 +1523,6 @@ bubble_registry:
         }
 
         return content
-    }
-
-    /// キャラクター位置を生成（Googleガイダンス準拠）
-    /// - solo: center
-    /// - duo: 1人目は左、2人目は1人目の右隣（相対位置）
-    /// - trio: 3点固定（left/center/right）
-    /// - addForeground: trueの場合、位置に", foreground"を追加（モブはっきり描画時）
-    private func generateCharacterPosition(
-        charIndex: Int,
-        totalCount: Int,
-        characterName: String,
-        previousCharacterName: String?,
-        addForeground: Bool = false
-    ) -> String {
-        let basePosition: String
-
-        switch totalCount {
-        case 1:
-            // Solo: center
-            basePosition = "center"
-        case 2:
-            // Duo: 1人目は絶対位置（左）、2人目は相対位置
-            if charIndex == 0 {
-                basePosition = "on the left side"
-            } else {
-                let prevName = previousCharacterName ?? "character 1"
-                basePosition = "to the immediate right of \(prevName)"
-            }
-        case 3:
-            // Trio: 3点固定
-            switch charIndex {
-            case 0:
-                basePosition = "on the left side"
-            case 1:
-                basePosition = "center"
-            default:
-                basePosition = "on the right side"
-            }
-        default:
-            // 4人以上は未対応、左から順番に
-            basePosition = "position \(charIndex + 1)"
-        }
-
-        // モブをはっきり描く場合、主役を前面に配置
-        if addForeground {
-            return "\(basePosition), foreground"
-        }
-        return basePosition
     }
 
     /// キャラクタータグを生成（Googleガイダンス準拠）

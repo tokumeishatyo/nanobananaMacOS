@@ -516,6 +516,51 @@ enum BubbleStyle: String, CaseIterable {
     }
 }
 
+// MARK: - Render Mode
+/// 描画モードの定義
+enum RenderMode: String, CaseIterable {
+    case fullBody = "full_body"
+    case bubbleOnly = "bubble_only"
+
+    /// UI表示用のラベル
+    var displayLabel: String {
+        switch self {
+        case .fullBody: return "体を描く"
+        case .bubbleOnly: return "吹き出しのみ"
+        }
+    }
+}
+
+// MARK: - Character Position
+/// キャラクター配置位置の定義
+enum CharacterPosition: String, CaseIterable {
+    case auto = "auto"
+    case left = "on the left side"
+    case center = "center"
+    case right = "on the right side"
+
+    /// UI表示用のラベル
+    var displayLabel: String {
+        switch self {
+        case .auto: return "AIにおまかせ"
+        case .left: return "左"
+        case .center: return "中央"
+        case .right: return "右"
+        }
+    }
+
+    /// YAML出力時のソート優先度（明示的な位置指定を優先）
+    /// left → center → right → auto の順
+    var sortPriority: Int {
+        switch self {
+        case .left: return 0
+        case .center: return 1
+        case .right: return 2
+        case .auto: return 3
+        }
+    }
+}
+
 // MARK: - Panel Character
 /// コマ内のキャラクター情報（登録されたアクター・衣装から選択）
 final class PanelCharacter: ObservableObject, Identifiable {
@@ -523,6 +568,8 @@ final class PanelCharacter: ObservableObject, Identifiable {
 
     @Published var selectedActorId: UUID?       // 選択されたアクターのID
     @Published var selectedWardrobeId: UUID?    // 選択された衣装のID
+    @Published var renderMode: RenderMode = .fullBody  // 描画モード（デフォルト: full_body）
+    @Published var position: CharacterPosition = .auto  // 配置位置（デフォルト: auto）
     @Published var dialogue: String = ""        // セリフ
     @Published var bubbleStyle: BubbleStyle = .auto  // 吹き出し形状（デフォルト: auto）
     @Published var features: String = ""        // 特徴（表情・ポーズ）
