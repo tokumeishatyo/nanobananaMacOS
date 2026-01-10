@@ -393,10 +393,50 @@ final class MangaCreationViewModel: ObservableObject {
 
             // selectedWardrobeId は nil のまま（手動選択）
 
+            // position（YAMLの値をenumにマッピング）
+            if let posStr = yamlChar.position {
+                character.position = mapPosition(posStr)
+            }
+
+            // render_mode（visibleからの変換も含む）
+            if let rmStr = yamlChar.renderMode,
+               let rm = RenderMode(rawValue: rmStr) {
+                character.renderMode = rm
+            } else if let visible = yamlChar.visible {
+                // 後方互換性: visible → render_mode変換
+                character.renderMode = visible ? .fullBody : .bubbleOnly
+            }
+
+            // bubble_style
+            if let bsStr = yamlChar.bubbleStyle,
+               let bs = BubbleStyle(rawValue: bsStr) {
+                character.bubbleStyle = bs
+            }
+
             panel.characters.append(character)
             panel.observeCharacter(character)
         }
         // キャラクター0人も許容（NO HUMANS VISIBLEシーン用）
+    }
+
+    /// ストーリーYAMLのposition文字列をCharacterPositionにマッピング
+    private func mapPosition(_ posStr: String) -> CharacterPosition {
+        switch posStr.lowercased() {
+        case "left":
+            return .left
+        case "center":
+            return .center
+        case "right":
+            return .right
+        case "auto":
+            return .auto
+        default:
+            // rawValueと一致する場合（"on the left side"等）
+            if let pos = CharacterPosition(rawValue: posStr) {
+                return pos
+            }
+            return .auto
+        }
     }
 }
 
@@ -583,9 +623,15 @@ final class PanelCharacter: ObservableObject, Identifiable {
     @Published var name: String = ""            // キャラクター名（相対位置参照用、必須）
     @Published var imagePath: String = ""       // キャラクター画像パス
 
-    /// 有効か（アクターと衣装が選択されているか）
+    /// 有効か（アクターが選択されているか、full_bodyの場合は衣装も必須）
     var isValid: Bool {
-        selectedActorId != nil && selectedWardrobeId != nil
+        guard selectedActorId != nil else { return false }
+        // bubble_onlyの場合は衣装不要（体を描かないため）
+        if renderMode == .bubbleOnly {
+            return true
+        }
+        // full_bodyの場合は衣装も必須
+        return selectedWardrobeId != nil
     }
 
     /// 名前が入力されているか（後方互換性）

@@ -556,12 +556,19 @@ struct MangaPanelFormView: View {
                 // 横並びのキャラクタースロット
                 HStack(alignment: .top, spacing: 12) {
                     ForEach(Array(panel.characters.enumerated()), id: \.element.id) { charIndex, character in
+                        // 他のキャラクターが使用中の位置を計算（auto以外）
+                        let usedPositions = Set(
+                            panel.characters
+                                .filter { $0.id != character.id && $0.position != .auto }
+                                .map { $0.position }
+                        )
                         PanelCharacterSlotView(
                             character: character,
                             characterIndex: charIndex,
                             canRemove: panel.canRemoveCharacter,
                             registeredActors: registeredActors,
                             registeredWardrobes: registeredWardrobes,
+                            usedPositions: usedPositions,
                             onRemove: {
                                 panel.removeCharacter(at: charIndex)
                             }
@@ -600,6 +607,7 @@ struct PanelCharacterSlotView: View {
     let canRemove: Bool
     let registeredActors: [ActorEntry]
     let registeredWardrobes: [WardrobeEntry]
+    let usedPositions: Set<CharacterPosition>  // 他のキャラクターが使用中の位置
     let onRemove: () -> Void
 
     var body: some View {
@@ -675,11 +683,27 @@ struct PanelCharacterSlotView: View {
                     .foregroundColor(.secondary)
                 Picker("", selection: $character.position) {
                     ForEach(CharacterPosition.allCases, id: \.self) { pos in
-                        Text(pos.displayLabel).tag(pos)
+                        if pos == .auto {
+                            // autoは常に選択可能
+                            Text(pos.displayLabel).tag(pos)
+                        } else if usedPositions.contains(pos) {
+                            // 他のキャラが使用中の位置は無効化
+                            Text("\(pos.displayLabel) (使用中)")
+                                .foregroundColor(.secondary)
+                                .tag(pos)
+                        } else {
+                            Text(pos.displayLabel).tag(pos)
+                        }
                     }
                 }
                 .labelsHidden()
                 .frame(width: 150)
+                .onChange(of: character.position) { oldValue, newValue in
+                    // 使用中の位置を選択しようとした場合、元に戻す
+                    if newValue != .auto && usedPositions.contains(newValue) {
+                        character.position = oldValue
+                    }
+                }
             }
 
             // MARK: - Dialogue

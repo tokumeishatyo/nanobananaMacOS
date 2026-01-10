@@ -43,11 +43,19 @@ struct MangaStoryPanelCharacter: Decodable, Identifiable {
     let name: String?
     let dialogue: String?
     let features: String?
+    let position: String?       // 配置位置（auto, left, center, right）
+    let renderMode: String?     // 描画モード（full_body, bubble_only）
+    let bubbleStyle: String?    // 吹き出し形状（auto, normal, shout, scream, thought）
+    let visible: Bool?          // 後方互換性用（true→full_body, false→bubble_only）
 
     enum CodingKeys: String, CodingKey {
         case name
         case dialogue
         case features
+        case position
+        case renderMode = "render_mode"
+        case bubbleStyle = "bubble_style"
+        case visible
     }
 }
 

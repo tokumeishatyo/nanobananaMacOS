@@ -113,6 +113,10 @@ final class MangaStoryImportViewModel: ObservableObject {
         var currentCharName: String?
         var currentCharDialogue: String?
         var currentCharFeature: String?
+        var currentCharPosition: String?
+        var currentCharRenderMode: String?
+        var currentCharBubbleStyle: String?
+        var currentCharVisible: Bool?
         var inPanelCharacters = false
 
         for line in lines {
@@ -178,7 +182,11 @@ final class MangaStoryImportViewModel: ObservableObject {
                             currentPanelCharacters.append(MangaStoryPanelCharacter(
                                 name: name,
                                 dialogue: currentCharDialogue,
-                                features: currentCharFeature
+                                features: currentCharFeature,
+                                position: currentCharPosition,
+                                renderMode: currentCharRenderMode,
+                                bubbleStyle: currentCharBubbleStyle,
+                                visible: currentCharVisible
                             ))
                         }
                         panels.append(MangaStoryPanel(
@@ -198,6 +206,10 @@ final class MangaStoryImportViewModel: ObservableObject {
                     currentCharName = nil
                     currentCharDialogue = nil
                     currentCharFeature = nil
+                    currentCharPosition = nil
+                    currentCharRenderMode = nil
+                    currentCharBubbleStyle = nil
+                    currentCharVisible = nil
                     inPanelCharacters = false
                     continue
                 }
@@ -228,12 +240,20 @@ final class MangaStoryImportViewModel: ObservableObject {
                             currentPanelCharacters.append(MangaStoryPanelCharacter(
                                 name: name,
                                 dialogue: currentCharDialogue,
-                                features: currentCharFeature
+                                features: currentCharFeature,
+                                position: currentCharPosition,
+                                renderMode: currentCharRenderMode,
+                                bubbleStyle: currentCharBubbleStyle,
+                                visible: currentCharVisible
                             ))
                         }
                         currentCharName = extractValue(from: trimmed, key: "- name:")
                         currentCharDialogue = nil
                         currentCharFeature = nil
+                        currentCharPosition = nil
+                        currentCharRenderMode = nil
+                        currentCharBubbleStyle = nil
+                        currentCharVisible = nil
                         continue
                     }
                     if trimmed.hasPrefix("dialogue:") {
@@ -242,6 +262,23 @@ final class MangaStoryImportViewModel: ObservableObject {
                     }
                     if trimmed.hasPrefix("features:") {
                         currentCharFeature = extractValue(from: trimmed, key: "features:")
+                        continue
+                    }
+                    if trimmed.hasPrefix("position:") {
+                        currentCharPosition = extractValue(from: trimmed, key: "position:")
+                        continue
+                    }
+                    if trimmed.hasPrefix("render_mode:") {
+                        currentCharRenderMode = extractValue(from: trimmed, key: "render_mode:")
+                        continue
+                    }
+                    if trimmed.hasPrefix("bubble_style:") {
+                        currentCharBubbleStyle = extractValue(from: trimmed, key: "bubble_style:")
+                        continue
+                    }
+                    if trimmed.hasPrefix("visible:") {
+                        let visibleValue = extractValue(from: trimmed, key: "visible:")
+                        currentCharVisible = (visibleValue == "true")
                         continue
                     }
                 }
@@ -254,7 +291,11 @@ final class MangaStoryImportViewModel: ObservableObject {
                 currentPanelCharacters.append(MangaStoryPanelCharacter(
                     name: name,
                     dialogue: currentCharDialogue,
-                    features: currentCharFeature
+                    features: currentCharFeature,
+                    position: currentCharPosition,
+                    renderMode: currentCharRenderMode,
+                    bubbleStyle: currentCharBubbleStyle,
+                    visible: currentCharVisible
                 ))
             }
             panels.append(MangaStoryPanel(
