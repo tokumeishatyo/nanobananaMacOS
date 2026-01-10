@@ -561,12 +561,14 @@ enum BubbleStyle: String, CaseIterable {
 enum RenderMode: String, CaseIterable {
     case fullBody = "full_body"
     case bubbleOnly = "bubble_only"
+    case textOnly = "text_only"
 
     /// UI表示用のラベル
     var displayLabel: String {
         switch self {
-        case .fullBody: return "体を描く"
-        case .bubbleOnly: return "吹き出しのみ"
+        case .fullBody: return "全身描画"
+        case .bubbleOnly: return "ちびアイコン付き"
+        case .textOnly: return "吹き出しのみ"
         }
     }
 }
@@ -626,8 +628,8 @@ final class PanelCharacter: ObservableObject, Identifiable {
     /// 有効か（アクターが選択されているか、full_bodyの場合は衣装も必須）
     var isValid: Bool {
         guard selectedActorId != nil else { return false }
-        // bubble_onlyの場合は衣装不要（体を描かないため）
-        if renderMode == .bubbleOnly {
+        // bubble_only/text_onlyの場合は衣装不要（体を描かないため）
+        if renderMode == .bubbleOnly || renderMode == .textOnly {
             return true
         }
         // full_bodyの場合は衣装も必須
@@ -666,6 +668,7 @@ final class ActorEntry: ObservableObject, Identifiable {
     @Published var selectedCharacterId: UUID?       // 選択されたキャラクターのID（データベースから）
     @Published var name: String = ""                // キャラクタ名（選択時に自動設定）
     @Published var faceSheetPath: String = ""       // 顔三面図パス（必須、都度入力）
+    @Published var chibiSheetPath: String = ""      // ちび三面図パス（任意、bubble_only時に使用）
     @Published var faceFeatures: String = ""        // 顔の特徴（選択時に自動設定）
     @Published var bodyFeatures: String = ""        // 体型の特徴（選択時に自動設定）
     @Published var personality: String = ""         // パーソナリティ（選択時に自動設定）

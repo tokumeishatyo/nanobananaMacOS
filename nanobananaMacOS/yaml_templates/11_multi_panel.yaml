@@ -32,15 +32,29 @@ panel_count: {{panel_count}}
 # ====================================================
 # Assembly Logic (AIへの合成指示)
 # ====================================================
-# face_reference画像とappearance_compilationの情報を組み合わせてキャラクターを描画
 instructions:
-  - "Use 'face_reference' image as the primary visual reference for the character's face."
-  - "Use 'appearance_compilation' fields to render the character's full appearance:"
-  - "  - Face: Use facial feature description to ensure consistency with face_reference image."
-  - "  - Body: Apply body type description when rendering the character's physique."
-  - "  - Outfit: Render clothing exactly as described in this field."
+  # --- [1. Select Image Source based on Mode] ---
+  - "CRITICAL: Follow the 'render_mode' logic defined in 'constraints' to select the correct image source ('face_reference' OR 'chibi_reference')."
+
+  # --- [2. Full Body Mode Instructions] ---
+  - "For 'full_body' mode: Use 'face_reference' and 'appearance_compilation' to render the complete character."
+  - "  - Face: Use facial feature description to ensure consistency with 'face_reference' image."
+  - "  - Body: Apply body type description from 'appearance_compilation' to render the physique."
+  - "  - Outfit: Render clothing EXACTLY as described in the 'Outfit' field of 'appearance_compilation'."
+
+  # --- [3. Bubble Only Mode Instructions] ---
+  - "For 'bubble_only' mode: Use 'chibi_reference' to render a floating icon."
+  - "  - Do NOT use body/outfit descriptions for this mode."
+  - "  - Focus ONLY on the facial expression from the chibi reference."
+
+  # --- [4. Text Only Mode Instructions] ---
+  - "For 'text_only' mode: Draw ONLY a speech bubble containing the dialogue."
+  - "  - Do NOT draw any face, body, icon, or character."
+  - "  - This mode represents a voice from off-screen or a sound effect."
+
+  # --- [5. Acting & Style Rules] ---
   - "The 'features' field specifies ONLY acting, pose, and expression - NOT appearance."
-  - "Apply the pose/expression from 'features' while maintaining appearance from 'appearance_compilation'."
+  - "Apply the pose/expression from 'features' while maintaining the character's design defined above."
   - "Ensure consistent art style and character identity across all panels."
 
 # ====================================================
@@ -84,29 +98,43 @@ constraints:
   # 4. キャラクター描画と配置のルール (Character & Positioning)
   # ----------------------------------------------------
   character_rendering_rules:
-    # --- [Render Mode Definitions] ---
-    # 通常の描画 (full_body)
-    - "If 'render_mode' is 'full_body', draw the character normally in the scene."
-    - "CRITICAL: 'full_body' characters COUNT towards the 'tags' person count (e.g., solo, duo)."
+    # --- [Render Mode & Image Source Logic] ---
 
-    # 声のみの描画 (bubble_only)
-    - "If 'render_mode' is 'bubble_only', do NOT draw the character's body."
-    - "Instead, render a FLOATING SPEECH BUBBLE containing the character's face reference."
-    - "Apply the specified 'bubble_style' and 'dialogue' inside this floating bubble."
-    - "CRITICAL: 'bubble_only' characters do NOT count towards the 'tags' person count."
+    # 【ルール1】通常の描画 (full_body)
+    - "If 'render_mode' is 'full_body':"
+    - "  1. USE SOURCE: 'face_reference' (real proportion image)."
+    - "  2. Draw the character's full body normally in the scene using wardrobe info."
+    - "  3. CRITICAL: These characters COUNT towards the 'tags' person count (e.g., solo, duo, trio)."
 
-    # --- [Positioning Rules] ---
+    # 【ルール2】声のみの描画 (bubble_only)
+    - "If 'render_mode' is 'bubble_only':"
+    - "  1. USE SOURCE: 'chibi_reference' (deformed/chibi image)."
+    - "  2. RENDER AS: A 'floating chibi icon' or 'sticker head' adjacent to the speech bubble."
+    - "  3. STYLE: Super deformed (SD), mascot style, simple details, thick outline."
+    - "  4. VISUAL CONSTRAINT: Head only. DO NOT draw a realistic body attached to the chibi head."
+    - "  5. CRITICAL: These chibi icons are 'decorations' and are STRICTLY EXEMPT from the person count limits (e.g., they are allowed in 'solo' or 'no humans' scenes)."
+
+    # 【ルール3】文字のみ (text_only)
+    - "If 'render_mode' is 'text_only':"
+    - "  1. Draw ONLY a speech bubble containing the dialogue."
+    - "  2. CRITICAL: Do NOT draw any face, body, icon, or character."
+    - "  3. This mode represents a voice from off-screen or a sound effect."
+    - "  4. Perfect for 'no humans' or 'scenery only' tags."
+
+    # --- [Positioning Rules (Integrated)] ---
     - "Use the 'position' field to determine placement."
-
-    # Auto配置 (AIにお任せする場合)
-    - "If 'position' is 'auto' for 'full_body': Prioritize the CENTER or Rule of Thirds to balance the composition."
-    - "If 'position' is 'auto' for 'bubble_only': Place the bubble in the NEGATIVE SPACE (empty area) around the 'full_body' character."
 
     # Manual配置 (指定がある場合)
     - "If a specific position is given (e.g., 'top left', 'on the right'), strictly follow it."
 
+    # Auto配置 (AIにお任せする場合)
+    - "If 'position' is 'auto' for 'full_body': Prioritize the CENTER or Rule of Thirds to balance the composition."
+
+    # Bubble配置
+    - "If 'position' is 'auto' for 'bubble_only': Place the bubble/icon in the NEGATIVE SPACE (empty area) avoiding 'full_body' characters."
+
     # 安全装置
-    - "CRITICAL: Regardless of position, floating bubbles must NEVER cover the faces of 'full_body' characters."
+    - "CRITICAL: Regardless of position, floating bubbles/icons must NEVER cover the faces of 'full_body' characters."
 
   # ----------------------------------------------------
   # 5. レイアウトとナレーション (Layout & Narration)

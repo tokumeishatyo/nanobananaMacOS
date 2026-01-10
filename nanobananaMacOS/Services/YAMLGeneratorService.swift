@@ -1221,8 +1221,44 @@ decorative_text_overlays:
         mainViewModel: MainViewModel,
         settings: MangaCreationViewModel
     ) -> String {
+        // バリデーション: bubble_only使用時のちび三面図必須チェック
+        let validationError = validateBubbleOnlyCharacters(settings: settings)
+        if let error = validationError {
+            return error
+        }
+
         let variables = buildMangaCreationVariables(mainViewModel: mainViewModel, settings: settings)
         return templateEngine.render(templateName: "11_multi_panel.yaml", variables: variables)
+    }
+
+    /// bubble_only使用時のバリデーション
+    /// - Returns: エラーがあればエラーメッセージ、なければnil
+    private func validateBubbleOnlyCharacters(settings: MangaCreationViewModel) -> String? {
+        for (panelIndex, panel) in settings.panels.enumerated() {
+            for character in panel.characters {
+                // bubble_onlyの場合、選択されたアクターにちび三面図が必須
+                if character.renderMode == .bubbleOnly,
+                   let actorId = character.selectedActorId,
+                   let actor = settings.registeredActors.first(where: { $0.id == actorId }) {
+                    if actor.chibiSheetPath.isEmpty {
+                        let panelNum = panelIndex + 1
+                        return """
+                        # ====================================================
+                        # バリデーションエラー
+                        # ====================================================
+                        # コマ\(panelNum)のキャラクター「\(actor.name)」は描画モード「ちびアイコン付き」に
+                        # 設定されていますが、ちび三面図が登録されていません。
+                        #
+                        # 【対処方法】
+                        # 登場人物の設定で「\(actor.name)」のちび三面図を登録してください。
+                        # または、描画モードを「全身描画」か「吹き出しのみ」に変更してください。
+                        # ====================================================
+                        """
+                    }
+                }
+            }
+        }
+        return nil
     }
 
     /// 漫画作成用の変数辞書を構築
@@ -1298,6 +1334,7 @@ actors:
             for (index, actor) in registeredActors.enumerated() {
                 let actorId = actorIdFromIndex(index)
                 let faceReference = YAMLUtilities.getFileName(from: actor.faceSheetPath)
+                let chibiReference = YAMLUtilities.getFileName(from: actor.chibiSheetPath)
                 // 改行をカンマに変換してYAML崩壊を防止
                 let faceFeature = YAMLUtilities.convertNewlinesToComma(actor.faceFeatures)
                 let bodyFeature = YAMLUtilities.convertNewlinesToComma(actor.bodyFeatures)
@@ -1306,6 +1343,10 @@ actors:
                 content += "  \(actorId):\n"
                 content += "    name: \"\(YAMLUtilities.escapeYAMLString(actor.name))\"\n"
                 content += "    face_reference: \"\(faceReference)\"\n"
+                // chibi_reference: bubble_only用（設定されている場合のみ出力）
+                if !chibiReference.isEmpty {
+                    content += "    chibi_reference: \"\(chibiReference)\"\n"
+                }
                 content += "    face_feature: \"\(faceFeature)\"\n"
                 content += "    body_feature: \"\(bodyFeature)\"\n"
                 content += "    personality: \"\(personality)\"\n"
@@ -1447,6 +1488,7 @@ bubble_registry:
 
                     let charName = actor?.name.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
                     let faceReference = YAMLUtilities.getFileName(from: actor?.faceSheetPath ?? "")
+                    let chibiReference = YAMLUtilities.getFileName(from: actor?.chibiSheetPath ?? "")
                     let dialogue = character.dialogue.trimmingCharacters(in: .whitespacesAndNewlines)
                     let features = character.features.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -1472,14 +1514,25 @@ bubble_registry:
                     content += "        name: \"\(YAMLUtilities.escapeYAMLString(charName))\"\n"
                     content += "        position: \"\(position)\"\n"
                     content += "        render_mode: \"\(character.renderMode.rawValue)\"\n"
-                    content += "        face_reference: \"\(faceReference)\"\n"
 
-                    // wear: full_bodyの場合のみ出力（bubble_onlyは体を描かないため不要）
-                    if character.renderMode == .fullBody {
+                    // === render_modeに応じた出力制御 ===
+                    switch character.renderMode {
+                    case .fullBody:
+                        // full_body: face_reference + wear + appearance_compilation (Face, Body, Outfit)
+                        content += "        face_reference: \"\(faceReference)\"\n"
                         content += "        wear: \"\(costumeId)\"\n"
+
+                    case .bubbleOnly:
+                        // bubble_only: chibi_referenceのみ（バリデーション済みなので必ず存在）
+                        content += "        chibi_reference: \"\(chibiReference)\"\n"
+
+                    case .textOnly:
+                        // text_only: 顔画像なし（セリフのみの吹き出し）
+                        // face_reference/chibi_referenceは出力しない
+                        break
                     }
 
-                    // セリフは任意
+                    // セリフは任意（ただしtext_onlyの場合は主要素）
                     if !dialogue.isEmpty {
                         content += "        dialogue: \"\(YAMLUtilities.escapeYAMLString(dialogue))\"\n"
 
@@ -1487,9 +1540,9 @@ bubble_registry:
                         content += "        bubble_style: \"\(character.bubbleStyle.rawValue)\"\n"
                     }
 
-                    // appearance_compilation: Face, Body, Outfitを明示的に分離
-                    // bubble_onlyの場合はFaceのみ（Body/Outfitは体が描かれないため不要）
-                    if character.renderMode == .fullBody {
+                    // appearance_compilation: render_modeに応じた出力
+                    switch character.renderMode {
+                    case .fullBody:
                         // full_body: Face, Body, Outfit すべて出力
                         let hasAppearance = !faceDesc.isEmpty || !bodyDesc.isEmpty || !outfitDesc.isEmpty
                         if hasAppearance {
@@ -1505,17 +1558,22 @@ bubble_registry:
                                 content += "          Outfit: \"\(YAMLUtilities.escapeYAMLString(outfitDesc))\"\n"
                             }
                         }
-                    } else {
+
+                    case .bubbleOnly:
                         // bubble_only: Faceのみ出力（Body/Outfitは不要）
                         if !faceDesc.isEmpty {
                             content += "        # Character appearance breakdown for AI reference\n"
                             content += "        appearance_compilation:\n"
                             content += "          Face: \"\(YAMLUtilities.escapeYAMLString(faceDesc))\"\n"
                         }
+
+                    case .textOnly:
+                        // text_only: appearance_compilation不要（顔も体も描かない）
+                        break
                     }
 
-                    // features: 演技・ポーズ・表情
-                    if !features.isEmpty {
+                    // features: 演技・ポーズ・表情（full_body, bubble_onlyの場合のみ）
+                    if !features.isEmpty && character.renderMode != .textOnly {
                         content += "        features: \"\(YAMLUtilities.escapeYAMLString(features))\"\n"
                     }
                 }

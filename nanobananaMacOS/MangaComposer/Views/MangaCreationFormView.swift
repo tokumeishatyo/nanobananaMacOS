@@ -220,6 +220,18 @@ struct ActorEntryView: View {
                 )
             }
 
+            // MARK: - Chibi Sheet Path (Optional)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("ちび三面図")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                ImageDropField(
+                    imagePath: $actor.chibiSheetPath,
+                    placeholder: "ちび三面図をドロップ（任意）",
+                    height: 50
+                )
+            }
+
             // MARK: - Face Features (Auto-filled, Editable)
             HStack {
                 Text("顔の特徴")
@@ -646,7 +658,7 @@ struct PanelCharacterSlotView: View {
             }
 
             // MARK: - Wardrobe Selection (Dropdown)
-            // Note: 「吹き出しのみ」の場合は衣装不要のため無効化
+            // Note: 「ちびアイコン付き」「吹き出しのみ」の場合は衣装不要のため無効化
             VStack(alignment: .leading, spacing: 2) {
                 Text("衣装")
                     .font(.caption2)
@@ -659,7 +671,7 @@ struct PanelCharacterSlotView: View {
                 }
                 .pickerStyle(.menu)
                 .frame(width: 150)
-                .disabled(registeredWardrobes.isEmpty || character.renderMode == .bubbleOnly)
+                .disabled(registeredWardrobes.isEmpty || character.renderMode != .fullBody)
             }
 
             // MARK: - Render Mode
