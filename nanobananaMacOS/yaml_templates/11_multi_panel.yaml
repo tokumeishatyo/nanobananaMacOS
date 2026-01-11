@@ -121,6 +121,18 @@ constraints:
     - "  3. This mode represents a voice from off-screen or a sound effect."
     - "  4. Perfect for 'no humans' or 'scenery only' tags."
 
+    # 【ルール4】インセット/枠内描画 (inset_visualization) ★夢・画面用
+    - "If 'render_mode' is 'inset_visualization':"
+    - "  1. CONTAINER: Draw the frame defined by 'container_type'."
+    - "  2. PRIMARY ACTOR: Use 'chibi_reference' (if specified) or 'face_reference'."
+    - "  3. GUEST ACTOR: Generate 'guest_description' purely from text. Link to 'guest_name' if provided."
+    - "  4. INTERACTION: Draw Primary and Guest interacting based on 'internal_situation'."
+    - "  5. DIALOGUE: If 'internal_dialogue' is present, place small speech bubbles INSIDE the container."
+    - "  6. EXCEPTION: Full body and costumes are ALLOWED inside this container."
+    - "  7. COMPOSITION: Strictly follow 'internal_shot_type' (e.g., full body, close-up) to frame the internal scene."
+    - "  8. ATMOSPHERE: Apply 'internal_lighting', 'internal_filter', and 'internal_background' to create a distinct isolated world."
+    - "  9. BUBBLE STYLE: Apply 'internal_bubble_style' to the dialogue bubbles inside the container."
+
     # --- [Positioning Rules (Integrated)] ---
     - "Use the 'position' field to determine placement."
 
@@ -132,6 +144,13 @@ constraints:
 
     # Bubble配置
     - "If 'position' is 'auto' for 'bubble_only': Place the bubble/icon in the NEGATIVE SPACE (empty area) avoiding 'full_body' characters."
+
+    # インセット・バブル配置 (Grid positioning)
+    - "If 'render_mode' is 'inset_visualization' or 'bubble_only': Use Grid positioning (top left, top center, top right, center left, center, center right, bottom left, bottom center, bottom right)."
+
+    # 浮遊要素の分離
+    - "CRITICAL: Maintain strict separation between ALL floating elements (dream bubbles, speech bubbles, icons). Do NOT merge them."
+    - "CRITICAL: Treat each defined 'character' entry as a distinct, isolated floating island. No overlapping borders."
 
     # 安全装置
     - "CRITICAL: Regardless of position, floating bubbles/icons must NEVER cover the faces of 'full_body' characters."
