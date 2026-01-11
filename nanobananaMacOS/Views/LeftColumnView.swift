@@ -92,12 +92,43 @@ struct LeftColumnView: View {
                             options: OutputStyle.allCases
                         )
 
-                        // アスペクト比
-                        LabeledPickerView(
-                            label: "アスペクト比:",
-                            selection: $viewModel.selectedAspectRatio,
-                            options: AspectRatio.allCases
-                        )
+                        // アスペクト比（優先チェックボックス追加）
+                        HStack {
+                            Text("アスペクト比:")
+                                .frame(width: 100, alignment: .leading)
+
+                            Picker("", selection: $viewModel.selectedAspectRatio) {
+                                ForEach(AspectRatio.allCases) { ratio in
+                                    Text(ratio.rawValue).tag(ratio)
+                                }
+                            }
+                            .labelsHidden()
+                            .frame(width: 120)
+
+                            Toggle("優先", isOn: $viewModel.aspectRatioOverride)
+                                .toggleStyle(.checkbox)
+                                .font(.caption)
+                        }
+                        .padding(.horizontal, 10)
+
+                        // 画質
+                        HStack {
+                            Text("画質:")
+                                .frame(width: 100, alignment: .leading)
+
+                            Picker("", selection: $viewModel.selectedQualityPreset) {
+                                ForEach(QualityPreset.allCases) { preset in
+                                    Text(preset.rawValue).tag(preset)
+                                }
+                            }
+                            .labelsHidden()
+                            .frame(width: 120)
+
+                            Toggle("優先", isOn: $viewModel.qualityPresetOverride)
+                                .toggleStyle(.checkbox)
+                                .font(.caption)
+                        }
+                        .padding(.horizontal, 10)
                     }
                     .padding(.bottom, 5)
                 }

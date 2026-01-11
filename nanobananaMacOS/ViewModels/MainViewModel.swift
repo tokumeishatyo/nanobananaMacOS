@@ -25,6 +25,15 @@ final class MainViewModel: ObservableObject {
     /// アスペクト比
     @Published var selectedAspectRatio: AspectRatio = .square
 
+    /// アスペクト比の優先フラグ（オンの場合は選択値を使用、オフの場合はデフォルト値を使用）
+    @Published var aspectRatioOverride: Bool = false
+
+    /// 画質プリセット
+    @Published var selectedQualityPreset: QualityPreset = .highDetail
+
+    /// 画質の優先フラグ（オンの場合は選択値を使用、オフの場合はデフォルト値を使用）
+    @Published var qualityPresetOverride: Bool = false
+
     /// タイトル
     @Published var title: String = ""
 
@@ -213,6 +222,34 @@ final class MainViewModel: ObservableObject {
     /// API使用状況テキスト
     var usageStatusText: String {
         "今日: \(todayUsageCount)回 | 今月: \(monthlyUsageCount)回"
+    }
+
+    /// 実効アスペクト比（YAML生成時に使用）
+    /// 優先フラグがオンの場合は選択値、オフの場合は出力タイプごとのデフォルト値を使用
+    var effectiveAspectRatio: AspectRatio {
+        if aspectRatioOverride {
+            return selectedAspectRatio
+        } else {
+            // 漫画コンポーザーモードの場合は専用デフォルト値
+            if isMangaCreationMode {
+                return MangaComposerDefaults.aspectRatio
+            }
+            return selectedOutputType.defaultAspectRatio
+        }
+    }
+
+    /// 実効画質プリセット（YAML生成時に使用）
+    /// 優先フラグがオンの場合は選択値、オフの場合は出力タイプごとのデフォルト値を使用
+    var effectiveQualityPreset: QualityPreset {
+        if qualityPresetOverride {
+            return selectedQualityPreset
+        } else {
+            // 漫画コンポーザーモードの場合は専用デフォルト値
+            if isMangaCreationMode {
+                return MangaComposerDefaults.qualityPreset
+            }
+            return selectedOutputType.defaultQualityPreset
+        }
     }
 
     /// APIモードが有効かどうか
@@ -541,6 +578,9 @@ final class MainViewModel: ObservableObject {
         selectedDuotoneColor = .blueBlack
         selectedOutputStyle = .anime
         selectedAspectRatio = .square
+        aspectRatioOverride = false
+        selectedQualityPreset = .highDetail
+        qualityPresetOverride = false
 
         // 基本情報をクリア
         title = ""

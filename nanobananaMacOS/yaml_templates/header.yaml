@@ -12,6 +12,7 @@ style:
   color_mode: "{{color_mode}}"
   output_style: "{{output_style}}"
   aspect_ratio: "{{aspect_ratio}}"
+  quality_preset: "{{quality_preset}}"
 
 # ====================================================
 # Title Overlay

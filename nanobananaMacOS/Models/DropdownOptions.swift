@@ -64,6 +64,23 @@ enum OutputStyle: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+// MARK: - Quality Preset
+/// 画質プリセット
+enum QualityPreset: String, CaseIterable, Identifiable {
+    case highDetail = "高画質"
+    case standard = "標準"
+
+    var id: String { rawValue }
+
+    /// YAML出力用の値
+    var yamlValue: String {
+        switch self {
+        case .highDetail: return "high_detail"
+        case .standard: return "standard"
+        }
+    }
+}
+
 // MARK: - Aspect Ratios
 /// アスペクト比定義
 enum AspectRatio: String, CaseIterable, Identifiable {

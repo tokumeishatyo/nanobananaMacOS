@@ -39,6 +39,38 @@ enum OutputType: String, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - OutputType Extensions
+extension OutputType {
+    /// 出力タイプごとのデフォルトアスペクト比
+    var defaultAspectRatio: AspectRatio {
+        switch self {
+        case .faceSheet, .bodySheet, .outfit, .pose, .styleTransform:
+            return .square        // 1:1
+        case .sceneBuilder, .background, .decorativeText:
+            return .wide16_9      // 16:9
+        case .fourPanelManga, .infographic:
+            return .tall9_16      // 9:16
+        }
+    }
+
+    /// 出力タイプごとのデフォルト画質
+    var defaultQualityPreset: QualityPreset {
+        switch self {
+        case .fourPanelManga, .infographic:
+            return .standard
+        default:
+            return .highDetail
+        }
+    }
+}
+
+// MARK: - MangaComposer Defaults
+/// 漫画ページコンポーザー用のデフォルト値（OutputTypeに含まれないため別途定義）
+struct MangaComposerDefaults {
+    static let aspectRatio: AspectRatio = .tall9_16
+    static let qualityPreset: QualityPreset = .standard
+}
+
 // MARK: - Output Mode
 /// 出力モード
 enum OutputMode: String, CaseIterable, Identifiable {
