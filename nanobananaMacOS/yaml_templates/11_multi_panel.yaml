@@ -90,9 +90,47 @@ constraints:
   # 3. 吹き出しの形状ルール (Bubble Rendering)
   # ----------------------------------------------------
   bubble_rendering:
-    - "Reference 'bubble_registry' to determine the shape of speech bubbles (e.g., 'scream', 'shout')."
-    - "If 'bubble_style' is explicitly specified (e.g., 'scream'), STRICTLY follow that shape from the registry."
+    - "Reference 'bubble_registry' to determine the shape of speech bubbles."
+    - "If 'bubble_style' is explicitly specified, STRICTLY follow that shape from the registry."
     - "If 'bubble_style' is 'auto' or missing, analyze the dialogue text emotion and choose the most appropriate shape automatically."
+
+  bubble_registry:
+    # 基本
+    normal: "Standard smooth oval shape."
+
+    # 叫び・怒り
+    scream1: "(jagged speech bubble:1.3), ギザギザ, used for screaming or anger."
+    scream2: "(spiky speech bubble:1.3), トゲトゲ, used for screaming or anger."
+
+    # ささやき
+    whisper1: "(dotted speech bubble:1.3), 点線, used for whispering."
+    whisper2: "(dashed outline bubble:1.3), 破線, used for whispering."
+
+    # 思考・妄想
+    thought1: "(thought bubble:1.3), もくもく, used for thinking."
+    thought2: "(cloud shaped bubble:1.3), 雲形, used for thinking or dreaming."
+
+    # 衝撃
+    shock1: "(burst bubble:1.3), 爆発, used for shock or impact."
+    shock2: "(flash bubble:1.3), フラッシュ, used for shock or impact."
+
+    # 恐怖・震え
+    horror1: "(shaky speech bubble:1.3), 震える, used for fear."
+    horror2: "(wobbly outline bubble:1.3), 波打つ, used for fear or ghost voice."
+
+    # 落ち込み
+    gloom1: "(melting speech bubble:1.3), ドロドロ, used for depression."
+    gloom2: "(gloomy vertical lines:1.2), 縦線, used for shock or depression."
+
+    # 愛・好意
+    love: "(heart shaped speech bubble:1.3), ハート型, used for romance."
+
+    # 放送・機械
+    digital1: "(square speech bubble:1.3), 四角, used for narration or robot voice."
+    digital2: "(rectangular box:1.3), 長方形, used for narration or announcement."
+
+    # 自動判別用
+    auto: "Dynamic shape based on dialogue emotion."
 
   # ----------------------------------------------------
   # 4. キャラクター描画と配置のルール (Character & Positioning)

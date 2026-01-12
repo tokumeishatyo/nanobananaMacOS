@@ -561,22 +561,87 @@ final class MangaPanel: ObservableObject, Identifiable {
 }
 
 // MARK: - Bubble Style
-/// 吹き出し形状の定義
-enum BubbleStyle: String, CaseIterable {
-    case auto = "auto"
-    case normal = "normal"
-    case scream = "scream"
-    case shout = "shout"
-    case thought = "thought"
+/// 吹き出し形状の定義（17種類）
+enum BubbleStyle: String, CaseIterable, Identifiable {
+    case auto = "auto"              // 自動判別
+    case normal = "normal"          // 通常
+
+    // 叫び・怒り
+    case scream1 = "scream1"        // ギザギザ
+    case scream2 = "scream2"        // トゲトゲ
+
+    // ささやき
+    case whisper1 = "whisper1"      // 点線
+    case whisper2 = "whisper2"      // 破線
+
+    // 思考・妄想
+    case thought1 = "thought1"      // もくもく
+    case thought2 = "thought2"      // 雲形
+
+    // 衝撃
+    case shock1 = "shock1"          // 爆発
+    case shock2 = "shock2"          // フラッシュ
+
+    // 恐怖・震え
+    case horror1 = "horror1"        // 震える
+    case horror2 = "horror2"        // 波打つ
+
+    // 落ち込み
+    case gloom1 = "gloom1"          // ドロドロ
+    case gloom2 = "gloom2"          // 縦線
+
+    // 愛・好意
+    case love = "love"              // ハート型
+
+    // 放送・機械
+    case digital1 = "digital1"      // 四角
+    case digital2 = "digital2"      // 長方形
+
+    var id: String { rawValue }
 
     /// UI表示用のラベル
     var displayLabel: String {
         switch self {
         case .auto: return "AIにおまかせ"
         case .normal: return "通常"
-        case .scream: return "叫び"
-        case .shout: return "大声"
-        case .thought: return "心の声"
+        case .scream1: return "叫び（ギザギザ）"
+        case .scream2: return "叫び（トゲトゲ）"
+        case .whisper1: return "ささやき（点線）"
+        case .whisper2: return "ささやき（破線）"
+        case .thought1: return "思考（もくもく）"
+        case .thought2: return "思考（雲形）"
+        case .shock1: return "衝撃（爆発）"
+        case .shock2: return "衝撃（フラッシュ）"
+        case .horror1: return "恐怖（震える）"
+        case .horror2: return "恐怖（波打つ）"
+        case .gloom1: return "落ち込み（ドロドロ）"
+        case .gloom2: return "落ち込み（縦線）"
+        case .love: return "愛（ハート型）"
+        case .digital1: return "機械（四角）"
+        case .digital2: return "機械（長方形）"
+        }
+    }
+
+    /// YAMLプロンプト（AIへの指示）
+    var prompt: String {
+        switch self {
+        case .auto: return ""
+        case .normal: return "standard smooth oval speech bubble"
+        case .scream1: return "(jagged speech bubble:1.3)"
+        case .scream2: return "(spiky speech bubble:1.3)"
+        case .whisper1: return "(dotted speech bubble:1.3)"
+        case .whisper2: return "(dashed outline bubble:1.3)"
+        case .thought1: return "(thought bubble:1.3)"
+        case .thought2: return "(cloud shaped bubble:1.3)"
+        case .shock1: return "(burst bubble:1.3)"
+        case .shock2: return "(flash bubble:1.3)"
+        case .horror1: return "(shaky speech bubble:1.3)"
+        case .horror2: return "(wobbly outline bubble:1.3)"
+        case .gloom1: return "(melting speech bubble:1.3)"
+        case .gloom2: return "(gloomy vertical lines:1.2)"
+        case .love: return "(heart shaped speech bubble:1.3)"
+        case .digital1: return "(square speech bubble:1.3)"
+        case .digital2: return "(rectangular box:1.3)"
         }
     }
 }
