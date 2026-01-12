@@ -1547,9 +1547,96 @@ bubble_registry:
                         break
 
                     case .insetVisualization:
-                        // inset_visualization: インセット設定を出力（Phase 3で実装予定）
-                        // 現時点ではchibi_referenceを出力（後で拡張）
-                        content += "        chibi_reference: \"\(chibiReference)\"\n"
+                        // inset_visualization: インセット設定をすべて出力
+
+                        // internal_referenceに基づいて参照画像を選択
+                        switch character.internalReference {
+                        case .face:
+                            content += "        face_reference: \"\(faceReference)\"\n"
+                        case .chibi:
+                            content += "        chibi_reference: \"\(chibiReference)\"\n"
+                        }
+
+                        // === 枠と世界観 ===
+                        let containerType = character.containerType.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !containerType.isEmpty {
+                            content += "        container_type: \"\(YAMLUtilities.escapeYAMLString(containerType))\"\n"
+                        }
+
+                        // border_style: auto以外の場合のみ出力
+                        if character.insetBorderStyle != .auto {
+                            content += "        border_style: \"\(character.insetBorderStyle.rawValue)\"\n"
+                        }
+
+                        let internalBackground = character.internalBackground.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !internalBackground.isEmpty {
+                            content += "        internal_background: \"\(YAMLUtilities.escapeYAMLString(internalBackground))\"\n"
+                        }
+
+                        // internal_lighting: auto以外の場合のみ出力
+                        if character.internalLighting != .auto {
+                            content += "        internal_lighting: \"\(character.internalLighting.rawValue)\"\n"
+                        }
+
+                        // internal_filter: auto以外の場合のみ出力
+                        if character.internalFilter != .auto {
+                            content += "        internal_filter: \"\(character.internalFilter.rawValue)\"\n"
+                        }
+
+                        // === キャラクターと演技 ===
+                        // internal_reference: 常に出力（face/chibiの明示）
+                        content += "        internal_reference: \"\(character.internalReference.rawValue)\"\n"
+
+                        let internalOutfit = character.internalOutfit.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !internalOutfit.isEmpty {
+                            content += "        internal_outfit: \"\(YAMLUtilities.escapeYAMLString(internalOutfit))\"\n"
+                        }
+
+                        // internal_shot_type: auto以外の場合のみ出力
+                        if character.internalShotType != .auto {
+                            content += "        internal_shot_type: \"\(character.internalShotType.rawValue)\"\n"
+                        }
+
+                        let internalSituation = character.internalSituation.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !internalSituation.isEmpty {
+                            content += "        internal_situation: \"\(YAMLUtilities.escapeYAMLString(internalSituation))\"\n"
+                        }
+
+                        let internalEmotion = character.internalEmotion.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !internalEmotion.isEmpty {
+                            content += "        internal_emotion: \"\(YAMLUtilities.escapeYAMLString(internalEmotion))\"\n"
+                        }
+
+                        // internal_bubble_style: auto以外の場合のみ出力
+                        if character.internalBubbleStyle != .auto {
+                            content += "        internal_bubble_style: \"\(character.internalBubbleStyle.rawValue)\"\n"
+                        }
+
+                        // === ゲスト ===
+                        let guestName = character.guestName.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !guestName.isEmpty {
+                            content += "        guest_name: \"\(YAMLUtilities.escapeYAMLString(guestName))\"\n"
+                        }
+
+                        let guestDescription = character.guestDescription.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !guestDescription.isEmpty {
+                            content += "        guest_description: \"\(YAMLUtilities.escapeYAMLString(guestDescription))\"\n"
+                        }
+
+                        // === セリフ ===
+                        let internalDialogue = character.internalDialogue.trimmingCharacters(in: .whitespacesAndNewlines)
+                        if !internalDialogue.isEmpty {
+                            // 複数行の場合は配列形式、単一行の場合は文字列形式
+                            let lines = internalDialogue.components(separatedBy: .newlines).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+                            if lines.count > 1 {
+                                content += "        internal_dialogue:\n"
+                                for line in lines {
+                                    content += "          - \"\(YAMLUtilities.escapeYAMLString(line))\"\n"
+                                }
+                            } else {
+                                content += "        internal_dialogue: \"\(YAMLUtilities.escapeYAMLString(internalDialogue))\"\n"
+                            }
+                        }
                     }
 
                     // セリフは任意（ただしtext_onlyの場合は主要素）
