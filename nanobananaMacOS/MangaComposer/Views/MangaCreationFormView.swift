@@ -16,6 +16,22 @@ struct MangaCreationFormView: View {
                 Text("漫画作成")
                     .font(.headline)
                 Spacer()
+
+                // MARK: - Panel Mode Selector (1コマ/4コマ)
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("コマ数")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                    Picker("", selection: $viewModel.panelMode) {
+                        ForEach(PanelMode.allCases, id: \.self) { mode in
+                            Text(mode.displayLabel).tag(mode)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .frame(width: 120)
+                }
+
                 // YAML読み込みボタン
                 Button(action: openYAMLImport) {
                     HStack(spacing: 4) {

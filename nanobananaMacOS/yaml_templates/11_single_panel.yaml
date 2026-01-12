@@ -1,0 +1,218 @@
+{{> header header_comment="Single Panel Illustration (1コマ作成)"}}
+
+# ====================================================
+# Main Prompt and Layout (メインプロンプトとレイアウト)
+# ====================================================
+main_prompt:
+  - "Generate a high-quality single illustration based strictly on the YAML instructions below."
+  - "CRITICAL: This is a single standalone image. Do NOT draw comic panel borders or gutters."
+  - "CRITICAL: Use the attached reference images to maintain perfect character consistency."
+
+layout_instruction:
+  - "Layout format: Single Canvas."
+  - "Aspect Ratio: Follow the 'aspect_ratio' specified in 'style'."
+  - "Composition: Utilize the entire canvas. No margins."
+  - "Character Consistency: Strictly adhere to the attached reference sheets for facial features and clothing."
+  - "Art Style: Flat color, anime style, clean line art (as defined in constraints)."
+  - "Dialogue: Render text clearly inside speech bubbles. Place bubbles strategically to not cover faces."
+  - "Narration: Place narration text in rectangular boxes at the top or bottom of the panel edges."
+  - "Follow the positioning_rule and narration_rule in the panel."
+
+{{component_registry}}
+# ====================================================
+# Panel (コマの内容)
+# ====================================================
+{{panels_content}}
+
+# ====================================================
+# Assembly Logic (AIへの合成指示)
+# ====================================================
+instructions:
+  # --- [1. Select Image Source based on Mode] ---
+  - "CRITICAL: Follow the 'render_mode' logic defined in 'constraints' to select the correct image source ('face_reference' OR 'chibi_reference')."
+
+  # --- [2. Full Body Mode Instructions] ---
+  - "For 'full_body' mode: Use 'face_reference' and 'appearance_compilation' to render the complete character."
+  - "  - Face: Use facial feature description to ensure consistency with 'face_reference' image."
+  - "  - Body: Apply body type description from 'appearance_compilation' to render the physique."
+  - "  - Outfit: Render clothing EXACTLY as described in the 'Outfit' field of 'appearance_compilation'."
+
+  # --- [3. Bubble Only Mode Instructions] ---
+  - "For 'bubble_only' mode: Use 'chibi_reference' to render a floating icon."
+  - "  - Do NOT use body/outfit descriptions for this mode."
+  - "  - Focus ONLY on the facial expression from the chibi reference."
+
+  # --- [4. Text Only Mode Instructions] ---
+  - "For 'text_only' mode: Draw ONLY a speech bubble containing the dialogue."
+  - "  - Do NOT draw any face, body, icon, or character."
+  - "  - This mode represents a voice from off-screen or a sound effect."
+
+  # --- [5. Acting & Style Rules] ---
+  - "The 'features' field specifies ONLY acting, pose, and expression - NOT appearance."
+  - "Apply the pose/expression from 'features' while maintaining the character's design defined above."
+  - "Ensure consistent art style and character identity."
+
+# ====================================================
+# Constraints (CRITICAL RULES)
+# ====================================================
+constraints:
+  # ----------------------------------------------------
+  # 1. 画像処理と画風 (Image Processing & Style)
+  # ----------------------------------------------------
+  transparency_handling:
+    - "Recognize checkerboard patterns in character images as TRANSPARENT backgrounds."
+    - "Remove/ignore the transparent background area so only the character is visible."
+
+  art_style:
+    positive: "flat color, simple shading, clean lines, anime style, cel shading, simple background, white background"
+    negative: "photorealistic, realistic, 3d, highly detailed, detailed eyes, detailed skin, shiny skin, volumetric lighting, heavy shading, sketch"
+
+  # ----------------------------------------------------
+  # 2. キャラクターの一貫性 (Character Consistency)
+  # ----------------------------------------------------
+  character_rendering:
+    - "Preserve exact character appearance from input images."
+    - "Apply the specified features (expression, pose) to each character."
+    - "Maintain character identity strictly."
+
+  person_count_definitions:
+    - "The 'tags' field specifies the visible person count (full_body)."
+    - "'solo' = exactly 1 person."
+    - "'duo' = exactly 2 people."
+    - "'trio' = exactly 3 people."
+
+  # ----------------------------------------------------
+  # 3. 吹き出しの形状ルール (Bubble Rendering)
+  # ----------------------------------------------------
+  bubble_rendering:
+    - "Reference 'bubble_registry' to determine the shape of speech bubbles."
+    - "If 'bubble_style' is explicitly specified, STRICTLY follow that shape from the registry."
+    - "If 'bubble_style' is 'auto' or missing, analyze the dialogue text emotion and choose the most appropriate shape automatically."
+
+  bubble_registry:
+    # 基本
+    normal: "Standard smooth oval shape."
+
+    # 叫び・怒り
+    scream1: "(jagged speech bubble:1.3), ギザギザ, used for screaming or anger."
+    scream2: "(spiky speech bubble:1.3), トゲトゲ, used for screaming or anger."
+
+    # ささやき
+    whisper1: "(dotted speech bubble:1.3), 点線, used for whispering."
+    whisper2: "(dashed outline bubble:1.3), 破線, used for whispering."
+
+    # 思考・妄想
+    thought1: "(thought bubble:1.3), もくもく, used for thinking."
+    thought2: "(cloud shaped bubble:1.3), 雲形, used for thinking or dreaming."
+
+    # 衝撃
+    shock1: "(burst bubble:1.3), 爆発, used for shock or impact."
+    shock2: "(flash bubble:1.3), フラッシュ, used for shock or impact."
+
+    # 恐怖・震え
+    horror1: "(shaky speech bubble:1.3), 震える, used for fear."
+    horror2: "(wobbly outline bubble:1.3), 波打つ, used for fear or ghost voice."
+
+    # 落ち込み
+    gloom1: "(melting speech bubble:1.3), ドロドロ, used for depression."
+    gloom2: "(gloomy vertical lines:1.2), 縦線, used for shock or depression."
+
+    # 愛・好意
+    love: "(heart shaped speech bubble:1.3), ハート型, used for romance."
+
+    # 放送・機械
+    digital1: "(square speech bubble:1.3), 四角, used for narration or robot voice."
+    digital2: "(rectangular box:1.3), 長方形, used for narration or announcement."
+
+    # 自動判別用
+    auto: "Dynamic shape based on dialogue emotion."
+
+  # ----------------------------------------------------
+  # 4. キャラクター描画と配置のルール (Character & Positioning)
+  # ----------------------------------------------------
+  character_rendering_rules:
+    # --- [Render Mode & Image Source Logic] ---
+
+    # 【ルール1】通常の描画 (full_body)
+    - "If 'render_mode' is 'full_body':"
+    - "  1. USE SOURCE: 'face_reference' (real proportion image)."
+    - "  2. Draw the character's full body normally in the scene using wardrobe info."
+    - "  3. CRITICAL: These characters COUNT towards the 'tags' person count (e.g., solo, duo, trio)."
+
+    # 【ルール2】声のみの描画 (bubble_only)
+    - "If 'render_mode' is 'bubble_only':"
+    - "  1. USE SOURCE: 'chibi_reference' (deformed/chibi image)."
+    - "  2. RENDER AS: A 'floating chibi icon' or 'sticker head' adjacent to the speech bubble."
+    - "  3. STYLE: Super deformed (SD), mascot style, simple details, thick outline."
+    - "  4. VISUAL CONSTRAINT: Head only. DO NOT draw a realistic body attached to the chibi head."
+    - "  5. CRITICAL: These chibi icons are 'decorations' and are STRICTLY EXEMPT from the person count limits (e.g., they are allowed in 'solo' or 'no humans' scenes)."
+
+    # 【ルール3】文字のみ (text_only)
+    - "If 'render_mode' is 'text_only':"
+    - "  1. Draw ONLY a speech bubble containing the dialogue."
+    - "  2. CRITICAL: Do NOT draw any face, body, icon, or character."
+    - "  3. This mode represents a voice from off-screen or a sound effect."
+    - "  4. Perfect for 'no humans' or 'scenery only' tags."
+
+    # 【ルール4】インセット/枠内描画 (inset_visualization) ★夢・画面用
+    - "If 'render_mode' is 'inset_visualization':"
+    - "  1. CONTAINER: Draw the frame defined by 'container_type'."
+    - "  2. PRIMARY ACTOR: Use 'chibi_reference' (if specified) or 'face_reference'."
+    - "  3. GUEST ACTOR: Generate 'guest_description' purely from text. Link to 'guest_name' if provided."
+    - "  4. INTERACTION: Draw Primary and Guest interacting based on 'internal_situation'."
+    - "  5. DIALOGUE: If 'internal_dialogue' is present, place small speech bubbles INSIDE the container."
+    - "  6. EXCEPTION: Full body and costumes are ALLOWED inside this container."
+    - "  7. COMPOSITION: Strictly follow 'internal_shot_type' (e.g., full body, close-up) to frame the internal scene."
+    - "  8. ATMOSPHERE: Apply 'internal_lighting', 'internal_filter', and 'internal_background' to create a distinct isolated world."
+    - "  9. BUBBLE STYLE: Apply 'internal_bubble_style' to the dialogue bubbles inside the container."
+
+    # --- [Positioning Rules (Integrated)] ---
+    - "Use the 'position' field to determine placement."
+
+    # Manual配置 (指定がある場合)
+    - "If a specific position is given (e.g., 'top left', 'on the right'), strictly follow it."
+
+    # Auto配置 (AIにお任せする場合)
+    - "If 'position' is 'auto' for 'full_body': Prioritize the CENTER or Rule of Thirds to balance the composition."
+
+    # Bubble配置
+    - "If 'position' is 'auto' for 'bubble_only': Place the bubble/icon in the NEGATIVE SPACE (empty area) avoiding 'full_body' characters."
+
+    # インセット・バブル配置 (Grid positioning)
+    - "If 'render_mode' is 'inset_visualization' or 'bubble_only': Use Grid positioning (top left, top center, top right, center left, center, center right, bottom left, bottom center, bottom right)."
+
+    # 浮遊要素の分離
+    - "CRITICAL: Maintain strict separation between ALL floating elements (dream bubbles, speech bubbles, icons). Do NOT merge them."
+    - "CRITICAL: Treat each defined 'character' entry as a distinct, isolated floating island. No overlapping borders."
+
+    # 安全装置
+    - "CRITICAL: Regardless of position, floating bubbles/icons must NEVER cover the faces of 'full_body' characters."
+
+  # ----------------------------------------------------
+  # 5. レイアウトとナレーション (Layout & Narration)
+  # ----------------------------------------------------
+  narration_rules:
+    - "Follow the 'narration_rule' field in the panel if present."
+    - "Position narration boxes carefully not to obstruct key visual elements."
+
+# ====================================================
+# Anti-Hallucination (MUST FOLLOW)
+# ====================================================
+anti_hallucination:
+  - "Do NOT alter character designs from input images"
+  - "Do NOT add characters not specified in the panel (unless 'crowd' tag is present)"
+  - "Do NOT change dialogue text"
+  - "Do NOT change narration text"
+  - "Do NOT swap character positions - follow 'position' field exactly"
+  - "Do NOT ignore 'tags' field - it controls person count"
+  - "Do NOT ignore 'narration_position' field - it controls narration placement"
+  - "Do NOT use horizontal text when 'narration_orientation' is 'vertical'"
+
+# ====================================================
+# Output Cleanliness (CRITICAL)
+# ====================================================
+output_cleanliness:
+  - "Output ONLY the illustration - nothing else"
+  - "Do NOT add watermarks, signatures, or logos"
+  - "Do NOT add extra decorative elements"
+  - "Do NOT draw comic panel borders or gutters"

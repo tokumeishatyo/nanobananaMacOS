@@ -34,6 +34,16 @@ struct MangaComposerView: View {
         .frame(width: 600, height: 1000)
         .onAppear {
             setupCallbacks()
+            // 初期表示時のアスペクト比設定（1コマがデフォルトなので16:9）
+            mainViewModel.selectedAspectRatio = viewModel.mangaCreationViewModel.panelMode == .single
+                ? .wide16_9
+                : .tall9_16
+        }
+        .onChange(of: viewModel.mangaCreationViewModel.panelMode) { oldValue, newValue in
+            // panelMode変更時にデフォルトアスペクト比を切り替え
+            mainViewModel.selectedAspectRatio = newValue == .single
+                ? .wide16_9
+                : .tall9_16
         }
     }
 

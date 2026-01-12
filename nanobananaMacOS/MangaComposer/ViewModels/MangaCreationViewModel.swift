@@ -3,6 +3,20 @@ import Foundation
 import SwiftUI
 import Combine
 
+// MARK: - Panel Mode
+/// 1コマ/4コマの選択
+enum PanelMode: String, CaseIterable {
+    case single = "single"
+    case multi = "multi"
+
+    var displayLabel: String {
+        switch self {
+        case .single: return "1コマ"
+        case .multi: return "4コマ"
+        }
+    }
+}
+
 // MARK: - Manga Creation ViewModel
 /// 漫画作成のViewModel
 @MainActor
@@ -16,6 +30,9 @@ final class MangaCreationViewModel: ObservableObject {
     static let maxActorCount = 3
     static let minWardrobeCount = 1
     static let maxWardrobeCount = 10
+
+    // MARK: - Panel Mode (1コマ/4コマ)
+    @Published var panelMode: PanelMode = .single  // デフォルト: 1コマ
 
     // MARK: - Actors (登場人物)
     @Published var actors: [ActorEntry] = []

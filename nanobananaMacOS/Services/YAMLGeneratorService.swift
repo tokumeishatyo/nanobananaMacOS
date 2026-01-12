@@ -1242,7 +1242,13 @@ decorative_text_overlays:
         }
 
         let variables = buildMangaCreationVariables(mainViewModel: mainViewModel, settings: settings)
-        return templateEngine.render(templateName: "11_multi_panel.yaml", variables: variables)
+
+        // テンプレート選択: panelModeに応じて切り替え
+        let templateName = settings.panelMode == .single
+            ? "11_single_panel.yaml"
+            : "11_multi_panel.yaml"
+
+        return templateEngine.render(templateName: templateName, variables: variables)
     }
 
     /// bubble_only使用時のバリデーション
@@ -1301,10 +1307,19 @@ decorative_text_overlays:
             registeredWardrobes: settings.registeredWardrobes
         )
 
+        // panelModeに応じてヘッダー情報を切り替え
+        let isSinglePanel = settings.panelMode == .single
+        let headerComment = isSinglePanel
+            ? "Single Panel Illustration (1コマ作成)"
+            : "Multi Panel Manga (漫画作成)"
+        let yamlType = isSinglePanel
+            ? "single_panel_illustration"
+            : "multi_panel_manga"
+
         return [
             // ヘッダーパーシャル用
-            "header_comment": "Multi Panel Manga (漫画作成)",
-            "type": "multi_panel_manga",
+            "header_comment": headerComment,
+            "type": yamlType,
             "title": mainViewModel.title,
             "author": authorName,
             "color_mode": mainViewModel.selectedColorMode.yamlValue,
