@@ -39,6 +39,14 @@ constraints_common:
     - "ALWAYS preserve the original colors from source image"
     - "Maintain character identity (face, hair, recognizable features)"
 
+  reference_sheet_rules:
+    - "If the source image is a multi-view REFERENCE SHEET (showing front view, 3/4 view, side profile), the output MUST ALSO be a reference sheet with the SAME multiple views in the SAME layout."
+    - "Reference sheet layout: Triangular arrangement - front view top-left, 3/4 view top-right, side profile bottom-center."
+    - "All angled views in the output must face LEFT direction, matching the source."
+    - "Transform EACH VIEW individually while maintaining CONSISTENT style across all views."
+    - "Preserve the spacing and proportions between views from the source image."
+    - "Do NOT merge multiple views into a single image - keep them separate."
+
 # ====================================================
 # Constraints - Chibi Only (CRITICAL)
 # ====================================================
