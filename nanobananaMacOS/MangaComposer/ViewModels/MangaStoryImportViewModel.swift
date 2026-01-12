@@ -101,15 +101,20 @@ final class MangaStoryImportViewModel: ObservableObject {
         // 注: 本格的なYAMLパースにはYamsライブラリの導入を推奨
         var title: String?
         var characters: [MangaStoryCharacter] = []
+        var actors: [String: MangaStoryActor] = [:]  // v2: actorsセクション
         var panels: [MangaStoryPanel] = []
 
         let lines = content.components(separatedBy: .newlines)
         var currentSection: String?
         var currentPanel: Int?
         var currentPanelScene: String?
+        var currentPanelTags: String?
         var currentPanelNarration: String?
         var currentPanelMob: Bool = false
         var currentPanelCharacters: [MangaStoryPanelCharacter] = []
+
+        // パネル内キャラクター用
+        var currentCharActor: String?
         var currentCharName: String?
         var currentCharDialogue: String?
         var currentCharFeature: String?
@@ -117,13 +122,30 @@ final class MangaStoryImportViewModel: ObservableObject {
         var currentCharRenderMode: String?
         var currentCharBubbleStyle: String?
         var currentCharVisible: Bool?
+        // インセット設定
+        var currentCharContainerType: String?
+        var currentCharInternalBackground: String?
+        var currentCharInternalOutfit: String?
+        var currentCharInternalSituation: String?
+        var currentCharInternalEmotion: String?
+        var currentCharGuestName: String?
+        var currentCharGuestDescription: String?
+        var currentCharInternalDialogue: [String] = []
+
         var inPanelCharacters = false
+        var inInternalDialogue = false
+
+        // actorsセクション用
+        var currentActorKey: String?
+        var currentActorName: String?
+        var currentActorFaceRef: String?
+        var currentActorChibiRef: String?
 
         for line in lines {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
 
-            // 空行はスキップ
-            if trimmed.isEmpty { continue }
+            // 空行・コメントはスキップ
+            if trimmed.isEmpty || trimmed.hasPrefix("#") { continue }
 
             // タイトル
             if trimmed.hasPrefix("title:") {
@@ -133,28 +155,58 @@ final class MangaStoryImportViewModel: ObservableObject {
             }
 
             // セクション開始（トップレベルのみ）
-            // 注: panelsセクション内のcharacters:は別途処理
             if trimmed == "characters:" && currentSection == nil {
                 currentSection = "characters"
                 continue
             }
+            if trimmed == "actors:" {
+                currentSection = "actors"
+                continue
+            }
             if trimmed == "panels:" {
+                // 前のアクターを保存
+                saveCurrentActor()
                 currentSection = "panels"
                 continue
             }
 
-            // charactersセクション
+            // actorsセクション（v2フォーマット）
+            if currentSection == "actors" {
+                // actor_A: のような行
+                if trimmed.hasSuffix(":") && !trimmed.hasPrefix("-") && !trimmed.hasPrefix("name:") && !trimmed.hasPrefix("face_reference:") && !trimmed.hasPrefix("chibi_reference:") && !trimmed.hasPrefix("appearance_compilation:") && !trimmed.hasPrefix("Face:") && !trimmed.hasPrefix("Body:") && !trimmed.hasPrefix("Outfit:") {
+                    // 前のアクターを保存
+                    saveCurrentActor()
+                    currentActorKey = String(trimmed.dropLast())
+                    currentActorName = nil
+                    currentActorFaceRef = nil
+                    currentActorChibiRef = nil
+                    continue
+                }
+                if trimmed.hasPrefix("name:") {
+                    currentActorName = extractValue(from: trimmed, key: "name:")
+                    continue
+                }
+                if trimmed.hasPrefix("face_reference:") {
+                    currentActorFaceRef = extractValue(from: trimmed, key: "face_reference:")
+                    continue
+                }
+                if trimmed.hasPrefix("chibi_reference:") {
+                    currentActorChibiRef = extractValue(from: trimmed, key: "chibi_reference:")
+                    continue
+                }
+                // appearance_compilation内のフィールドはスキップ
+                continue
+            }
+
+            // charactersセクション（v1フォーマット）
             if currentSection == "characters" {
                 if trimmed.hasPrefix("- id:") || trimmed.hasPrefix("-  id:") {
-                    // 新しいキャラクター開始（idから始まる場合）
                     continue
                 }
                 if trimmed.hasPrefix("id:") {
-                    // id行（ハイフンなし）
                     continue
                 }
                 if trimmed.hasPrefix("- name:") {
-                    // 新しいキャラクター（nameから始まる場合）
                     let name = extractValue(from: trimmed, key: "- name:")
                     if let name = name, !name.isEmpty {
                         characters.append(MangaStoryCharacter(characterId: nil, name: name))
@@ -162,7 +214,6 @@ final class MangaStoryImportViewModel: ObservableObject {
                     continue
                 }
                 if trimmed.hasPrefix("name:") {
-                    // name行（ハイフンなし、前のidに続く）
                     let name = extractValue(from: trimmed, key: "name:")
                     if let name = name, !name.isEmpty {
                         characters.append(MangaStoryCharacter(characterId: nil, name: name))
@@ -176,46 +227,19 @@ final class MangaStoryImportViewModel: ObservableObject {
                 // 新しいパネル開始
                 if trimmed.hasPrefix("- panel:") {
                     // 前のパネルを保存
-                    if let panelNum = currentPanel {
-                        // 最後のキャラクターを追加
-                        if let name = currentCharName {
-                            currentPanelCharacters.append(MangaStoryPanelCharacter(
-                                name: name,
-                                dialogue: currentCharDialogue,
-                                features: currentCharFeature,
-                                position: currentCharPosition,
-                                renderMode: currentCharRenderMode,
-                                bubbleStyle: currentCharBubbleStyle,
-                                visible: currentCharVisible
-                            ))
-                        }
-                        panels.append(MangaStoryPanel(
-                            panel: panelNum,
-                            scene: currentPanelScene,
-                            narration: currentPanelNarration,
-                            mob: currentPanelMob,
-                            characters: currentPanelCharacters
-                        ))
-                    }
+                    savePanelIfNeeded()
                     // リセット
                     currentPanel = Int(extractValue(from: trimmed, key: "- panel:") ?? "0")
-                    currentPanelScene = nil
-                    currentPanelNarration = nil
-                    currentPanelMob = false
-                    currentPanelCharacters = []
-                    currentCharName = nil
-                    currentCharDialogue = nil
-                    currentCharFeature = nil
-                    currentCharPosition = nil
-                    currentCharRenderMode = nil
-                    currentCharBubbleStyle = nil
-                    currentCharVisible = nil
-                    inPanelCharacters = false
+                    resetPanelState()
                     continue
                 }
 
                 if trimmed.hasPrefix("scene:") {
                     currentPanelScene = extractValue(from: trimmed, key: "scene:")
+                    continue
+                }
+                if trimmed.hasPrefix("tags:") {
+                    currentPanelTags = extractValue(from: trimmed, key: "tags:")
                     continue
                 }
                 if trimmed.hasPrefix("narration:") {
@@ -234,26 +258,41 @@ final class MangaStoryImportViewModel: ObservableObject {
 
                 // パネル内キャラクター
                 if inPanelCharacters {
-                    if trimmed.hasPrefix("- name:") {
-                        // 前のキャラクターを保存
-                        if let name = currentCharName {
-                            currentPanelCharacters.append(MangaStoryPanelCharacter(
-                                name: name,
-                                dialogue: currentCharDialogue,
-                                features: currentCharFeature,
-                                position: currentCharPosition,
-                                renderMode: currentCharRenderMode,
-                                bubbleStyle: currentCharBubbleStyle,
-                                visible: currentCharVisible
-                            ))
+                    // internal_dialogue配列内
+                    if inInternalDialogue {
+                        if trimmed.hasPrefix("- ") {
+                            let dialogueLine = String(trimmed.dropFirst(2))
+                                .trimmingCharacters(in: .whitespaces)
+                                .trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                            currentCharInternalDialogue.append(dialogueLine)
+                            continue
+                        } else {
+                            // 配列終了
+                            inInternalDialogue = false
                         }
-                        currentCharName = extractValue(from: trimmed, key: "- name:")
-                        currentCharDialogue = nil
-                        currentCharFeature = nil
-                        currentCharPosition = nil
-                        currentCharRenderMode = nil
-                        currentCharBubbleStyle = nil
-                        currentCharVisible = nil
+                    }
+
+                    // 新しいキャラクター開始（- actor: または - name:）
+                    if trimmed.hasPrefix("- actor:") || trimmed.hasPrefix("- name:") {
+                        // 前のキャラクターを保存
+                        saveCurrentCharacter()
+                        resetCharacterState()
+
+                        if trimmed.hasPrefix("- actor:") {
+                            currentCharActor = extractValue(from: trimmed, key: "- actor:")
+                        } else {
+                            currentCharName = extractValue(from: trimmed, key: "- name:")
+                        }
+                        continue
+                    }
+
+                    // キャラクターのフィールド
+                    if trimmed.hasPrefix("name:") {
+                        currentCharName = extractValue(from: trimmed, key: "name:")
+                        continue
+                    }
+                    if trimmed.hasPrefix("actor:") {
+                        currentCharActor = extractValue(from: trimmed, key: "actor:")
                         continue
                     }
                     if trimmed.hasPrefix("dialogue:") {
@@ -281,33 +320,142 @@ final class MangaStoryImportViewModel: ObservableObject {
                         currentCharVisible = (visibleValue == "true")
                         continue
                     }
+
+                    // インセット設定
+                    if trimmed.hasPrefix("container_type:") {
+                        currentCharContainerType = extractValue(from: trimmed, key: "container_type:")
+                        continue
+                    }
+                    if trimmed.hasPrefix("internal_background:") {
+                        currentCharInternalBackground = extractValue(from: trimmed, key: "internal_background:")
+                        continue
+                    }
+                    if trimmed.hasPrefix("internal_outfit:") {
+                        currentCharInternalOutfit = extractValue(from: trimmed, key: "internal_outfit:")
+                        continue
+                    }
+                    if trimmed.hasPrefix("internal_situation:") {
+                        currentCharInternalSituation = extractValue(from: trimmed, key: "internal_situation:")
+                        continue
+                    }
+                    if trimmed.hasPrefix("internal_emotion:") {
+                        currentCharInternalEmotion = extractValue(from: trimmed, key: "internal_emotion:")
+                        continue
+                    }
+                    if trimmed.hasPrefix("guest_name:") {
+                        currentCharGuestName = extractValue(from: trimmed, key: "guest_name:")
+                        continue
+                    }
+                    if trimmed.hasPrefix("guest_description:") {
+                        currentCharGuestDescription = extractValue(from: trimmed, key: "guest_description:")
+                        continue
+                    }
+                    if trimmed == "internal_dialogue:" {
+                        inInternalDialogue = true
+                        currentCharInternalDialogue = []
+                        continue
+                    }
+                    // internal_dialogue: "single line" 形式
+                    if trimmed.hasPrefix("internal_dialogue:") && !trimmed.hasSuffix(":") {
+                        if let value = extractValue(from: trimmed, key: "internal_dialogue:") {
+                            currentCharInternalDialogue = [value]
+                        }
+                        continue
+                    }
                 }
             }
         }
 
         // 最後のパネルを保存
-        if let panelNum = currentPanel {
-            if let name = currentCharName {
-                currentPanelCharacters.append(MangaStoryPanelCharacter(
+        savePanelIfNeeded()
+
+        return MangaStoryYAML(title: title, characters: characters.isEmpty ? nil : characters, actors: actors.isEmpty ? nil : actors, panels: panels.isEmpty ? nil : panels)
+
+        // ローカル関数: 現在のアクターを保存
+        func saveCurrentActor() {
+            if let key = currentActorKey, let name = currentActorName {
+                actors[key] = MangaStoryActor(
                     name: name,
+                    faceReference: currentActorFaceRef,
+                    chibiReference: currentActorChibiRef,
+                    appearanceCompilation: nil
+                )
+            }
+        }
+
+        // ローカル関数: 現在のキャラクターを保存
+        func saveCurrentCharacter() {
+            if currentCharActor != nil || currentCharName != nil {
+                let internalDialogueValue: InternalDialogueValue? = currentCharInternalDialogue.isEmpty ? nil :
+                    (currentCharInternalDialogue.count == 1 ? .string(currentCharInternalDialogue[0]) : .array(currentCharInternalDialogue))
+
+                currentPanelCharacters.append(MangaStoryPanelCharacter(
+                    actor: currentCharActor,
+                    name: currentCharName,
                     dialogue: currentCharDialogue,
                     features: currentCharFeature,
                     position: currentCharPosition,
                     renderMode: currentCharRenderMode,
                     bubbleStyle: currentCharBubbleStyle,
-                    visible: currentCharVisible
+                    visible: currentCharVisible,
+                    containerType: currentCharContainerType,
+                    internalBackground: currentCharInternalBackground,
+                    internalOutfit: currentCharInternalOutfit,
+                    internalSituation: currentCharInternalSituation,
+                    internalEmotion: currentCharInternalEmotion,
+                    guestName: currentCharGuestName,
+                    guestDescription: currentCharGuestDescription,
+                    internalDialogue: internalDialogueValue
                 ))
             }
-            panels.append(MangaStoryPanel(
-                panel: panelNum,
-                scene: currentPanelScene,
-                narration: currentPanelNarration,
-                mob: currentPanelMob,
-                characters: currentPanelCharacters
-            ))
         }
 
-        return MangaStoryYAML(title: title, characters: characters, panels: panels)
+        // ローカル関数: キャラクター状態をリセット
+        func resetCharacterState() {
+            currentCharActor = nil
+            currentCharName = nil
+            currentCharDialogue = nil
+            currentCharFeature = nil
+            currentCharPosition = nil
+            currentCharRenderMode = nil
+            currentCharBubbleStyle = nil
+            currentCharVisible = nil
+            currentCharContainerType = nil
+            currentCharInternalBackground = nil
+            currentCharInternalOutfit = nil
+            currentCharInternalSituation = nil
+            currentCharInternalEmotion = nil
+            currentCharGuestName = nil
+            currentCharGuestDescription = nil
+            currentCharInternalDialogue = []
+            inInternalDialogue = false
+        }
+
+        // ローカル関数: パネル状態をリセット
+        func resetPanelState() {
+            currentPanelScene = nil
+            currentPanelTags = nil
+            currentPanelNarration = nil
+            currentPanelMob = false
+            currentPanelCharacters = []
+            resetCharacterState()
+            inPanelCharacters = false
+        }
+
+        // ローカル関数: パネルを保存
+        func savePanelIfNeeded() {
+            if let panelNum = currentPanel {
+                saveCurrentCharacter()
+                panels.append(MangaStoryPanel(
+                    panel: panelNum,
+                    scene: currentPanelScene,
+                    tags: currentPanelTags,
+                    narration: currentPanelNarration,
+                    mob: currentPanelMob,
+                    characters: currentPanelCharacters.isEmpty ? nil : currentPanelCharacters
+                ))
+            }
+        }
     }
 
     /// 値を抽出（key: "value" → "value"）
@@ -324,19 +472,46 @@ final class MangaStoryImportViewModel: ObservableObject {
 
     /// キャラクターをDBと照合
     private func matchCharacters() {
-        guard let yaml = parsedYAML,
-              let characters = yaml.characters else {
+        guard let yaml = parsedYAML else {
             characterMatchResults = []
             return
         }
 
-        characterMatchResults = characters.map { yamlChar in
-            let matched = savedCharacters.first { $0.name == yamlChar.name }
-            return CharacterMatchResult(
-                yamlName: yamlChar.name,
-                matchedCharacter: matched
-            )
+        var results: [CharacterMatchResult] = []
+        var processedNames: Set<String> = []
+
+        // 1. actorsセクションから照合（v2フォーマット）
+        if let actors = yaml.actors {
+            for (actorKey, actor) in actors {
+                guard let name = actor.name, !processedNames.contains(name) else { continue }
+                processedNames.insert(name)
+
+                let matched = savedCharacters.first { $0.name == name }
+                results.append(CharacterMatchResult(
+                    yamlName: name,
+                    actorKey: actorKey,
+                    matchedCharacter: matched,
+                    faceReference: actor.faceReference,
+                    chibiReference: actor.chibiReference
+                ))
+            }
         }
+
+        // 2. charactersセクションから照合（v1フォーマット）
+        if let characters = yaml.characters {
+            for yamlChar in characters {
+                guard !processedNames.contains(yamlChar.name) else { continue }
+                processedNames.insert(yamlChar.name)
+
+                let matched = savedCharacters.first { $0.name == yamlChar.name }
+                results.append(CharacterMatchResult(
+                    yamlName: yamlChar.name,
+                    matchedCharacter: matched
+                ))
+            }
+        }
+
+        characterMatchResults = results
     }
 
     /// 内容をクリア

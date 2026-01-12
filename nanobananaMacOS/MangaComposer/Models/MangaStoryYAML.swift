@@ -300,6 +300,7 @@ struct CharacterMatchResult: Identifiable {
     let yamlName: String                    // YAMLに記載された名前
     let actorKey: String?                   // actorsセクションのキー（actor_A等）
     let matchedCharacter: SavedCharacter?   // 一致したDBキャラクター（nilなら未登録）
+    let faceReference: String?              // 顔三面図パス（actorsセクションから）
     let chibiReference: String?             // ちび三面図パス（actorsセクションから）
 
     /// DBに登録されているか
@@ -312,14 +313,16 @@ struct CharacterMatchResult: Identifiable {
         self.yamlName = yamlName
         self.actorKey = nil
         self.matchedCharacter = matchedCharacter
+        self.faceReference = nil
         self.chibiReference = nil
     }
 
     /// 完全版イニシャライザ
-    init(yamlName: String, actorKey: String?, matchedCharacter: SavedCharacter?, chibiReference: String?) {
+    init(yamlName: String, actorKey: String?, matchedCharacter: SavedCharacter?, faceReference: String?, chibiReference: String?) {
         self.yamlName = yamlName
         self.actorKey = actorKey
         self.matchedCharacter = matchedCharacter
+        self.faceReference = faceReference
         self.chibiReference = chibiReference
     }
 }

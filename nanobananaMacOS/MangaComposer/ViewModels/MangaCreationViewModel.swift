@@ -308,6 +308,11 @@ final class MangaCreationViewModel: ObservableObject {
 
         // 2. パネルを再構築
         applyPanels(from: yaml.panels ?? [], matchResults: matchResults)
+
+        // 3. 衣装の監視を再設定（cancellables.removeAll()で削除されたため）
+        for wardrobe in wardrobes {
+            observeWardrobe(wardrobe)
+        }
     }
 
     private func applyActors(
@@ -321,7 +326,11 @@ final class MangaCreationViewModel: ObservableObject {
 
             let actor = ActorEntry()
             actor.selectCharacter(matched)
-            // faceSheetPath は空のまま（手動入力）
+
+            // faceReference をactorsセクションから読み込み
+            if let faceRef = result.faceReference, !faceRef.isEmpty {
+                actor.faceSheetPath = faceRef
+            }
 
             // chibiReference をactorsセクションから読み込み
             if let chibiRef = result.chibiReference, !chibiRef.isEmpty {
@@ -1043,9 +1052,17 @@ final class WardrobeEntry: ObservableObject, Identifiable {
         self.index = index
     }
 
-    /// 有効か（衣装三面図が設定されているか）
+    /// 有効か（衣装情報が設定されているか）
+    /// - 手動入力モード: 衣装シートまたは特徴説明のどちらかがあれば有効
+    /// - DB選択モード: 衣装シートが必須
     var isValid: Bool {
-        !outfitSheetPath.isEmpty
+        if isManualInput {
+            // 手動入力: 衣装シートまたは特徴のどちらかが必要
+            return !outfitSheetPath.isEmpty || !features.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        } else {
+            // DB選択: 衣装シートが必要
+            return !outfitSheetPath.isEmpty
+        }
     }
 
     /// 表示用ラベル（ドロップダウン用）
