@@ -310,7 +310,7 @@ struct PanelPreviewView: View {
             VStack(alignment: .leading, spacing: 8) {
                 // Header
                 HStack {
-                    Text("コマ \(panel.panel)")
+                    Text("コマ \(panel.id)")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                     Spacer()

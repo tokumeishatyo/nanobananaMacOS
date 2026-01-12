@@ -753,12 +753,26 @@ struct PanelCharacterSlotView: View {
                     .font(.caption)
                     .frame(width: 150)
             }
+
+            // MARK: - Inset Settings (render_mode: inset_visualization時のみ表示)
+            if character.renderMode == .insetVisualization {
+                InsetSettingsView(character: character)
+                    .frame(width: 150)
+            }
         }
         .frame(width: 150, alignment: .leading)  // 固定幅でずれ防止
         .padding(6)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.gray.opacity(0.05))
+                .fill(character.renderMode == .insetVisualization
+                      ? Color.purple.opacity(0.03)
+                      : Color.gray.opacity(0.05))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(character.renderMode == .insetVisualization
+                        ? Color.purple.opacity(0.3)
+                        : Color.clear, lineWidth: 1)
         )
     }
 }

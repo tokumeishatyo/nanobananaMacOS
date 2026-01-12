@@ -1545,6 +1545,11 @@ bubble_registry:
                         // text_only: 顔画像なし（セリフのみの吹き出し）
                         // face_reference/chibi_referenceは出力しない
                         break
+
+                    case .insetVisualization:
+                        // inset_visualization: インセット設定を出力（Phase 3で実装予定）
+                        // 現時点ではchibi_referenceを出力（後で拡張）
+                        content += "        chibi_reference: \"\(chibiReference)\"\n"
                     }
 
                     // セリフは任意（ただしtext_onlyの場合は主要素）
@@ -1585,6 +1590,14 @@ bubble_registry:
                     case .textOnly:
                         // text_only: appearance_compilation不要（顔も体も描かない）
                         break
+
+                    case .insetVisualization:
+                        // inset_visualization: Faceのみ出力（インセット内の描画用）
+                        if !faceDesc.isEmpty {
+                            content += "        # Character appearance breakdown for AI reference\n"
+                            content += "        appearance_compilation:\n"
+                            content += "          Face: \"\(YAMLUtilities.escapeYAMLString(faceDesc))\"\n"
+                        }
                     }
 
                     // features: 演技・ポーズ・表情（full_body, bubble_onlyの場合のみ）
