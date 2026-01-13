@@ -17,6 +17,9 @@ struct StoryGeneratorView: View {
     @Environment(\.windowDismiss) private var windowDismiss
 
     @State private var previewData: StoryPreviewData?
+    @State private var isLoading = false
+    @State private var showError = false
+    @State private var errorMessage = ""
 
     init(mainViewModel: MainViewModel) {
         self.mainViewModel = mainViewModel
@@ -56,6 +59,24 @@ struct StoryGeneratorView: View {
             actionButtonsSection
         }
         .frame(width: 600, height: 800)
+        .overlay {
+            // ローディングオーバーレイ
+            if isLoading {
+                ZStack {
+                    Color.black.opacity(0.3)
+                    VStack(spacing: 16) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                        Text("翻訳中...")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                    }
+                    .padding(32)
+                    .background(Color.gray.opacity(0.9))
+                    .cornerRadius(12)
+                }
+            }
+        }
         .sheet(item: $previewData) { data in
             StoryPreviewDialog(
                 yaml: data.yaml,
@@ -68,6 +89,11 @@ struct StoryGeneratorView: View {
                     previewData = nil
                 }
             )
+        }
+        .alert("エラー", isPresented: $showError) {
+            Button("OK") {}
+        } message: {
+            Text(errorMessage)
         }
     }
 
@@ -179,6 +205,7 @@ struct StoryGeneratorView: View {
                 viewModel.reset()
             }
             .buttonStyle(.bordered)
+            .disabled(isLoading)
 
             Spacer()
 
@@ -186,19 +213,22 @@ struct StoryGeneratorView: View {
                 windowDismiss?()
             }
             .keyboardShortcut(.escape)
+            .disabled(isLoading)
 
             Button("YAML生成") {
-                generateYAML()
+                Task {
+                    await generateYAML()
+                }
             }
             .buttonStyle(.borderedProminent)
-            .disabled(!viewModel.isValid)
+            .disabled(!viewModel.isValid || isLoading)
         }
         .padding()
     }
 
     // MARK: - Actions
 
-    private func generateYAML() {
+    private func generateYAML() async {
         let selectedCharacters = viewModel.getSelectedCharacters(
             from: mainViewModel.characterDatabaseService.characters
         )
@@ -211,10 +241,53 @@ struct StoryGeneratorView: View {
         )
 
         let generator = StoryYAMLGenerator()
+        var translations: [String: String] = [:]
 
-        // 翻訳機能は将来実装予定
-        // enableTranslationがtrueでも現時点では翻訳なしで生成
-        let yaml = generator.generate(context: context)
+        // 翻訳が有効な場合
+        if viewModel.enableTranslation {
+            // APIキーの確認
+            guard !mainViewModel.apiKey.isEmpty else {
+                errorMessage = "APIキーが設定されていません。中央カラムでAPIキーを入力してください。"
+                showError = true
+                return
+            }
+
+            // 翻訳対象テキストを収集
+            let textsToTranslate = context.textsToTranslate
+            var textsDict: [String: String] = [:]
+            for text in textsToTranslate {
+                textsDict[text.key] = text.original
+            }
+
+            // 翻訳対象がある場合のみAPI呼び出し
+            if !textsDict.isEmpty {
+                isLoading = true
+
+                let result = await TranslationService.shared.translateBatch(
+                    apiKey: mainViewModel.apiKey,
+                    texts: textsDict
+                )
+
+                isLoading = false
+
+                switch result {
+                case .success(let translatedTexts):
+                    translations = translatedTexts
+                case .failure(let error):
+                    errorMessage = error.localizedDescription
+                    showError = true
+                    return
+                }
+            }
+        }
+
+        // YAML生成
+        let yaml: String
+        if translations.isEmpty {
+            yaml = generator.generate(context: context)
+        } else {
+            yaml = generator.generate(context: context, translations: translations)
+        }
 
         // sheet(item:) でデータを確実に渡す
         previewData = StoryPreviewData(
