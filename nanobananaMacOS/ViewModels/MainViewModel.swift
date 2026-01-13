@@ -1024,6 +1024,11 @@ final class MainViewModel: ObservableObject {
         WindowManager.shared.openWardrobeDatabaseWindow(service: wardrobeDatabaseService)
     }
 
+    /// ストーリー作成を開く
+    func openStoryGenerator() {
+        WindowManager.shared.openStoryGeneratorWindow(mainViewModel: self)
+    }
+
     /// 漫画コンポーザーを開く
     func openMangaComposer() {
         WindowManager.shared.openMangaComposerWindow(mainViewModel: self)

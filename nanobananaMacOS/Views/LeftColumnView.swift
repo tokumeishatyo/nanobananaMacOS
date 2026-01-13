@@ -201,6 +201,15 @@ struct LeftColumnView: View {
                         .tint(.blue)
                         .padding(.horizontal, 10)
 
+                        // ストーリー作成
+                        Button(action: viewModel.openStoryGenerator) {
+                            Text("ストーリー作成")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.cyan)
+                        .padding(.horizontal, 10)
+
                         // 漫画ページコンポーザー
                         Button(action: viewModel.openMangaComposer) {
                             Text("漫画ページコンポーザー")

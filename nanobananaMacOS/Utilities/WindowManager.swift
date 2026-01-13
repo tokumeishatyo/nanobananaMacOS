@@ -188,6 +188,18 @@ final class WindowManager {
         }
     }
 
+    /// ストーリー作成ウィンドウを開く
+    /// - Parameter mainViewModel: メインViewModel（キャラクタDB参照用）
+    func openStoryGeneratorWindow(mainViewModel: MainViewModel) {
+        openWindow(
+            id: "storyGenerator",
+            title: "ストーリー作成",
+            size: NSSize(width: 620, height: 850)
+        ) {
+            StoryGeneratorView(mainViewModel: mainViewModel)
+        }
+    }
+
     /// 漫画ストーリーインポートウィンドウを開く
     /// - Parameters:
     ///   - savedCharacters: キャラクターデータベースの登録済みキャラクター
