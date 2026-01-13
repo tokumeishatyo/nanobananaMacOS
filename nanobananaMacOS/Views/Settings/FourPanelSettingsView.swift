@@ -38,23 +38,26 @@ struct FourPanelSettingsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ScrollView {
-                VStack(spacing: 16) {
-                    // 登場人物設定
-                    characterSection
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // 登場人物設定
+                        characterSection
 
-                    // 4コマ説明
-                    panelHeaderSection
+                        // 4コマ説明
+                        panelHeaderSection
 
-                    // 各コマの入力
-                    ForEach(Array(viewModel.panels.enumerated()), id: \.element.id) { index, panel in
-                        PanelInputView(
-                            panel: panel,
-                            label: panelLabels[index]
-                        )
+                        // 各コマの入力
+                        ForEach(Array(viewModel.panels.enumerated()), id: \.element.id) { index, panel in
+                            PanelInputView(
+                                panel: panel,
+                                label: panelLabels[index]
+                            )
+                        }
                     }
+                    .frame(width: geometry.size.width - 32) // padding分を引く
+                    .padding(16)
                 }
-                .padding(16)
             }
 
             Divider()
@@ -74,7 +77,7 @@ struct FourPanelSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 800, height: 1100)
+        .frame(minWidth: 800, minHeight: 1100)
     }
 
     // MARK: - 登場人物設定

@@ -157,7 +157,7 @@ struct InfographicSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 750, height: 1100)
+        .frame(minWidth: 750, minHeight: 1100)
     }
 
     private func sectionRow(index: Int) -> some View {

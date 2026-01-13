@@ -581,44 +581,46 @@ struct MangaPanelFormView: View {
                         .foregroundColor(.secondary)
                 }
 
-                // 横並びのキャラクタースロット
-                HStack(alignment: .top, spacing: 12) {
-                    ForEach(Array(panel.characters.enumerated()), id: \.element.id) { charIndex, character in
-                        // 他のキャラクターが使用中の位置を計算（auto以外）
-                        let usedPositions = Set(
-                            panel.characters
-                                .filter { $0.id != character.id && $0.position != .auto }
-                                .map { $0.position }
-                        )
-                        PanelCharacterSlotView(
-                            character: character,
-                            characterIndex: charIndex,
-                            canRemove: panel.canRemoveCharacter,
-                            registeredActors: registeredActors,
-                            registeredWardrobes: registeredWardrobes,
-                            usedPositions: usedPositions,
-                            onRemove: {
-                                panel.removeCharacter(at: charIndex)
-                            }
-                        )
-                    }
-
-                    // 追加ボタン
-                    if panel.canAddCharacter {
-                        Button(action: {
-                            panel.addCharacter()
-                        }) {
-                            VStack {
-                                Image(systemName: "plus.circle")
-                                    .font(.system(size: 20))
-                                Text("追加")
-                                    .font(.caption2)
-                            }
-                            .frame(width: 80, height: 100)
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(8)
+                // 横並びのキャラクタースロット（横スクロール対応）
+                ScrollView(.horizontal, showsIndicators: true) {
+                    HStack(alignment: .top, spacing: 12) {
+                        ForEach(Array(panel.characters.enumerated()), id: \.element.id) { charIndex, character in
+                            // 他のキャラクターが使用中の位置を計算（auto以外）
+                            let usedPositions = Set(
+                                panel.characters
+                                    .filter { $0.id != character.id && $0.position != .auto }
+                                    .map { $0.position }
+                            )
+                            PanelCharacterSlotView(
+                                character: character,
+                                characterIndex: charIndex,
+                                canRemove: panel.canRemoveCharacter,
+                                registeredActors: registeredActors,
+                                registeredWardrobes: registeredWardrobes,
+                                usedPositions: usedPositions,
+                                onRemove: {
+                                    panel.removeCharacter(at: charIndex)
+                                }
+                            )
                         }
-                        .buttonStyle(.plain)
+
+                        // 追加ボタン
+                        if panel.canAddCharacter {
+                            Button(action: {
+                                panel.addCharacter()
+                            }) {
+                                VStack {
+                                    Image(systemName: "plus.circle")
+                                        .font(.system(size: 20))
+                                    Text("追加")
+                                        .font(.caption2)
+                                }
+                                .frame(width: 80, height: 100)
+                                .background(Color.gray.opacity(0.1))
+                                .cornerRadius(8)
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                 }
             }

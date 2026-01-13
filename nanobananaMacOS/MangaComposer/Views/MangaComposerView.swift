@@ -21,9 +21,12 @@ struct MangaComposerView: View {
             Divider()
 
             // MARK: - Content Area
-            ScrollView {
-                contentSection
-                    .padding()
+            GeometryReader { geometry in
+                ScrollView {
+                    contentSection
+                        .frame(width: geometry.size.width - 32) // padding分を引く
+                        .padding()
+                }
             }
 
             Divider()
@@ -31,7 +34,7 @@ struct MangaComposerView: View {
             // MARK: - Action Buttons
             actionButtonsSection
         }
-        .frame(width: 600, height: 1000)
+        .frame(minWidth: 600, minHeight: 1000)
         .onAppear {
             setupCallbacks()
             // 初期表示時のアスペクト比設定（1コマがデフォルトなので16:9）

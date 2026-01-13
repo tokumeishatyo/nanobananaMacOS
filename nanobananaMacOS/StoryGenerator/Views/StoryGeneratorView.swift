@@ -33,24 +33,27 @@ struct StoryGeneratorView: View {
             Divider()
 
             // MARK: - Content
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    // 英訳チェックボックス
-                    translationToggleSection
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        // 英訳チェックボックス
+                        translationToggleSection
 
-                    // モード選択
-                    modeSelectionSection
+                        // モード選択
+                        modeSelectionSection
 
-                    // タイトル入力
-                    titleInputSection
+                        // タイトル入力
+                        titleInputSection
 
-                    // キャラクタ選択
-                    characterSelectionSection
+                        // キャラクタ選択
+                        characterSelectionSection
 
-                    // パネル入力
-                    panelInputSection
+                        // パネル入力
+                        panelInputSection
+                    }
+                    .frame(width: geometry.size.width - 32) // padding分を引く
+                    .padding()
                 }
-                .padding()
             }
 
             Divider()
@@ -58,7 +61,7 @@ struct StoryGeneratorView: View {
             // MARK: - Action Buttons
             actionButtonsSection
         }
-        .frame(width: 600, height: 800)
+        .frame(minWidth: 600, minHeight: 800)
         .overlay {
             // ローディングオーバーレイ
             if isLoading {

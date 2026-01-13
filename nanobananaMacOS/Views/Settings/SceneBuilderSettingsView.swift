@@ -98,22 +98,25 @@ struct SceneBuilderSettingsView: View {
             .padding(.horizontal, 16)
             .padding(.top, 16)
 
-            ScrollView {
-                VStack(spacing: 12) {
-                    // シーンタイプ別コンテンツ
-                    switch viewModel.sceneType {
-                    case .story:
-                        storySceneContent
-                    case .battle:
-                        battleSceneContent
-                    case .bossRaid:
-                        bossRaidContent
-                    }
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 12) {
+                        // シーンタイプ別コンテンツ
+                        switch viewModel.sceneType {
+                        case .story:
+                            storySceneContent
+                        case .battle:
+                            battleSceneContent
+                        case .bossRaid:
+                            bossRaidContent
+                        }
 
-                    // 装飾テキストオーバーレイ（全シーン共通）
-                    textOverlaySection
+                        // 装飾テキストオーバーレイ（全シーン共通）
+                        textOverlaySection
+                    }
+                    .frame(width: geometry.size.width - 32) // padding分を引く
+                    .padding(16)
                 }
-                .padding(16)
             }
             .sheet(isPresented: $viewModel.showTextOverlaySheet) {
                 TextOverlayPlacementView(items: $viewModel.textOverlayItems)
@@ -136,7 +139,7 @@ struct SceneBuilderSettingsView: View {
             }
             .padding(16)
         }
-        .frame(width: 850, height: 1000)
+        .frame(minWidth: 850, minHeight: 1000)
     }
 
     // MARK: - ストーリーシーン
