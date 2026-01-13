@@ -1,6 +1,14 @@
 // rule.mdを読むこと
 import SwiftUI
 
+// MARK: - Preview Data
+/// プレビューダイアログに渡すデータ
+struct StoryPreviewData: Identifiable {
+    let id = UUID()
+    let yaml: String
+    let suggestedFileName: String
+}
+
 // MARK: - Story Generator View
 /// ストーリーYAML生成のメイン画面
 struct StoryGeneratorView: View {
@@ -8,8 +16,7 @@ struct StoryGeneratorView: View {
     @ObservedObject var mainViewModel: MainViewModel
     @Environment(\.windowDismiss) private var windowDismiss
 
-    @State private var showPreviewDialog = false
-    @State private var generatedYAML: String = ""
+    @State private var previewData: StoryPreviewData?
 
     init(mainViewModel: MainViewModel) {
         self.mainViewModel = mainViewModel
@@ -49,16 +56,16 @@ struct StoryGeneratorView: View {
             actionButtonsSection
         }
         .frame(width: 600, height: 800)
-        .sheet(isPresented: $showPreviewDialog) {
+        .sheet(item: $previewData) { data in
             StoryPreviewDialog(
-                yaml: generatedYAML,
-                suggestedFileName: viewModel.suggestedFileName,
+                yaml: data.yaml,
+                suggestedFileName: data.suggestedFileName,
                 onSaved: {
-                    showPreviewDialog = false
+                    previewData = nil
                     windowDismiss?()
                 },
                 onCancel: {
-                    showPreviewDialog = false
+                    previewData = nil
                 }
             )
         }
@@ -207,8 +214,13 @@ struct StoryGeneratorView: View {
 
         // 翻訳機能は将来実装予定
         // enableTranslationがtrueでも現時点では翻訳なしで生成
-        generatedYAML = generator.generate(context: context)
-        showPreviewDialog = true
+        let yaml = generator.generate(context: context)
+
+        // sheet(item:) でデータを確実に渡す
+        previewData = StoryPreviewData(
+            yaml: yaml,
+            suggestedFileName: viewModel.suggestedFileName
+        )
     }
 }
 
