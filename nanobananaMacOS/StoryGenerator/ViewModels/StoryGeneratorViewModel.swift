@@ -84,7 +84,10 @@ final class StoryGeneratorViewModel: ObservableObject {
         $panelMode
             .dropFirst()
             .sink { [weak self] newMode in
-                self?.adjustPanelCount(for: newMode)
+                // View更新中の変更を避けるため非同期で実行
+                Task { @MainActor in
+                    self?.adjustPanelCount(for: newMode)
+                }
             }
             .store(in: &cancellables)
     }
@@ -143,6 +146,22 @@ final class StoryGeneratorViewModel: ObservableObject {
     /// 選択済みキャラクターを取得
     func getSelectedCharacters(from allCharacters: [SavedCharacter]) -> [SavedCharacter] {
         allCharacters.filter { selectedCharacterIds.contains($0.id) }
+    }
+
+    // MARK: - Computed Properties
+
+    /// 保存時のファイル名候補
+    var suggestedFileName: String {
+        let baseTitle = storyTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        if baseTitle.isEmpty {
+            return "story.yaml"
+        }
+        // ファイル名に使えない文字を置換
+        let sanitized = baseTitle
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "\\", with: "_")
+            .replacingOccurrences(of: ":", with: "_")
+        return "\(sanitized).yaml"
     }
 
     // MARK: - Validation

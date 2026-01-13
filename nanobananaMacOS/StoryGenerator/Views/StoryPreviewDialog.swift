@@ -1,12 +1,17 @@
 // rule.mdを読むこと
 import SwiftUI
+import UniformTypeIdentifiers
 
 // MARK: - Story Preview Dialog
 /// YAML生成確認ダイアログ
 struct StoryPreviewDialog: View {
     let yaml: String
-    let onConfirm: () -> Void
+    let suggestedFileName: String
+    let onSaved: () -> Void
     let onCancel: () -> Void
+
+    @State private var showSaveError = false
+    @State private var saveErrorMessage = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -15,6 +20,9 @@ struct StoryPreviewDialog: View {
                 Text("確認")
                     .font(.headline)
                 Spacer()
+                Text("内容を確認してファイル保存してください")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
             .padding()
 
@@ -44,15 +52,39 @@ struct StoryPreviewDialog: View {
 
                 Spacer()
 
-                Button("OK・コピー") {
-                    onConfirm()
+                Button("ファイル保存") {
+                    saveToFile()
                 }
                 .buttonStyle(.borderedProminent)
                 .keyboardShortcut(.return, modifiers: .command)
             }
             .padding()
         }
-        .frame(width: 550, height: 500)
+        .frame(width: 600, height: 550)
+        .alert("保存エラー", isPresented: $showSaveError) {
+            Button("OK") {}
+        } message: {
+            Text(saveErrorMessage)
+        }
+    }
+
+    // MARK: - Save to File
+    private func saveToFile() {
+        let savePanel = NSSavePanel()
+        savePanel.allowedContentTypes = [UTType(filenameExtension: "yaml") ?? .plainText]
+        savePanel.nameFieldStringValue = suggestedFileName
+        savePanel.title = "ストーリーYAMLを保存"
+        savePanel.message = "漫画コンポーザーで読み込むYAMLファイルを保存します"
+
+        if savePanel.runModal() == .OK, let url = savePanel.url {
+            do {
+                try yaml.write(to: url, atomically: true, encoding: .utf8)
+                onSaved()
+            } catch {
+                saveErrorMessage = "ファイルの保存に失敗しました: \(error.localizedDescription)"
+                showSaveError = true
+            }
+        }
     }
 }
 
@@ -80,7 +112,8 @@ struct StoryPreviewDialog: View {
                 dialogue: "テストセリフ"
                 features: "smiling"
         """,
-        onConfirm: {},
+        suggestedFileName: "story.yaml",
+        onSaved: {},
         onCancel: {}
     )
 }

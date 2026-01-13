@@ -52,9 +52,10 @@ struct StoryGeneratorView: View {
         .sheet(isPresented: $showPreviewDialog) {
             StoryPreviewDialog(
                 yaml: generatedYAML,
-                onConfirm: {
-                    copyToClipboard()
+                suggestedFileName: viewModel.suggestedFileName,
+                onSaved: {
                     showPreviewDialog = false
+                    windowDismiss?()
                 },
                 onCancel: {
                     showPreviewDialog = false
@@ -191,14 +192,23 @@ struct StoryGeneratorView: View {
     // MARK: - Actions
 
     private func generateYAML() {
-        // TODO: Phase 4で実装
-        generatedYAML = "# Generated YAML\ntitle: \"\(viewModel.storyTitle)\"\n# ..."
-        showPreviewDialog = true
-    }
+        let selectedCharacters = viewModel.getSelectedCharacters(
+            from: mainViewModel.characterDatabaseService.characters
+        )
 
-    private func copyToClipboard() {
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(generatedYAML, forType: .string)
+        let context = StoryYAMLGenerator.GenerationContext(
+            title: viewModel.storyTitle,
+            selectedCharacters: selectedCharacters,
+            panels: viewModel.panels,
+            enableTranslation: viewModel.enableTranslation
+        )
+
+        let generator = StoryYAMLGenerator()
+
+        // 翻訳機能は将来実装予定
+        // enableTranslationがtrueでも現時点では翻訳なしで生成
+        generatedYAML = generator.generate(context: context)
+        showPreviewDialog = true
     }
 }
 
