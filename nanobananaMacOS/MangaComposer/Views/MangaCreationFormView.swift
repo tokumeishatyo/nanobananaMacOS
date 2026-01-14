@@ -657,7 +657,7 @@ struct PanelCharacterSlotView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .frame(width: 150)
+            .frame(width: 300)
 
             // MARK: - Actor Selection (Dropdown)
             VStack(alignment: .leading, spacing: 2) {
@@ -671,7 +671,7 @@ struct PanelCharacterSlotView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                .frame(width: 150)
+                .frame(width: 300)
                 .disabled(registeredActors.isEmpty)
             }
 
@@ -688,7 +688,7 @@ struct PanelCharacterSlotView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                .frame(width: 150)
+                .frame(width: 300)
                 .disabled(registeredWardrobes.isEmpty || character.renderMode != .fullBody)
             }
 
@@ -703,7 +703,7 @@ struct PanelCharacterSlotView: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: 150)
+                .frame(width: 300)
             }
 
             // MARK: - Position
@@ -727,7 +727,7 @@ struct PanelCharacterSlotView: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: 150)
+                .frame(width: 300)
                 .onChange(of: character.position) { oldValue, newValue in
                     // 使用中の位置を選択しようとした場合、元に戻す
                     if newValue != .auto && usedPositions.contains(newValue) {
@@ -744,7 +744,7 @@ struct PanelCharacterSlotView: View {
                 TextField("", text: $character.dialogue, prompt: Text("セリフ"))
                     .textFieldStyle(.roundedBorder)
                     .font(.caption)
-                    .frame(width: 150)
+                    .frame(width: 300)
             }
 
             // MARK: - Bubble Style
@@ -758,7 +758,7 @@ struct PanelCharacterSlotView: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: 150)
+                .frame(width: 300)
             }
 
             // MARK: - Features
@@ -769,16 +769,16 @@ struct PanelCharacterSlotView: View {
                 TextField("", text: $character.features, prompt: Text("表情・ポーズ"))
                     .textFieldStyle(.roundedBorder)
                     .font(.caption)
-                    .frame(width: 150)
+                    .frame(width: 300)
             }
 
             // MARK: - Inset Settings (render_mode: inset_visualization時のみ表示)
             if character.renderMode == .insetVisualization {
                 InsetSettingsView(character: character)
-                    .frame(width: 150)
+                    .frame(width: 300)
             }
         }
-        .frame(width: 150, alignment: .leading)  // 固定幅でずれ防止
+        .frame(width: 300, alignment: .leading)  // 固定幅でずれ防止
         .padding(6)
         .background(
             RoundedRectangle(cornerRadius: 8)

@@ -152,7 +152,7 @@ struct InsetActorSettingsView: View {
                     .font(.caption)
             }
 
-            // Internal Dialogue (セリフ)
+            // Internal Dialogue (セリフ) - 2行分の高さ（最大2人分の会話）
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
                     Text("セリフ")
@@ -162,10 +162,26 @@ struct InsetActorSettingsView: View {
                         .font(.caption2)
                         .foregroundColor(.purple.opacity(0.7))
                 }
-                TextField("", text: $character.internalDialogue,
-                         prompt: Text("例: Prince: 'You are beautiful.'"))
-                    .textFieldStyle(.roundedBorder)
+                TextEditor(text: $character.internalDialogue)
                     .font(.caption)
+                    .frame(height: 40)  // 2行分の高さ
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+                    .overlay(
+                        // プレースホルダー
+                        Group {
+                            if character.internalDialogue.isEmpty {
+                                Text("例: Prince: 'You are beautiful.'")
+                                    .font(.caption)
+                                    .foregroundColor(.gray.opacity(0.5))
+                                    .padding(.leading, 4)
+                                    .padding(.top, 8)
+                            }
+                        },
+                        alignment: .topLeading
+                    )
             }
         }
     }

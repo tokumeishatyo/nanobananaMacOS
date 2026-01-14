@@ -34,7 +34,7 @@ struct MangaComposerView: View {
             // MARK: - Action Buttons
             actionButtonsSection
         }
-        .frame(minWidth: 600, minHeight: 1000)
+        .frame(minWidth: 1010, minHeight: 1000)
         .onAppear {
             setupCallbacks()
             // 初期表示時のアスペクト比設定（1コマがデフォルトなので16:9）
