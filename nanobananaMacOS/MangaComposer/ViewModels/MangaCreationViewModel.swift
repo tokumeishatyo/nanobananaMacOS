@@ -463,7 +463,10 @@ final class MangaCreationViewModel: ObservableObject {
             // render_mode: inset_visualization の場合、インセット設定をインポート
             if character.renderMode == .insetVisualization {
                 // 枠と世界観
-                character.containerType = yamlChar.containerType ?? ""
+                if let ctStr = yamlChar.containerType,
+                   let ct = ContainerType(rawValue: ctStr) {
+                    character.containerType = ct
+                }
                 character.internalBackground = yamlChar.internalBackground ?? ""
 
                 // キャラクターと演技
@@ -829,6 +832,64 @@ enum InternalBubbleStyle: String, CaseIterable {
     }
 }
 
+/// インセット枠の形状（container_type）
+enum ContainerType: String, CaseIterable {
+    case auto = "auto"
+    // 基本
+    case dream = "dream"
+    case wipe = "wipe"
+    // 心理・回想
+    case memory = "memory"
+    case nightmare = "nightmare"
+    case shoujo = "shoujo"
+    case impact = "impact"
+    // デジタル
+    case tv = "tv"
+    case phone = "phone"
+    case hologram = "hologram"
+    case camera = "camera"
+    case laptop = "laptop"
+    case retroGame = "retro_game"
+    // 物体
+    case photo = "photo"
+    case mirror = "mirror"
+    case polaroid = "polaroid"
+    case poster = "poster"
+    case card = "card"
+    case frame = "frame"
+    // ファンタジー
+    case crystal = "crystal"
+    case portal = "portal"
+    case water = "water"
+
+    var displayLabel: String {
+        switch self {
+        case .auto: return "AIにおまかせ"
+        case .dream: return "夢（もくもく）"
+        case .wipe: return "ワイプ"
+        case .memory: return "回想"
+        case .nightmare: return "悪夢"
+        case .shoujo: return "少女漫画風"
+        case .impact: return "衝撃"
+        case .tv: return "テレビ画面"
+        case .phone: return "スマホ画面"
+        case .hologram: return "ホログラム"
+        case .camera: return "カメラ"
+        case .laptop: return "ノートPC"
+        case .retroGame: return "レトロゲーム"
+        case .photo: return "写真"
+        case .mirror: return "鏡"
+        case .polaroid: return "ポラロイド"
+        case .poster: return "ポスター"
+        case .card: return "カード"
+        case .frame: return "額縁"
+        case .crystal: return "水晶玉"
+        case .portal: return "ポータル"
+        case .water: return "水面"
+        }
+    }
+}
+
 // MARK: - Character Position
 /// キャラクター配置位置の定義（9分割グリッド対応）
 enum CharacterPosition: String, CaseIterable {
@@ -950,7 +1011,7 @@ final class PanelCharacter: ObservableObject, Identifiable {
     // MARK: - Inset Settings (インセット設定 - render_mode: inset_visualization時のみ使用)
 
     // ストーリーYAML用（テキスト入力）
-    @Published var containerType: String = ""        // 枠の形状（例: "fluffy thought bubble"）
+    @Published var containerType: ContainerType = .auto  // 枠の形状
     @Published var internalBackground: String = ""   // 背景（例: "castle ballroom"）
     @Published var internalSituation: String = ""    // 行動（例: "dancing waltz with prince"）
     @Published var internalEmotion: String = ""      // 表情（例: "blushing, lovestruck"）

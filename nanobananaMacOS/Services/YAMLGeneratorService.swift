@@ -1573,9 +1573,9 @@ bubble_registry:
                         }
 
                         // === 枠と世界観 ===
-                        let containerType = character.containerType.trimmingCharacters(in: .whitespacesAndNewlines)
-                        if !containerType.isEmpty {
-                            content += "        container_type: \"\(YAMLUtilities.escapeYAMLString(containerType))\"\n"
+                        // container_type: auto以外の場合のみ出力
+                        if character.containerType != .auto {
+                            content += "        container_type: \"\(character.containerType.rawValue)\"\n"
                         }
 
                         // border_style: auto以外の場合のみ出力

@@ -63,10 +63,12 @@ struct InsetFrameSettingsView: View {
                 Text("枠の形状")
                     .font(.caption2)
                     .foregroundColor(.secondary)
-                TextField("", text: $character.containerType,
-                         prompt: Text("例: fluffy thought bubble, TV screen"))
-                    .textFieldStyle(.roundedBorder)
-                    .font(.caption)
+                Picker("", selection: $character.containerType) {
+                    ForEach(ContainerType.allCases, id: \.self) { type in
+                        Text(type.displayLabel).tag(type)
+                    }
+                }
+                .labelsHidden()
             }
 
             // Internal Background (背景)

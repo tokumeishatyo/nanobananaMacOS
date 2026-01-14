@@ -230,9 +230,11 @@ final class MainViewModel: ObservableObject {
         if aspectRatioOverride {
             return selectedAspectRatio
         } else {
-            // 漫画コンポーザーモードの場合は専用デフォルト値
+            // 漫画コンポーザーモードの場合はpanelModeに応じたデフォルト値
             if isMangaCreationMode {
-                return MangaComposerDefaults.aspectRatio
+                // 1コマ: 16:9, 4コマ: 9:16
+                let panelMode = mangaCreationSettings?.panelMode ?? .multi
+                return panelMode == .single ? .wide16_9 : .tall9_16
             }
             return selectedOutputType.defaultAspectRatio
         }

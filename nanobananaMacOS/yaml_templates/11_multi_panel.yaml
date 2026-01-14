@@ -133,7 +133,45 @@ constraints:
     auto: "Dynamic shape based on dialogue emotion."
 
   # ----------------------------------------------------
-  # 4. キャラクター描画と配置のルール (Character & Positioning)
+  # 4. インセット枠の形状ルール (Container Rendering)
+  # ----------------------------------------------------
+  container_rendering:
+    - "Reference 'container_registry' to determine the shape of inset frames."
+    - "If 'container_type' is explicitly specified, STRICTLY follow that shape from the registry."
+    - "If 'container_type' is 'auto' or missing, choose an appropriate container based on the scene context."
+
+  container_registry:
+    # 基本
+    dream: "fluffy thought bubble, white cloud shape"
+    wipe: "square panel, simple white border"
+    # 心理・回想
+    memory: "fading vignette border, soft blurry edges, nostalgic"
+    nightmare: "jagged dark aura border, scary gloom, unstable shape"
+    shoujo: "flowers and lace frame, shoujo manga background style"
+    impact: "speed lines border, flash effect"
+    # デジタル
+    tv: "retro TV screen, scanlines, plastic frame"
+    phone: "smartphone screen, vertical aspect ratio, modern UI"
+    hologram: "futuristic holographic screen, glowing blue data interface"
+    camera: "camera viewfinder overlay, REC icon, battery indicator"
+    laptop: "laptop screen frame, webcam view"
+    retro_game: "pixel art frame, retro game UI"
+    # 物体
+    photo: "polaroid photo frame, white paper border, slight shadow"
+    mirror: "oval antique mirror frame, gold reflection"
+    polaroid: "polaroid photo frame, white border"
+    poster: "wanted poster paper texture, crumpled edges"
+    card: "trading card frame, card game design"
+    frame: "ornate picture frame"
+    # ファンタジー
+    crystal: "glowing crystal ball, magical glass sphere"
+    portal: "swirling magical portal, vortex energy ring"
+    water: "water ripple surface, reflection in water"
+    # 自動判別用
+    auto: "Dynamic container shape based on scene context."
+
+  # ----------------------------------------------------
+  # 5. キャラクター描画と配置のルール (Character & Positioning)
   # ----------------------------------------------------
   character_rendering_rules:
     # --- [Render Mode & Image Source Logic] ---

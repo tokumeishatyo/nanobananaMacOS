@@ -66,8 +66,8 @@ extension OutputType {
 
 // MARK: - MangaComposer Defaults
 /// 漫画ページコンポーザー用のデフォルト値（OutputTypeに含まれないため別途定義）
+/// NOTE: aspectRatioはpanelModeに応じて動的に決定（MainViewModel.effectiveAspectRatio参照）
 struct MangaComposerDefaults {
-    static let aspectRatio: AspectRatio = .tall9_16
     static let qualityPreset: QualityPreset = .standard
 }
 
