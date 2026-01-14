@@ -53,7 +53,7 @@ enum StoryRenderMode: String, CaseIterable {
 final class StoryGeneratorViewModel: ObservableObject {
     // MARK: - Constants
     static let maxCharactersPerPanel = 3
-    static let maxGuestsPerInset = 2
+    static let maxGuestsPerInset = 1  // インセットキャラ1人 + ゲスト1人 = 合計2人
 
     // MARK: - Settings
     @Published var enableTranslation: Bool = false  // 英訳チェック（デフォルトオフ）

@@ -320,6 +320,11 @@ final class MangaCreationViewModel: ObservableObject {
         // Combineの監視をクリア
         cancellables.removeAll()
 
+        // 0. パネル数に応じてpanelModeを自動更新
+        // YAMLのコマ数を優先（1コマ/4コマボタンは手動入力時のみ使用）
+        let panelCount = yaml.panels?.count ?? 0
+        panelMode = (panelCount == 1) ? .single : .multi
+
         // 1. アクターを再構築
         applyActors(from: matchResults, savedCharacters: savedCharacters)
 
