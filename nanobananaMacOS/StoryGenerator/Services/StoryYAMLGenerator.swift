@@ -263,8 +263,17 @@ final class StoryYAMLGenerator {
 
         // render_modeによって出力を分岐
         if character.renderMode == .insetVisualization {
+            // インセットモード用にキャラ名を取得
+            let charName: String
+            if let selectedId = character.selectedCharacterId,
+               let idx = selectedCharacters.firstIndex(where: { $0.id == selectedId }) {
+                charName = selectedCharacters[idx].name
+            } else {
+                charName = ""
+            }
             entry += generateInsetFields(
                 character: character,
+                characterName: charName,
                 panelIndex: panelIndex,
                 charIndex: charIndex,
                 translations: translations
@@ -310,6 +319,7 @@ final class StoryYAMLGenerator {
 
     private func generateInsetFields(
         character: StoryPanelCharacter,
+        characterName: String,
         panelIndex: Int,
         charIndex: Int,
         translations: [String: String]
@@ -344,26 +354,45 @@ final class StoryYAMLGenerator {
             fields += "        internal_emotion: \"\(escapeYAML(emotionValue))\"\n"
         }
 
-        // internal_dialogue
-        if !character.internalDialogue.isEmpty {
-            fields += "        internal_dialogue: \"\(escapeYAML(character.internalDialogue))\"\n"
+        // guest_name / guest_description（ゲストは1人のみ）
+        if let guest = character.guests.first {
+            if !guest.name.isEmpty {
+                fields += "        guest_name: \"\(escapeYAML(guest.name))\"\n"
+            }
+
+            // description（翻訳対象）
+            let descKey = "panel_\(panelIndex)_char_\(charIndex)_guest_0_description"
+            let descValue = translations[descKey] ?? guest.guestDescription
+            if !descValue.isEmpty {
+                fields += "        guest_description: \"\(escapeYAML(descValue))\"\n"
+            }
         }
 
-        // guests（複数対応）
-        if !character.guests.isEmpty {
-            fields += "        guests:\n"
-            for (guestIndex, guest) in character.guests.enumerated() {
-                fields += "          - name: \"\(escapeYAML(guest.name))\"\n"
+        // internal_dialogue（配列形式：キャラのセリフ + ゲストのセリフ）
+        var dialogues: [String] = []
 
-                // description（翻訳対象）
-                let descKey = "panel_\(panelIndex)_char_\(charIndex)_guest_\(guestIndex)_description"
-                let descValue = translations[descKey] ?? guest.guestDescription
-                fields += "            description: \"\(escapeYAML(descValue))\"\n"
+        // キャラクターのセリフ
+        if !character.internalDialogue.isEmpty && !characterName.isEmpty {
+            dialogues.append("\(characterName): '\(escapeYAML(character.internalDialogue))'")
+        } else if !character.internalDialogue.isEmpty {
+            // キャラ名がない場合はセリフのみ
+            dialogues.append(escapeYAML(character.internalDialogue))
+        }
 
-                // dialogue
-                if !guest.dialogue.isEmpty {
-                    fields += "            dialogue: \"\(escapeYAML(guest.dialogue))\"\n"
-                }
+        // ゲストのセリフ
+        if let guest = character.guests.first, !guest.dialogue.isEmpty {
+            if !guest.name.isEmpty {
+                dialogues.append("\(guest.name): '\(escapeYAML(guest.dialogue))'")
+            } else {
+                dialogues.append(escapeYAML(guest.dialogue))
+            }
+        }
+
+        // 配列として出力
+        if !dialogues.isEmpty {
+            fields += "        internal_dialogue:\n"
+            for dialogue in dialogues {
+                fields += "          - \"\(dialogue)\"\n"
             }
         }
 

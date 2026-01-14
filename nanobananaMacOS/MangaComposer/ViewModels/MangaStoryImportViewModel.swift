@@ -258,6 +258,25 @@ final class MangaStoryImportViewModel: ObservableObject {
 
                 // パネル内キャラクター
                 if inPanelCharacters {
+                    // 新しいキャラクター開始のチェック（- actor: または - name:）
+                    // NOTE: internal_dialogue配列内でも新しいキャラクター開始を優先して検出
+                    if trimmed.hasPrefix("- actor:") || trimmed.hasPrefix("- name:") {
+                        // internal_dialogue配列内だった場合は終了
+                        if inInternalDialogue {
+                            inInternalDialogue = false
+                        }
+                        // 前のキャラクターを保存
+                        saveCurrentCharacter()
+                        resetCharacterState()
+
+                        if trimmed.hasPrefix("- actor:") {
+                            currentCharActor = extractValue(from: trimmed, key: "- actor:")
+                        } else {
+                            currentCharName = extractValue(from: trimmed, key: "- name:")
+                        }
+                        continue
+                    }
+
                     // internal_dialogue配列内
                     if inInternalDialogue {
                         if trimmed.hasPrefix("- ") {
@@ -270,20 +289,6 @@ final class MangaStoryImportViewModel: ObservableObject {
                             // 配列終了
                             inInternalDialogue = false
                         }
-                    }
-
-                    // 新しいキャラクター開始（- actor: または - name:）
-                    if trimmed.hasPrefix("- actor:") || trimmed.hasPrefix("- name:") {
-                        // 前のキャラクターを保存
-                        saveCurrentCharacter()
-                        resetCharacterState()
-
-                        if trimmed.hasPrefix("- actor:") {
-                            currentCharActor = extractValue(from: trimmed, key: "- actor:")
-                        } else {
-                            currentCharName = extractValue(from: trimmed, key: "- name:")
-                        }
-                        continue
                     }
 
                     // キャラクターのフィールド
