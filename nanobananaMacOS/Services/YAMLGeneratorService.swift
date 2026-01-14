@@ -1612,7 +1612,20 @@ bubble_registry:
                             content += "        internal_shot_type: \"\(character.internalShotType.rawValue)\"\n"
                         }
 
-                        let internalSituation = character.internalSituation.trimmingCharacters(in: .whitespacesAndNewlines)
+                        // internal_situationの準備（吹き出しタグの追記判定のため先に取得）
+                        var internalSituation = character.internalSituation.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let internalDialogueText = character.internalDialogue.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                        // internal_bubble_styleがauto以外かつinternal_dialogueが存在する場合、
+                        // internal_situationに吹き出しタグを追記（AIが吹き出しを描画しやすくする）
+                        if character.internalBubbleStyle != .auto && !internalDialogueText.isEmpty {
+                            if !internalSituation.isEmpty {
+                                internalSituation += ", (speech bubble:1.3), (talking:1.2)"
+                            } else {
+                                internalSituation = "(speech bubble:1.3), (talking:1.2)"
+                            }
+                        }
+
                         if !internalSituation.isEmpty {
                             content += "        internal_situation: \"\(YAMLUtilities.escapeYAMLString(internalSituation))\"\n"
                         }
@@ -1620,11 +1633,6 @@ bubble_registry:
                         let internalEmotion = character.internalEmotion.trimmingCharacters(in: .whitespacesAndNewlines)
                         if !internalEmotion.isEmpty {
                             content += "        internal_emotion: \"\(YAMLUtilities.escapeYAMLString(internalEmotion))\"\n"
-                        }
-
-                        // internal_bubble_style: auto以外の場合のみ出力
-                        if character.internalBubbleStyle != .auto {
-                            content += "        internal_bubble_style: \"\(character.internalBubbleStyle.rawValue)\"\n"
                         }
 
                         // === ゲスト ===
@@ -1639,17 +1647,21 @@ bubble_registry:
                         }
 
                         // === セリフ ===
-                        let internalDialogue = character.internalDialogue.trimmingCharacters(in: .whitespacesAndNewlines)
-                        if !internalDialogue.isEmpty {
+                        // internal_bubble_style: internal_dialogueがある場合は常に出力
+                        if !internalDialogueText.isEmpty {
+                            content += "        internal_bubble_style: \"\(character.internalBubbleStyle.rawValue)\"\n"
+                        }
+
+                        if !internalDialogueText.isEmpty {
                             // 複数行の場合は配列形式、単一行の場合は文字列形式
-                            let lines = internalDialogue.components(separatedBy: .newlines).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+                            let lines = internalDialogueText.components(separatedBy: .newlines).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
                             if lines.count > 1 {
                                 content += "        internal_dialogue:\n"
                                 for line in lines {
                                     content += "          - \"\(YAMLUtilities.escapeYAMLString(line))\"\n"
                                 }
                             } else {
-                                content += "        internal_dialogue: \"\(YAMLUtilities.escapeYAMLString(internalDialogue))\"\n"
+                                content += "        internal_dialogue: \"\(YAMLUtilities.escapeYAMLString(internalDialogueText))\"\n"
                             }
                         }
                     }

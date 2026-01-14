@@ -812,21 +812,21 @@ enum InsetBorderStyle: String, CaseIterable {
 /// インセット内の吹き出しスタイル
 enum InternalBubbleStyle: String, CaseIterable {
     case auto = "auto"
+    case normal = "normal"
     case heart = "heart shaped"
     case jagged = "jagged"
     case whisper = "whisper dotted"
     case shaky = "shaky lines"
-    case standard = "standard"
     case dripping = "dripping blood style"
 
     var displayLabel: String {
         switch self {
         case .auto: return "AIにおまかせ"
+        case .normal: return "標準"
         case .heart: return "ハート型"
         case .jagged: return "ギザギザ"
         case .whisper: return "ささやき（点線）"
         case .shaky: return "震える"
-        case .standard: return "標準"
         case .dripping: return "ドロドロ（ホラー）"
         }
     }
@@ -1026,7 +1026,7 @@ final class PanelCharacter: ObservableObject, Identifiable {
     @Published var internalLighting: InternalLighting = .auto         // 照明
     @Published var internalFilter: InternalFilter = .auto             // フィルタ
     @Published var insetBorderStyle: InsetBorderStyle = .auto         // 枠線スタイル
-    @Published var internalBubbleStyle: InternalBubbleStyle = .auto   // 吹き出しスタイル
+    @Published var internalBubbleStyle: InternalBubbleStyle = .normal   // 吹き出しスタイル（デフォルト: normal）
 
     // MARK: - Import Flag
     /// YAMLからインポートされたキャラクターかどうか
