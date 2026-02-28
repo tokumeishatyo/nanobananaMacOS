@@ -135,6 +135,9 @@ final class MainViewModel: ObservableObject {
     /// 解像度
     @Published var selectedResolution: Resolution = .twoK
 
+    /// Geminiモデル
+    @Published var selectedGeminiModel: GeminiModel = .flash
+
     /// API使用回数（今日）
     @Published var todayUsageCount: Int = 0
 
@@ -790,7 +793,8 @@ final class MainViewModel: ObservableObject {
                 compositionImage: finalCompositionImage,
                 resolution: selectedResolution,
                 aspectRatio: selectedAspectRatio.yamlValue,
-                mode: selectedAPISubMode.toAPIMode
+                mode: selectedAPISubMode.toAPIMode,
+                model: selectedGeminiModel
             )
 
             // 結果の処理

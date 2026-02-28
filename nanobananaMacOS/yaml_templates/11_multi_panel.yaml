@@ -241,7 +241,13 @@ constraints:
   narration_rules:
     - "Follow the 'narration_rule' field in each panel if present."
     - "Position narration boxes carefully not to obstruct key visual elements."
-
+# ----------------------------------------------------
+# 6. 描画の優先順位 (Rendering Priority)
+# ----------------------------------------------------
+  rendering_priority:
+    - "PRIORITY 1 (HIGHEST): Character Face Identity. Perfect recreation of 'face_reference'. This must NEVER be compromised."
+    - "PRIORITY 2 (HIGH): Character Wardrobe. Perfect recreation of 'costume' reference. Colors and designs must be accurate."
+    - "PRIORITY 3 (LOW): Backgrounds, crowds, and minor props. The AI is granted creative freedom to interpret and simplify these elements to save processing power."
 # ====================================================
 # Anti-Hallucination (MUST FOLLOW)
 # ====================================================

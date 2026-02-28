@@ -2,6 +2,27 @@
 import Foundation
 import AppKit
 
+// MARK: - Gemini Model
+
+/// Geminiモデル選択
+enum GeminiModel: String, CaseIterable, Identifiable {
+    case flash = "gemini-3.1-flash-image-preview"  // デフォルト
+    case pro = "gemini-3-pro-image-preview"
+
+    var id: String { rawValue }
+
+    /// UI表示名
+    var displayName: String {
+        switch self {
+        case .flash: return "3.1 Flash"
+        case .pro: return "3.0 Pro"
+        }
+    }
+
+    /// APIエンドポイント用のモデル名
+    var modelName: String { rawValue }
+}
+
 // MARK: - API Mode
 
 /// APIモード

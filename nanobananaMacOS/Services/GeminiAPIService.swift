@@ -11,7 +11,6 @@ final class GeminiAPIService {
     // MARK: - Constants
 
     private let baseURL = "https://generativelanguage.googleapis.com/v1beta/models"
-    private let model = "gemini-3-pro-image-preview"
 
     // MARK: - Singleton
 
@@ -30,6 +29,7 @@ final class GeminiAPIService {
     ///   - resolution: 解像度
     ///   - aspectRatio: アスペクト比
     ///   - mode: APIモード
+    ///   - model: Geminiモデル（デフォルト: .flash）
     /// - Returns: 画像生成結果
     func generateImage(
         apiKey: String,
@@ -38,7 +38,8 @@ final class GeminiAPIService {
         compositionImage: NSImage? = nil,
         resolution: Resolution = .twoK,
         aspectRatio: String = "1:1",
-        mode: APIMode = .normal
+        mode: APIMode = .normal,
+        model: GeminiModel = .flash
     ) async -> ImageGenerationResult {
 
         // APIキーの検証
@@ -47,7 +48,7 @@ final class GeminiAPIService {
         }
 
         // URLの構築
-        let urlString = "\(baseURL)/\(model):generateContent?key=\(apiKey)"
+        let urlString = "\(baseURL)/\(model.modelName):generateContent?key=\(apiKey)"
         guard let url = URL(string: urlString) else {
             return .failure(.unknownError("無効なURL"))
         }

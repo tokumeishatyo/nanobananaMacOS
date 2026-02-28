@@ -121,6 +121,23 @@ struct MiddleColumnView: View {
                         }
                         .padding(.horizontal, 10)
 
+                        // モデル選択
+                        HStack {
+                            Text("モデル:")
+                                .frame(width: 100, alignment: .leading)
+
+                            Picker("", selection: $viewModel.selectedGeminiModel) {
+                                ForEach(GeminiModel.allCases) { model in
+                                    Text(model.displayName).tag(model)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .frame(width: 200, alignment: .leading)
+                            .disabled(!viewModel.isAPIModeEnabled)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 10)
+
                         // 画像生成ボタン
                         Button(action: viewModel.generateImageWithAPI) {
                             HStack {
